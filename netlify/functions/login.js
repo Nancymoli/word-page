@@ -1,9 +1,19 @@
-exports.handler = async function(event) {
+export async function onRequestPost(context) {
+  // 密码写在后端，前端看不到
   const PASSWORD = "XZ0413";
-  const body = JSON.parse(event.body);
-  const ok = body.pwd === PASSWORD;
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ success: ok })
-  };
+  try {
+    const body = await context.request.json();
+    const ok = body.pwd === PASSWORD;
+    return new Response(JSON.stringify({ success: ok }), {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, msg: "请求异常" }), {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
 }
