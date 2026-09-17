@@ -46,7 +46,7 @@
         <button id="stopBtn">暂停</button>
     </div>
     <textarea id="wordListInput"></textarea>
-    <div class="word-card">
+    <div class="word-card" id="wordCard">
         <div class="word" id="word"></div>
         <div class="phonetic" id="phonetic"></div>
         <div class="explain" id="explain"></div>
@@ -63,6 +63,7 @@
             <label><input type="checkbox" id="random">随机顺序</label>
             <label><input type="checkbox" id="readEn" checked>朗读英文</label>
             <label><input type="checkbox" id="readCn" checked>朗读释义</label>
+            <label><input type="checkbox" id="readSentence">朗读例句</label>
         </div>
     </div>
 </div>
@@ -107,7 +108,7 @@ async function checkPassword(){
 
 let wordList = [];
 let currentIndex = 0;
-let timer = null;
+let running = false; //标记是否正在朗读
 const wordDom = document.getElementById('word');
 const phoneticDom = document.getElementById('phonetic');
 const explainDom = document.getElementById('explain');
@@ -118,6 +119,7 @@ const intervalInput = document.getElementById('interval');
 const randomCheck = document.getElementById('random');
 const readEnCheck = document.getElementById('readEn');
 const readCnCheck = document.getElementById('readCn');
+const readSentenceCheck = document.getElementById('readSentence');
 const repeatEnInput = document.getElementById('repeatEnTimes');
 const rateInput = document.getElementById('speechRate');
 
@@ -168,11 +170,12 @@ function parseWords(text){
     currentIndex = 0;
 }
 
+//朗读函数，全部读完才resolve
 async function speakWord(item){
     const synth = window.speechSynthesis;
     synth.cancel();
     const rate = Number(rateInput.value);
-    // 英文单词重复朗读指定次数
+    //英文单词循环读N次
     if(readEnCheck.checked && item.word){
         const times = Number(repeatEnInput.value);
         for(let i=0;i<times;i++){
@@ -185,7 +188,7 @@ async function speakWord(item){
             })
         }
     }
-    // 读完单词，读一遍中文释义
+    //读完英文，再读中文释义
     if(readCnCheck.checked && item.mean){
         await new Promise(resolve=>{
             const utterCn = new SpeechSynthesisUtterance(item.mean);
@@ -195,15 +198,54 @@ async function speakWord(item){
             synth.speak(utterCn);
         })
     }
+    //如果勾选朗读例句，就读英文句子+中文句子
+    if(readSentenceCheck.checked){
+        if(item.sentenceEn){
+            await new Promise(resolve=>{
+                const utterSenEn = new SpeechSynthesisUtterance(item.sentenceEn);
+                utterSenEn.lang = "en-US";
+                utterSenEn.rate = rate;
+                utterSenEn.onend = resolve;
+                synth.speak(utterSenEn);
+            })
+        }
+        if(item.sentenceCn){
+            await new Promise(resolve=>{
+                const utterSenCn = new SpeechSynthesisUtterance(item.sentenceCn);
+                utterSenCn.lang = "zh-CN";
+                utterSenCn.rate = rate;
+                utterSenCn.onend = resolve;
+                synth.speak(utterSenCn);
+            })
+        }
+    }
 }
 
-function showWord(item){
+async function showWord(item){
     wordDom.innerText = item.word || "";
     phoneticDom.innerText = item.phonetic || "";
     explainDom.innerText = item.mean || "";
     sentenceEnDom.innerText = item.sentenceEn || "";
     sentenceCnDom.innerText = item.sentenceCn || "";
-    speakWord(item);
+    //等待整套语音朗读完成
+    await speakWord(item);
+    //朗读结束后，等待设置的间隔秒数，再继续下一个
+    if(running){
+        await sleep(Number(intervalInput.value)*1000);
+        nextWord();
+    }
+}
+function sleep(ms){
+    return new Promise(resolve=>setTimeout(resolve,ms));
+}
+function nextWord(){
+    if(!running) return;
+    if(randomCheck.checked){
+        currentIndex = Math.floor(Math.random() * wordList.length);
+    }else{
+        currentIndex = (currentIndex + 1) % wordList.length;
+    }
+    showWord(wordList[currentIndex]);
 }
 
 document.getElementById('startBtn').onclick = function(){
@@ -211,26 +253,14 @@ document.getElementById('startBtn').onclick = function(){
         alert("请先加载词库");
         return;
     }
-    if(timer) clearInterval(timer);
-    function run(){
-        if(randomCheck.checked){
-            currentIndex = Math.floor(Math.random() * wordList.length);
-        }else{
-            currentIndex = (currentIndex + 1) % wordList.length;
-        }
-        showWord(wordList[currentIndex]);
-    }
-    run();
-    const intervalSec = Number(intervalInput.value);
-    timer = setInterval(run, intervalSec * 1000);
+    if(running) return;
+    running = true;
+    nextWord();
 }
 
 document.getElementById('stopBtn').onclick = function(){
-    if(timer){
-        clearInterval(timer);
-        timer = null;
-        window.speechSynthesis.cancel();
-    }
+    running = false;
+    window.speechSynthesis.cancel();
 }
 </script>
 </body>
