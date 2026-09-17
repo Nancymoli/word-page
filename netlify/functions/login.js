@@ -1,5 +1,4 @@
 export async function onRequestPost(context) {
-  // 密码写在后端，前端看不到
   const PASSWORD = "XZ0413";
   try {
     const body = await context.request.json();
