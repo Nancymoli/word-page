@@ -99,6 +99,16 @@
     background: linear-gradient(135deg, #9ecbff, #73a9f7);
   }
 
+  .btn-purple {
+    background:#9b88ff;
+  }
+  .btn-green {
+    background:#38b09d;
+  }
+  .btn-red {
+    background:#ff7b7b;
+  }
+
   /* 控制区 */
   .control {
     display: flex;
@@ -128,6 +138,27 @@
       0 10px 25px rgba(115, 169, 247, .25),
       inset 0 0 0 2px #ffffffcc;
     border: 3px solid #ffffff;
+  }
+
+  /* 进度条样式 */
+  .progress-text {
+    color:#555;
+    font-size:14px;
+    margin-bottom:8px;
+  }
+  .progress-bar-wrap{
+    width:100%;
+    height:14px;
+    background:#ffdde8;
+    border-radius:999px;
+    overflow:hidden;
+    margin-bottom:12px;
+  }
+  .progress-bar-fill{
+    height:100%;
+    background:linear-gradient(90deg,#ffb6c1,#ff8fab);
+    border-radius:999px;
+    transition:0.3s width ease;
   }
 
   /* 外侧贴纸：全部移出卡片文字区 */
@@ -381,6 +412,8 @@
       <button id="loadOnline" class="btn-blue">加载四级词库（联网）</button>
       <button id="startBtn" class="btn-primary">开始刷词</button>
       <button id="stopBtn" class="btn-secondary">暂停</button>
+      <button id="resetBtn" class="btn-purple">重置已学（复习）</button>
+      <button id="reviewModeBtn" class="btn-green">切换复习模式</button>
     </div>
 
     <textarea id="wordListInput"></textarea>
@@ -390,8 +423,12 @@
       <div class="pencil-sticker">✏️</div>
 
       <div class="word-card" id="wordCard">
-        <!-- 新增进度文字 -->
-        <div style="color:#888;font-size:14px;margin-bottom:12px;" id="progressText"></div>
+        <!-- 进度文字 + 进度条 -->
+        <div class="progress-text" id="progressText"></div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+
         <div class="word" id="word"></div>
         <div class="phonetic" id="phonetic"></div>
         <div class="explain" id="explain"></div>
@@ -481,16 +518,79 @@ async function checkPassword(){
 let wordList = [];
 let currentIndex = 0;
 let running = false;
+let learnedList = [];
+let isReviewMode = false; // 标记：是否开启复习模式
 
-// ==========【新增】进度保存读取函数 ==========
+// ========== 进度、已学列表读写 ==========
 function loadProgress() {
   const saved = localStorage.getItem("cet4_wordIndex");
+  const savedLearned = localStorage.getItem("cet4_learnedList");
   if (saved !== null) {
     currentIndex = parseInt(saved);
+  }
+  if(savedLearned){
+    learnedList = JSON.parse(savedLearned);
   }
 }
 function saveProgress() {
   localStorage.setItem("cet4_wordIndex", currentIndex.toString());
+  localStorage.setItem("cet4_learnedList", JSON.stringify(learnedList));
+}
+// 重置已学列表，从头学习
+function resetLearned(){
+  learnedList = [];
+  saveProgress();
+  updateProgressUI();
+  alert("✅已学记录清空，可以重新开始一轮学习！");
+}
+// 获取还没有学习的单词索引数组
+function getRemainIndex(){
+  const remain = [];
+  for(let i=0; i<wordList.length; i++){
+    if(!learnedList.includes(i)){
+      remain.push(i);
+    }
+  }
+  return remain;
+}
+// 获取已经学过的单词索引数组（复习用）
+function getLearnedIndex(){
+  return [...learnedList];
+}
+// 切换复习模式
+function toggleReviewMode(){
+  isReviewMode = !isReviewMode;
+  const reviewBtn = document.getElementById('reviewModeBtn');
+  if(isReviewMode){
+    if(learnedList.length === 0){
+      alert("⚠️还没有学过任何单词，无法复习！");
+      isReviewMode = false;
+      return;
+    }
+    reviewBtn.innerText = "退出复习模式";
+    reviewBtn.className = "btn-red";
+    alert("📚已进入复习模式，只会随机出现学过的单词");
+  }else{
+    reviewBtn.innerText = "切换复习模式";
+    reviewBtn.className = "btn-green";
+    alert("📖回到学习模式，继续刷新词");
+  }
+  updateProgressUI();
+}
+// 更新进度文字 + 进度条
+function updateProgressUI(){
+  const progressTextDom = document.getElementById('progressText');
+  const progressBarFill = document.getElementById('progressBarFill');
+  const total = wordList.length;
+  const learned = learnedList.length;
+  const percent = total ===0 ? 0 : (learned / total)*100;
+
+  if(isReviewMode){
+    progressTextDom.innerText = `【复习模式】已学${learned} / ${total}`;
+  }else{
+    progressTextDom.innerText = `【学习模式】已学${learned} / ${total}`;
+  }
+  progressBarFill.style.width = `${percent}%`;
 }
 // ============================================
 
@@ -499,7 +599,6 @@ const phoneticDom = document.getElementById('phonetic');
 const explainDom = document.getElementById('explain');
 const sentenceEnDom = document.getElementById('sentenceEn');
 const sentenceCnDom = document.getElementById('sentenceCn');
-const progressTextDom = document.getElementById('progressText');
 const intervalInput = document.getElementById('interval');
 const randomCheck = document.getElementById('random');
 const readEnCheck = document.getElementById('readEn');
@@ -513,11 +612,11 @@ document.getElementById('loadOnline').onclick = async function(){
     const res = await fetch('cet4.json');
     const jsonData = await res.json();
     wordList = jsonData;
-    loadProgress(); //加载词库读取上次进度
-    //防止序号越界
+    loadProgress();
     if(currentIndex >= wordList.length) currentIndex = 0;
     alert("词库加载完成！一共"+wordList.length+"个单词");
-    showWord(wordList[currentIndex]); //直接跳转到上次单词
+    updateProgressUI();
+    showWord(wordList[currentIndex]);
   }catch(e){
     console.error(e);
     alert("在线加载失败，请确认cet4.json已上传到仓库根目录");
@@ -537,6 +636,7 @@ document.getElementById('fileInput').onchange = function(e){
     loadProgress();
     if(currentIndex >= wordList.length) currentIndex = 0;
     alert("本地词库加载完成！一共"+wordList.length+"个单词");
+    updateProgressUI();
     showWord(wordList[currentIndex]);
   };
   reader.readAsText(e.target.files[0]);
@@ -621,9 +721,12 @@ async function speakWord(item){
 }
 
 async function showWord(item){
-  // 新增：更新进度文字并保存进度
-  progressTextDom.innerText = `进度：${currentIndex+1} / ${wordList.length}`;
-  saveProgress();
+  // 复习模式不新增已学记录；学习模式才加入已学
+  if(!isReviewMode && !learnedList.includes(currentIndex)){
+    learnedList.push(currentIndex);
+    saveProgress();
+    updateProgressUI();
+  }
 
   wordDom.innerText = item.word || "";
   phoneticDom.innerText = item.phonetic || "";
@@ -639,10 +742,34 @@ async function showWord(item){
 
 function nextWord(){
   if(!running) return;
-  if(randomCheck.checked){
-    currentIndex = Math.floor(Math.random() * wordList.length);
+  let pool;
+  if(isReviewMode){
+    // 复习模式：单词池 = 已学单词
+    pool = getLearnedIndex();
+    if(pool.length === 0){
+      running = false;
+      alert("⚠️没有可复习的单词！");
+      return;
+    }
   }else{
-    currentIndex = (currentIndex + 1) % wordList.length;
+    // 学习模式：单词池 = 未学单词
+    pool = getRemainIndex();
+    if(pool.length === 0){
+      running = false;
+      alert("✅本轮新词全部学完！切换复习模式巩固单词");
+      return;
+    }
+  }
+
+  if(randomCheck.checked){
+    // 随机：从当前单词池随机抽取
+    const randIdx = Math.floor(Math.random() * pool.length);
+    currentIndex = pool[randIdx];
+  }else{
+    // 顺序：在当前单词池按顺序遍历
+    const pos = pool.indexOf(currentIndex);
+    const nextPos = (pos + 1) % pool.length;
+    currentIndex = pool[nextPos];
   }
   showWord(wordList[currentIndex]);
 }
@@ -661,6 +788,8 @@ document.getElementById('stopBtn').onclick = function(){
   running = false;
   window.speechSynthesis.cancel();
 };
+document.getElementById('resetBtn').onclick = resetLearned;
+document.getElementById('reviewModeBtn').onclick = toggleReviewMode;
 </script>
 </body>
 </html>
