@@ -12,8 +12,9 @@
         textarea{width:100%;min-height:140px;padding:10px;border-radius:8px;border:1px solid #bcd6f5;margin:8px 0}
         .word-card{padding:30px;background:#fff;border-radius:12px;text-align:center;margin:12px 0;box-shadow:0 2px 8px #00000010}
         .word{font-size:32px;margin-bottom:8px}
-        .phonetic{font-size:18px;margin-bottom:8px}
-        .explain{font-size:20px}
+        .phonetic{font-size:18px;margin-bottom:8px;color:#555}
+        .explain{font-size:20px;margin-bottom:12px;color:#222}
+        .sentence{font-size:17px;color:#444;font-style:italic;}
         .control{margin:10px 0}
         input[type="file"]{margin:8px 0}
         .login-box{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:999}
@@ -38,7 +39,7 @@
     <h2 style="text-align:center;margin-bottom:12px">小张刷英语 · CET4</h2>
     <div class="control">
         <button id="loadOnline">加载四级词库（联网）</button>
-        <input type="file" id="fileInput" accept=".txt">
+        <input type="file" id="fileInput" accept=".txt,.json">
         <button id="startBtn">开始刷词</button>
         <button id="stopBtn">暂停</button>
     </div>
@@ -47,6 +48,7 @@
         <div class="word" id="word"></div>
         <div class="phonetic" id="phonetic"></div>
         <div class="explain" id="explain"></div>
+        <div class="sentence" id="sentence"></div>
     </div>
     <div class="control">
         <label>间隔（秒）：<input type="number" id="interval" value="4" min="1"></label>
@@ -100,33 +102,46 @@ let timer = null;
 const wordDom = document.getElementById('word');
 const phoneticDom = document.getElementById('phonetic');
 const explainDom = document.getElementById('explain');
+const sentenceDom = document.getElementById('sentence');
 const wordListInput = document.getElementById('wordListInput');
 const intervalInput = document.getElementById('interval');
 const randomCheck = document.getElementById('random');
 const readEnCheck = document.getElementById('readEn');
 const readCnCheck = document.getElementById('readCn');
 
+// 联网加载：读取本仓库 cet4.json
 document.getElementById('loadOnline').onclick = async function(){
     try{
-        const res = await fetch('https://raw.githubusercontent.com/mahavivo/english-wordlists/master/CET4.txt');
-        const text = await res.text();
-        wordListInput.value = text;
-        parseWords(text);
+        const res = await fetch('cet4.json');
+        const jsonData = await res.json();
+        wordList = jsonData;
+        wordListInput.value = JSON.stringify(jsonData,null,2);
+        currentIndex = 0;
         alert("词库加载完成！一共"+wordList.length+"个单词");
     }catch(e){
-        alert("在线加载失败，可以上传本地txt词库");
+        console.error(e);
+        alert("在线加载失败，请确认cet4.json已上传到仓库根目录");
     }
 }
+
 document.getElementById('fileInput').onchange = function(e){
     const reader = new FileReader();
     reader.onload = function(event){
         const text = event.target.result;
         wordListInput.value = text;
-        parseWords(text);
+        try{
+            const jsonData = JSON.parse(text);
+            wordList = jsonData;
+        }catch(err){
+            // 如果是txt文本，走旧解析逻辑
+            parseWords(text);
+        }
         alert("本地词库加载完成！一共"+wordList.length+"个单词");
     }
     reader.readAsText(e.target.files[0]);
 }
+
+// 兼容旧txt词库解析
 function parseWords(text){
     const lines = text.split(/\r?\n/).filter(line=>line.trim()!=='');
     wordList = [];
@@ -137,52 +152,53 @@ function parseWords(text){
             wordList.push({
                 word:match[1],
                 phonetic:match[2],
-                explain:match[3]
+                mean:match[3],
+                sentence:""
             })
         }
     }
     currentIndex = 0;
 }
+
 function showWord(item){
-    wordDom.innerText = item.word;
-    phoneticDom.innerText = item.phonetic;
-    explainDom.innerText = item.explain;
+    wordDom.innerText = item.word || "";
+    phoneticDom.innerText = item.phonetic || "";
+    explainDom.innerText = item.mean || "";
+    sentenceDom.innerText = item.sentence || "";
     const synth = window.speechSynthesis;
     synth.cancel();
-    if(readEnCheck.checked){
+    if(readEnCheck.checked && item.word){
         const utterEn = new SpeechSynthesisUtterance(item.word);
-        utterEn.lang = 'en-US';
+        utterEn.lang = "en-US";
         synth.speak(utterEn);
     }
-    if(readCnCheck.checked){
-        setTimeout(()=>{
-            const utterCn = new SpeechSynthesisUtterance(item.explain);
-            utterCn.lang = 'zh-CN';
-            synth.speak(utterCn);
-        },800)
+    if(readCnCheck.checked && item.mean){
+        const utterCn = new SpeechSynthesisUtterance(item.mean);
+        utterCn.lang = "zh-CN";
+        synth.speak(utterCn);
     }
 }
-function nextWord(){
-    if(wordList.length ===0) return;
-    if(randomCheck.checked){
-        currentIndex = Math.floor(Math.random() * wordList.length);
-    }else{
-        currentIndex = (currentIndex + 1) % wordList.length;
-    }
-    showWord(wordList[currentIndex]);
-}
+
 document.getElementById('startBtn').onclick = function(){
-    if(wordList.length ===0){
+    if(wordList.length === 0){
         alert("请先加载词库");
         return;
     }
-    stopTimer();
-    nextWord();
-    const sec = Number(intervalInput.value);
-    timer = setInterval(nextWord, sec * 1000);
+    if(timer) clearInterval(timer);
+    function run(){
+        if(randomCheck.checked){
+            currentIndex = Math.floor(Math.random() * wordList.length);
+        }else{
+            currentIndex = (currentIndex + 1) % wordList.length;
+        }
+        showWord(wordList[currentIndex]);
+    }
+    run();
+    const intervalSec = Number(intervalInput.value);
+    timer = setInterval(run, intervalSec * 1000);
 }
-document.getElementById('stopBtn').onclick = stopTimer;
-function stopTimer(){
+
+document.getElementById('stopBtn').onclick = function(){
     if(timer){
         clearInterval(timer);
         timer = null;
@@ -190,4 +206,3 @@ function stopTimer(){
 }
 </script>
 </body>
-</html>
