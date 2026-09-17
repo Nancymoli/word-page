@@ -2,51 +2,61 @@
     {
         "word": "abandon",
         "mean": "v.抛弃，放弃",
-        "sentence": "He had to abandon his plan due to lack of money."
+        "sentenceEn": "He had to abandon his plan due to lack of money.",
+        "sentenceCn": "因为资金不足，他不得不放弃计划。"
     },
     {
         "word": "ability",
         "mean": "n.能力；才能",
-        "sentence": "She has the ability to finish the task alone."
+        "sentenceEn": "She has the ability to finish the task alone.",
+        "sentenceCn": "她有能力独立完成这项任务。"
     },
     {
         "word": "abnormal",
         "mean": "adj.反常的，异常的",
-        "sentence": "The doctor found abnormal signs in the report."
+        "sentenceEn": "The doctor found abnormal signs in the report.",
+        "sentenceCn": "医生在报告中发现了异常指标。"
     },
     {
         "word": "abolish",
         "mean": "v.废除，废止",
-        "sentence": "They decided to abolish the old rules."
+        "sentenceEn": "They decided to abolish the old rules.",
+        "sentenceCn": "他们决定废除旧规定。"
     },
     {
         "word": "abroad",
         "mean": "adv.在国外；到国外",
-        "sentence": "He wants to study abroad next year."
+        "sentenceEn": "He wants to study abroad next year.",
+        "sentenceCn": "他明年想出国留学。"
     },
     {
         "word": "absent",
         "mean": "adj.缺席的；心不在焉的",
-        "sentence": "Tom was absent from class yesterday."
+        "sentenceEn": "Tom was absent from class yesterday.",
+        "sentenceCn": "汤姆昨天缺课了。"
     },
     {
         "word": "absolute",
         "mean": "adj.绝对的；完全的",
-        "sentence": "There is no absolute standard for beauty."
+        "sentenceEn": "There is no absolute standard for beauty.",
+        "sentenceCn": "美没有绝对的标准。"
     },
     {
         "word": "absorb",
         "mean": "v.吸收；使全神贯注",
-        "sentence": "Children can quickly absorb new knowledge."
+        "sentenceEn": "Children can quickly absorb new knowledge.",
+        "sentenceCn": "孩子可以快速吸收新知识。"
     },
     {
         "word": "abstract",
         "mean": "adj.抽象的 n.摘要",
-        "sentence": "It is hard to understand this abstract concept."
+        "sentenceEn": "It is hard to understand this abstract concept.",
+        "sentenceCn": "这个抽象概念很难理解。"
     },
     {
         "word": "abundant",
         "mean": "adj.大量的，丰富的",
-        "sentence": "There is abundant water resource in this area."
+        "sentenceEn": "There is abundant water resource in this area.",
+        "sentenceCn": "这个地区水资源丰富。"
     }
 ]
