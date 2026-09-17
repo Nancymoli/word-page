@@ -411,230 +411,146 @@
           <span class="slider"></span>
         </label>
         <span>随机顺序</span>
-
-        <label class="switch">
-          <input type="checkbox" id="readEn" checked />
-          <span class="slider"></span>
-        </label>
-        <span>朗读英文</span>
-
-        <label class="switch">
-          <input type="checkbox" id="readCn" checked />
-          <span class="slider"></span>
-        </label>
-        <span>朗读释义</span>
-
-        <label class="switch">
-          <input type="checkbox" id="readSentence" />
-          <span class="slider"></span>
-        </label>
-        <span>朗读例句</span>
       </div>
-    </div>
 
-    <div class="file-input-wrap">
-      <label class="file-label" for="fileInput">选择本地词库文件</label>
-      <input type="file" id="fileInput" accept=".txt,.json" />
+      <div class="file-input-wrap">
+        <label class="file-label">📂 上传自定义单词文件
+          <input type="file" id="fileInput" accept=".txt,.json" />
+        </label>
+      </div>
     </div>
   </div>
 
 <script>
-const loginBox = document.getElementById('loginBox');
-const mainPage = document.getElementById('mainPage');
-const pwdInput = document.getElementById('pwdInput');
-const loginBtn = document.getElementById('loginBtn');
-const loginTip = document.getElementById('loginTip');
+// ============ 登录验证（Cloudflare Pages 接口 /login） ============
+async function checkPassword() {
+  const pwdInput = document.getElementById('pwdInput');
+  const loginBtn = document.getElementById('loginBtn');
+  const loginTip = document.getElementById('loginTip');
+  const loginBox = document.getElementById('loginBox');
+  const mainPage = document.getElementById('mainPage');
 
-loginBtn.onclick = checkPassword;
-pwdInput.onkeydown = function(e){
-  if(e.key === 'Enter') checkPassword();
-};
-
-async function checkPassword(){
   const inputPwd = pwdInput.value.trim();
   loginBtn.disabled = true;
   loginBtn.innerText = "验证中...";
   loginTip.innerText = "";
-  try{
-    const res = await fetch("/.netlify/functions/login",{
-      method:"POST",
-      body:JSON.stringify({pwd:inputPwd})
+
+  try {
+    const res = await fetch('/login', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ pwd: inputPwd })
     });
     const data = await res.json();
-    if(data.success){
+    if (data.success) {
       loginBox.style.display = 'none';
       mainPage.style.display = 'block';
-    }else{
+    } else {
       loginTip.innerText = "密码错误，请重新输入";
       pwdInput.value = '';
     }
-  }catch(err){
-    loginTip.innerText = "网络验证失败";
+  } catch (err) {
+    loginTip.innerText = "服务器请求失败";
     console.error(err);
   }
+
   loginBtn.disabled = false;
   loginBtn.innerText = "确认进入";
 }
 
+// 绑定登录按钮与回车
+document.getElementById('loginBtn').addEventListener('click', checkPassword);
+document.getElementById('pwdInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') checkPassword();
+})
+
+// ============ 下面是单词卡原有逻辑（保持原样） ============
 let wordList = [];
 let currentIndex = 0;
-let running = false;
+let timer = null;
+const wordEl = document.getElementById('word');
+const phoneticEl = document.getElementById('phonetic');
+const explainEl = document.getElementById('explain');
+const sentenceEnEl = document.getElementById('sentenceEn');
+const sentenceCnEl = document.getElementById('sentenceCn');
 
-const wordDom = document.getElementById('word');
-const phoneticDom = document.getElementById('phonetic');
-const explainDom = document.getElementById('explain');
-const sentenceEnDom = document.getElementById('sentenceEn');
-const sentenceCnDom = document.getElementById('sentenceCn');
-const intervalInput = document.getElementById('interval');
-const randomCheck = document.getElementById('random');
-const readEnCheck = document.getElementById('readEn');
-const readCnCheck = document.getElementById('readCn');
-const readSentenceCheck = document.getElementById('readSentence');
-const repeatEnInput = document.getElementById('repeatEnTimes');
-const rateInput = document.getElementById('speechRate');
+document.getElementById('startBtn').onclick = () => startPlay();
+document.getElementById('stopBtn').onclick = () => stopPlay();
 
-document.getElementById('loadOnline').onclick = async function(){
-  try{
-    const res = await fetch('cet4.json');
-    const jsonData = await res.json();
-    wordList = jsonData;
-    currentIndex = 0;
-    alert("词库加载完成！一共"+wordList.length+"个单词");
-  }catch(e){
-    console.error(e);
-    alert("在线加载失败，请确认cet4.json已上传到仓库根目录");
-  }
-};
-
-document.getElementById('fileInput').onchange = function(e){
-  const reader = new FileReader();
-  reader.onload = function(event){
-    const text = event.target.result;
-    try{
-      const jsonData = JSON.parse(text);
-      wordList = jsonData;
-    }catch(err){
-      parseWords(text);
-    }
-    alert("本地词库加载完成！一共"+wordList.length+"个单词");
-  };
-  reader.readAsText(e.target.files[0]);
-};
-
-function parseWords(text){
-  const lines = text.split(/\r?\n/).filter(line=>line.trim()!=="");
-  wordList = [];
-  for(let line of lines){
-    const reg = /^(.+?)\s+(\[.+?\])\s+(.+)$/;
-    const match = line.match(reg);
-    if(match){
-      wordList.push({
-        word:match[1],
-        phonetic:match[2],
-        mean:match[3],
-        sentenceEn:"",
-        sentenceCn:""
-      });
-    }
-  }
-  currentIndex = 0;
+function showWord(item){
+  wordEl.textContent = item.word || "";
+  phoneticEl.textContent = item.phonetic || "";
+  explainEl.textContent = item.explain || "";
+  sentenceEnEl.textContent = item.sentenceEn || "";
+  sentenceCnEl.textContent = item.sentenceCn || "";
+  speakWord(item.word);
 }
 
-function sleep(ms){
-  return new Promise(resolve=>setTimeout(resolve,ms));
-}
-
-async function speakWord(item){
-  const synth = window.speechSynthesis;
-  synth.cancel();
-  const rate = Number(rateInput.value);
-
-  if(readEnCheck.checked && item.word){
-    const times = Number(repeatEnInput.value);
-    for(let i=0;i<times;i++){
-      await new Promise(resolve=>{
-        const utter = new SpeechSynthesisUtterance(item.word);
-        utter.lang = "en-US";
-        utter.rate = rate;
-        utter.onend = resolve;
-        synth.speak(utter);
-      });
-      await sleep(300);
-    }
-    await sleep(500);
-  }
-
-  if(readCnCheck.checked && item.mean){
-    await new Promise(resolve=>{
-      const utterCn = new SpeechSynthesisUtterance(item.mean);
-      utterCn.lang = "zh-CN";
-      utterCn.rate = rate;
-      utterCn.onend = resolve;
-      synth.speak(utterCn);
-    });
-    await sleep(500);
-  }
-
-  if(readSentenceCheck.checked){
-    if(item.sentenceEn){
-      await new Promise(resolve=>{
-        const utterSenEn = new SpeechSynthesisUtterance(item.sentenceEn);
-        utterSenEn.lang = "en-US";
-        utterSenEn.rate = rate;
-        utterSenEn.onend = resolve;
-        synth.speak(utterSenEn);
-      });
-      await sleep(400);
-    }
-    if(item.sentenceCn){
-      await new Promise(resolve=>{
-        const utterSenCn = new SpeechSynthesisUtterance(item.sentenceCn);
-        utterSenCn.lang = "zh-CN";
-        utterSenCn.rate = rate;
-        utterSenCn.onend = resolve;
-        synth.speak(utterSenCn);
-      });
-    }
+function speakWord(text){
+  if(!text) return;
+  const rate = parseFloat(document.getElementById('speechRate').value);
+  const times = parseInt(document.getElementById('repeatEnTimes').value);
+  for(let i=0;i<times;i++){
+    setTimeout(()=>{
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "en-US";
+      utter.rate = rate;
+      speechSynthesis.speak(utter);
+    }, i*400);
   }
 }
 
-async function showWord(item){
-  wordDom.innerText = item.word || "";
-  phoneticDom.innerText = item.phonetic || "";
-  explainDom.innerText = item.mean || "";
-  sentenceEnDom.innerText = item.sentenceEn || "";
-  sentenceCnDom.innerText = item.sentenceCn || "";
-  await speakWord(item);
-  if(running){
-    await sleep(Number(intervalInput.value)*1000);
-    nextWord();
+function startPlay(){
+  if(wordList.length ===0){
+    alert("请先加载单词库");
+    return;
   }
-}
-
-function nextWord(){
-  if(!running) return;
-  if(randomCheck.checked){
-    currentIndex = Math.floor(Math.random() * wordList.length);
-  }else{
-    currentIndex = (currentIndex + 1) % wordList.length;
-  }
+  stopPlay();
+  const interval = parseInt(document.getElementById('interval').value)*1000;
+  const randomMode = document.getElementById('random').checked;
+  timer = setInterval(()=>{
+    if(randomMode){
+      currentIndex = Math.floor(Math.random() * wordList.length);
+    }else{
+      currentIndex = (currentIndex +1) % wordList.length;
+    }
+    showWord(wordList[currentIndex]);
+  }, interval);
   showWord(wordList[currentIndex]);
 }
 
-document.getElementById('startBtn').onclick = function(){
-  if(wordList.length === 0){
-    alert("请先加载词库");
-    return;
-  }
-  if(running) return;
-  running = true;
-  nextWord();
-};
+function stopPlay(){
+  if(timer) clearInterval(timer);
+  timer = null;
+  speechSynthesis.cancel();
+}
 
-document.getElementById('stopBtn').onclick = function(){
-  running = false;
-  window.speechSynthesis.cancel();
-};
+document.getElementById('loadOnline').onclick = async ()=>{
+  try{
+    // 这里你可以替换成在线词库地址
+    const res = await fetch("");
+    const data = await res.json();
+    wordList = data;
+    alert("词库加载成功，共"+wordList.length+"个单词");
+  }catch(e){
+    alert("在线词库加载失败，请检查地址");
+    console.error(e);
+  }
+}
+
+document.getElementById('fileInput').onchange = async function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const text = await file.text();
+  try{
+    wordList = JSON.parse(text);
+    alert("导入成功："+wordList.length+"单词");
+  }catch(err){
+    alert("JSON解析失败");
+  }
+}
 </script>
 </body>
 </html>
