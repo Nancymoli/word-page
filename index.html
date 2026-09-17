@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>小张刷英语 · CET4</title>
+<!-- 引入sha256库 -->
+<script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js"></script>
 <style>
   * {
     box-sizing: border-box;
@@ -484,23 +486,25 @@ const pwdInput = document.getElementById('pwdInput');
 const loginBtn = document.getElementById('loginBtn');
 const loginTip = document.getElementById('loginTip');
 
+// ========= 在这里修改密码哈希值 =========
+// 示例密码：cet4123
+const PASSWORD_SHA256 = "3248d432106605e42274807d4e918280421775954e28315d004246089f37858c";
+// ========================================
+
 loginBtn.onclick = checkPassword;
 pwdInput.onkeydown = function(e){
   if(e.key === 'Enter') checkPassword();
 };
 
-async function checkPassword(){
+function checkPassword(){
   const inputPwd = pwdInput.value.trim();
   loginBtn.disabled = true;
   loginBtn.innerText = "验证中...";
   loginTip.innerText = "";
   try{
-    const res = await fetch("/.netlify/functions/login",{
-      method:"POST",
-      body:JSON.stringify({pwd:inputPwd})
-    });
-    const data = await res.json();
-    if(data.success){
+    // 计算输入密码的sha256哈希
+    const inputHash = sha256(inputPwd);
+    if(inputHash === PASSWORD_SHA256){
       loginBox.style.display = 'none';
       mainPage.style.display = 'block';
     }else{
@@ -508,7 +512,7 @@ async function checkPassword(){
       pwdInput.value = '';
     }
   }catch(err){
-    loginTip.innerText = "网络验证失败";
+    loginTip.innerText = "验证出错";
     console.error(err);
   }
   loginBtn.disabled = false;
