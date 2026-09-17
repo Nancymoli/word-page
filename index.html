@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小张刷英语</title>
+    <title>小张刷英语 · CET4</title>
     <style>
         *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system}
         body{padding:16px;background:#f0f7ff;color:#222}
@@ -17,6 +17,7 @@
         .sentenceEn{font-size:17px;color:#444;margin-bottom:6px;font-style:italic;}
         .sentenceCn{font-size:16px;color:#666;}
         .control{margin:10px 0}
+        .setting-row{margin:8px 0;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
         input[type="file"]{margin:8px 0}
         .login-box{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:999}
         .login-inner{background:#fff;padding:24px;border-radius:12px;width:100%;max-width:320px}
@@ -53,10 +54,16 @@
         <div class="sentenceCn" id="sentenceCn"></div>
     </div>
     <div class="control">
-        <label>间隔（秒）：<input type="number" id="interval" value="4" min="1"></label>
-        <label><input type="checkbox" id="random">随机顺序</label>
-        <label><input type="checkbox" id="readEn">朗读英文</label>
-        <label><input type="checkbox" id="readCn">朗读释义</label>
+        <div class="setting-row">
+            <label>间隔（秒）：<input type="number" id="interval" value="4" min="1"></label>
+            <label>单词朗读次数：<input type="number" id="repeatEnTimes" value="2" min="1"></label>
+            <label>朗读速率：<input type="number" id="speechRate" value="1" min="0.5" max="2" step="0.1"></label>
+        </div>
+        <div class="setting-row">
+            <label><input type="checkbox" id="random">随机顺序</label>
+            <label><input type="checkbox" id="readEn" checked>朗读英文</label>
+            <label><input type="checkbox" id="readCn" checked>朗读释义</label>
+        </div>
     </div>
 </div>
 
@@ -111,6 +118,8 @@ const intervalInput = document.getElementById('interval');
 const randomCheck = document.getElementById('random');
 const readEnCheck = document.getElementById('readEn');
 const readCnCheck = document.getElementById('readCn');
+const repeatEnInput = document.getElementById('repeatEnTimes');
+const rateInput = document.getElementById('speechRate');
 
 document.getElementById('loadOnline').onclick = async function(){
     try{
@@ -159,24 +168,42 @@ function parseWords(text){
     currentIndex = 0;
 }
 
+async function speakWord(item){
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const rate = Number(rateInput.value);
+    // 英文单词重复朗读指定次数
+    if(readEnCheck.checked && item.word){
+        const times = Number(repeatEnInput.value);
+        for(let i=0;i<times;i++){
+            await new Promise(resolve=>{
+                const utter = new SpeechSynthesisUtterance(item.word);
+                utter.lang = "en-US";
+                utter.rate = rate;
+                utter.onend = resolve;
+                synth.speak(utter);
+            })
+        }
+    }
+    // 读完单词，读一遍中文释义
+    if(readCnCheck.checked && item.mean){
+        await new Promise(resolve=>{
+            const utterCn = new SpeechSynthesisUtterance(item.mean);
+            utterCn.lang = "zh-CN";
+            utterCn.rate = rate;
+            utterCn.onend = resolve;
+            synth.speak(utterCn);
+        })
+    }
+}
+
 function showWord(item){
     wordDom.innerText = item.word || "";
     phoneticDom.innerText = item.phonetic || "";
     explainDom.innerText = item.mean || "";
     sentenceEnDom.innerText = item.sentenceEn || "";
     sentenceCnDom.innerText = item.sentenceCn || "";
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    if(readEnCheck.checked && item.word){
-        const utterEn = new SpeechSynthesisUtterance(item.word);
-        utterEn.lang = "en-US";
-        synth.speak(utterEn);
-    }
-    if(readCnCheck.checked && item.mean){
-        const utterCn = new SpeechSynthesisUtterance(item.mean);
-        utterCn.lang = "zh-CN";
-        synth.speak(utterCn);
-    }
+    speakWord(item);
 }
 
 document.getElementById('startBtn').onclick = function(){
@@ -202,6 +229,7 @@ document.getElementById('stopBtn').onclick = function(){
     if(timer){
         clearInterval(timer);
         timer = null;
+        window.speechSynthesis.cancel();
     }
 }
 </script>
