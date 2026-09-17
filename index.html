@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小张刷英语</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system}
+        body{padding:16px;background:#f0f7ff;color:#222}
+        .container{max-width:700px;margin:0 auto}
+        button{padding:10px 14px;border:none;border-radius:8px;background:#4290e9;color:#fff;font-size:16px;margin:4px;cursor:pointer}
+        textarea{width:100%;min-height:140px;padding:10px;border-radius:8px;border:1px solid #bcd6f5;margin:8px 0}
+        .word-card{padding:30px;background:#fff;border-radius:12px;text-align:center;margin:12px 0;box-shadow:0 2px 8px #00000010}
+        .word{font-size:32px;margin-bottom:8px}
+        .phonetic{font-size:18px;margin-bottom:8px}
+        .explain{font-size:20px}
+        .control{margin:10px 0}
+        input[type="file"]{margin:8px 0}
+        .login-box{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:999}
+        .login-inner{background:#fff;padding:24px;border-radius:12px;width:100%;max-width:320px}
+        .login-inner h3{margin-bottom:16px;text-align:center}
+        #pwdInput{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;margin-bottom:12px;font-size:16px}
+        #loginTip{color:#e74c3c;height:20px;margin-bottom:8px;font-size:14px}
+        .main-page{display:none;}
+    </style>
+</head>
+<body>
+<div class="login-box" id="loginBox">
+    <div class="login-inner">
+        <h3>请输入访问密码</h3>
+        <input type="password" id="pwdInput" placeholder="输入密码">
+        <div id="loginTip"></div>
+        <button id="loginBtn" style="width:100%">确认进入</button>
+    </div>
+</div>
+
+<div class="container main-page" id="mainPage">
+    <h2 style="text-align:center;margin-bottom:12px">小张刷英语 · CET4</h2>
+    <div class="control">
+        <button id="loadOnline">加载四级词库（联网）</button>
+        <input type="file" id="fileInput" accept=".txt">
+        <button id="startBtn">开始刷词</button>
+        <button id="stopBtn">暂停</button>
+    </div>
+    <textarea id="wordListInput" placeholder="词库内容区域，可本地导入或在线加载"></textarea>
+    <div class="word-card">
+        <div class="word" id="word"></div>
+        <div class="phonetic" id="phonetic"></div>
+        <div class="explain" id="explain"></div>
+    </div>
+    <div class="control">
+        <label>间隔（秒）：<input type="number" id="interval" value="4" min="1"></label>
+        <label><input type="checkbox" id="random">随机顺序</label>
+        <label><input type="checkbox" id="readEn">朗读英文</label>
+        <label><input type="checkbox" id="readCn">朗读释义</label>
+    </div>
+</div>
+
+<script>
+const loginBox = document.getElementById('loginBox');
+const mainPage = document.getElementById('mainPage');
+const pwdInput = document.getElementById('pwdInput');
+const loginBtn = document.getElementById('loginBtn');
+const loginTip = document.getElementById('loginTip');
+
+loginBtn.onclick = checkPassword;
+pwdInput.onkeydown = function(e){
+    if(e.key === 'Enter') checkPassword();
+}
+
+async function checkPassword(){
+    const inputPwd = pwdInput.value.trim();
+    loginBtn.disabled = true;
+    loginBtn.innerText = "验证中...";
+    loginTip.innerText = "";
+    try{
+        const res = await fetch("/.netlify/functions/login",{
+            method:"POST",
+            body:JSON.stringify({pwd:inputPwd})
+        });
+        const data = await res.json();
+        if(data.success){
+            loginBox.style.display = 'none';
+            mainPage.style.display = 'block';
+        }else{
+            loginTip.innerText = "密码错误，请重新输入";
+            pwdInput.value = '';
+        }
+    }catch(err){
+        loginTip.innerText = "网络验证失败";
+        console.error(err);
+    }
+    loginBtn.disabled = false;
+    loginBtn.innerText = "确认进入";
+}
+
+let wordList = [];
+let currentIndex = 0;
+let timer = null;
+const wordDom = document.getElementById('word');
+const phoneticDom = document.getElementById('phonetic');
+const explainDom = document.getElementById('explain');
+const wordListInput = document.getElementById('wordListInput');
+const intervalInput = document.getElementById('interval');
+const randomCheck = document.getElementById('random');
+const readEnCheck = document.getElementById('readEn');
+const readCnCheck = document.getElementById('readCn');
+
+document.getElementById('loadOnline').onclick = async function(){
+    try{
+        const res = await fetch('https://raw.githubusercontent.com/mahavivo/english-wordlists/master/CET4.txt');
+        const text = await res.text();
+        wordListInput.value = text;
+        parseWords(text);
+        alert("词库加载完成！一共"+wordList.length+"个单词");
+    }catch(e){
+        alert("在线加载失败，可以上传本地txt词库");
+    }
+}
+document.getElementById('fileInput').onchange = function(e){
+    const reader = new FileReader();
+    reader.onload = function(event){
+        const text = event.target.result;
+        wordListInput.value = text;
+        parseWords(text);
+        alert("本地词库加载完成！一共"+wordList.length+"个单词");
+    }
+    reader.readAsText(e.target.files[0]);
+}
+function parseWords(text){
+    const lines = text.split(/\r?\n/).filter(line=>line.trim()!=='');
+    wordList = [];
+    for(let line of lines){
+        const reg = /^(.+?)\s+(\[.+?\])\s+(.+)$/;
+        const match = line.match(reg);
+        if(match){
+            wordList.push({
+                word:match[1],
+                phonetic:match[2],
+                explain:match[3]
+            })
+        }
+    }
+    currentIndex = 0;
+}
+function showWord(item){
+    wordDom.innerText = item.word;
+    phoneticDom.innerText = item.phonetic;
+    explainDom.innerText = item.explain;
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    if(readEnCheck.checked){
+        const utterEn = new SpeechSynthesisUtterance(item.word);
+        utterEn.lang = 'en-US';
+        synth.speak(utterEn);
+    }
+    if(readCnCheck.checked){
+        setTimeout(()=>{
+            const utterCn = new SpeechSynthesisUtterance(item.explain);
+            utterCn.lang = 'zh-CN';
+            synth.speak(utterCn);
+        },800)
+    }
+}
+function nextWord(){
+    if(wordList.length ===0) return;
+    if(randomCheck.checked){
+        currentIndex = Math.floor(Math.random() * wordList.length);
+    }else{
+        currentIndex = (currentIndex + 1) % wordList.length;
+    }
+    showWord(wordList[currentIndex]);
+}
+document.getElementById('startBtn').onclick = function(){
+    if(wordList.length ===0){
+        alert("请先加载词库");
+        return;
+    }
+    stopTimer();
+    nextWord();
+    const sec = Number(intervalInput.value);
+    timer = setInterval(nextWord, sec * 1000);
+}
+document.getElementById('stopBtn').onclick = stopTimer;
+function stopTimer(){
+    if(timer){
+        clearInterval(timer);
+        timer = null;
+    }
+}
+</script>
+</body>
+</html>
