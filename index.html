@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<title>小张刷英语 · 优化版</title>
+<title>小张刷英语 · 优化版 · 目录跳转 · 查看次数</title>
 <style>
 *{
   margin: 0;
@@ -21,8 +21,10 @@ body{
   overflow-x: hidden;
   padding-bottom: 30px;
 }
+
+/* ===== 背景气泡 ===== */
 .bubble{
-  position:absolute;
+  position:fixed;
   border-radius:50%;
   opacity:0.5;
   filter: blur(14px);
@@ -31,11 +33,53 @@ body{
 }
 .bubble1{ width:260px; height:260px; background:#ffb8dc; top:90px; left:-60px; }
 .bubble2{ width:220px; height:220px; background:#b5dcff; top:110px; right:-40px; }
+.bubble3{ width:180px; height:180px; background:#ffe3a3; bottom:10%; left:-50px; opacity:0.35; }
+.bubble4{ width:200px; height:200px; background:#c9f0d8; bottom:15%; right:-60px; opacity:0.35; }
 
+/* ===== 贴纸层 ===== */
+.sticker{
+  position: fixed;
+  z-index: 1;
+  pointer-events: none;
+  user-select: none;
+  font-size: 32px;
+  line-height: 1;
+  opacity: 0.9;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));
+  animation: floaty 5s ease-in-out infinite;
+}
+.sticker-1  { top: 10px;  left: 12px;  font-size: 30px; animation-delay: 0s; }
+.sticker-2  { top: 14px;  right: 14px; font-size: 30px; animation-delay: 0.6s; }
+.sticker-3  { top: 70px;  left: 4px;   font-size: 26px; animation-delay: 1.2s; }
+.sticker-4  { top: 80px;  right: 6px;  font-size: 26px; animation-delay: 1.8s; }
+.sticker-5  { top: 45%;   left: 4px;   font-size: 28px; animation-delay: 0.3s; }
+.sticker-6  { top: 55%;   right: 4px;  font-size: 28px; animation-delay: 0.9s; }
+.sticker-7  { bottom: 90px; left: 10px; font-size: 30px; animation-delay: 1.5s; }
+.sticker-8  { bottom: 90px; right: 10px; font-size: 30px; animation-delay: 2.1s; }
+.sticker-9  { bottom: 20px; left: 14px; font-size: 26px; animation-delay: 0.4s; }
+.sticker-10 { bottom: 20px; right: 14px; font-size: 26px; animation-delay: 1.0s; }
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-6px) rotate(3deg); }
+}
+
+@media (max-width: 480px){
+  .sticker{ font-size: 22px; opacity: 0.8; }
+  .sticker-1, .sticker-2 { font-size: 24px; }
+  .sticker-3, .sticker-4 { font-size: 20px; }
+  .sticker-5, .sticker-6 { font-size: 22px; }
+  .sticker-7, .sticker-8 { font-size: 24px; }
+  .sticker-9, .sticker-10 { font-size: 20px; }
+  .bubble3, .bubble4{ display: none; }
+}
+
+/* ===== 顶部标题 ===== */
 .top-title{ position:relative; z-index:2; text-align:center; padding:14px 12px 4px; }
 .top-title h2{ font-size:22px; font-weight:600; color:#333; }
 .progress-text{ margin-top:6px; font-size:16px; color:#555; }
 
+/* ===== 控制区 ===== */
 .ctrl{
   position:relative; z-index:2;
   display:flex; flex-wrap:wrap; gap:10px;
@@ -55,26 +99,76 @@ button:active{ transform:scale(0.96); }
 .btn-pink{ background:#ffb3dd; color:#fff; }
 .btn-green{ background:#9de0c4; color:#222; }
 .btn-orange{ background:#ffd29d; color:#222; }
+.btn-purple{ background:#d9b3ff; color:#222; }
+.btn-red{ background:#ffb3b3; color:#222; }
 button:disabled{ opacity:0.5; pointer-events:none; }
 
-.container{ position:relative; z-index:1; padding:0 14px; max-width:640px; margin:0 auto; }
+/* ===== 内容容器 ===== */
+.container{ position:relative; z-index:2; padding:0 14px; max-width:640px; margin:0 auto; }
 .card{
-  background:#ffffff; border-radius:28px; padding:32px 22px 28px;
-  text-align:center; box-shadow:0 10px 30px rgba(255, 182, 220, 0.18);
-  position:relative; z-index:2;
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 32px 22px 28px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(255, 182, 220, 0.25), 0 2px 8px rgba(163, 212, 255, 0.15);
+  position: relative;
+  z-index: 2;
+  border: 2px solid rgba(255, 255, 255, 0.8);
 }
+
+/* 查看次数徽章（卡片右上角） */
+.view-badge{
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  background: linear-gradient(135deg, #ffd6ec, #ffb3dd);
+  color: #7a2a55;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgba(255, 179, 221, 0.5);
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 3;
+}
+.view-badge .num{
+  font-size: 16px;
+  color: #d12a78;
+}
+
 .word{ font-size:52px; font-weight:800; color:#222; margin-bottom:12px; }
 .meaning-tag{
   display:inline-block; background:#a3d4ff; color:#222;
   font-size:20px; font-weight:600; padding:8px 18px;
   border-radius:999px; margin-bottom:24px;
+  box-shadow: 0 3px 10px rgba(163, 212, 255, 0.4);
 }
 .sentence-en{ font-size:18px; color:#333; line-height:1.6; margin-bottom:8px; }
 .sentence-cn{ font-size:17px; color:#666; line-height:1.5; }
 
+.nav-buttons{
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 22px;
+}
+.nav-buttons button{
+  padding: 12px 28px;
+  font-size: 16px;
+  flex: 0 1 auto;
+  box-shadow: 0 4px 12px rgba(217, 179, 255, 0.35);
+}
+
+/* ===== 设置区 ===== */
 .setting-area{
   margin-top:20px; background:#ffffff; border-radius:24px; padding:20px;
-  box-shadow:0 8px 24px rgba(163, 212, 255, 0.15);
+  box-shadow:0 8px 24px rgba(163, 212, 255, 0.18);
+  position: relative;
+  z-index: 2;
+  border: 2px solid rgba(255, 255, 255, 0.8);
 }
 .set-row{
   display:flex; align-items:center; justify-content:space-between;
@@ -95,23 +189,135 @@ button:disabled{ opacity:0.5; pointer-events:none; }
   content:""; position:absolute; top:3px; left:3px;
   width:22px; height:22px; background:#fff;
   border-radius:50%; transition:0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 .switch.active{ background:#ff88bc; }
 .switch.active::after{ left:23px; }
 
-.import-wrap{ margin-top:22px; text-align:center; }
+/* ===== 导入区 ===== */
+.import-wrap{ margin-top:22px; text-align:center; position: relative; z-index: 2; }
 .import-btn{
   display:inline-block; padding:14px 28px;
   background:#a3d4ff; border-radius:999px;
   font-weight:600; cursor:pointer;
+  box-shadow: 0 4px 12px rgba(163, 212, 255, 0.4);
 }
 #fileInput{ display:none; }
 #loadStatus{ font-size:14px; color:#666; margin-top:8px; min-height:20px; }
+
+/* ===== 目录面板 ===== */
+.catalog-panel{
+  margin-top: 20px;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(255, 209, 230, 0.3);
+  max-height: 260px;
+  overflow-y: auto;
+  position: relative;
+  z-index: 2;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+.catalog-title{
+  font-weight: 600;
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.catalog-title span:last-child{
+  font-size: 14px;
+  color: #888;
+  font-weight: normal;
+}
+.catalog-grid{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.catalog-item{
+  background: #f3f0ff;
+  border-radius: 40px;
+  padding: 8px 16px;
+  font-size: 15px;
+  color: #3d3d3d;
+  cursor: pointer;
+  transition: 0.15s;
+  border: 1px solid #e0d5ff;
+  white-space: nowrap;
+  position: relative;
+}
+.catalog-item .badge{
+  display: inline-block;
+  background: #ffb3dd;
+  color: #7a2a55;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.catalog-item:hover{
+  background: #e2d9ff;
+  border-color: #cbb8ff;
+}
+.catalog-item.active{
+  background: #b8a9ff;
+  color: #fff;
+  border-color: #9f8aff;
+  font-weight: 600;
+  box-shadow: 0 3px 8px rgba(184, 169, 255, 0.5);
+}
+.catalog-item.active .badge{
+  background: #fff;
+  color: #7a2a55;
+}
+
+/* 目录顶部工具条 */
+.catalog-tools{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.catalog-tools button{
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 999px;
+}
+.catalog-tools label{
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
+
+<!-- 背景气泡 -->
 <div class="bubble bubble1"></div>
 <div class="bubble bubble2"></div>
+<div class="bubble bubble3"></div>
+<div class="bubble bubble4"></div>
+
+<!-- 边缘贴纸 -->
+<div class="sticker sticker-1">🌟</div>
+<div class="sticker sticker-2">🌸</div>
+<div class="sticker sticker-3">🐣</div>
+<div class="sticker sticker-4">🍀</div>
+<div class="sticker sticker-5">🎀</div>
+<div class="sticker sticker-6">📚</div>
+<div class="sticker sticker-7">🌈</div>
+<div class="sticker sticker-8">🐰</div>
+<div class="sticker sticker-9">✨</div>
+<div class="sticker sticker-10">🌼</div>
 
 <div class="top-title">
   <h2>📖 小张刷英语 · 优化版</h2>
@@ -131,10 +337,38 @@ button:disabled{ opacity:0.5; pointer-events:none; }
 
 <div class="container">
   <div class="card">
+    <!-- 查看次数徽章 -->
+    <div class="view-badge" id="viewBadge">👁 已看 <span class="num" id="viewCount">0</span> 次</div>
+
     <div class="word" id="word">等待加载单词</div>
     <div class="meaning-tag" id="meaning">--</div>
     <div class="sentence-en" id="senEn">--</div>
     <div class="sentence-cn" id="senCn">--</div>
+
+    <div class="nav-buttons">
+      <button class="btn-purple" id="prevBtn">◀ 上一个</button>
+      <button class="btn-purple" id="nextBtn">下一个 ▶</button>
+    </div>
+  </div>
+
+  <!-- 目录面板 -->
+  <div class="catalog-panel" id="catalogPanel">
+    <div class="catalog-title">
+      <span>📂 单词目录</span>
+      <span id="catalogCount">0 个单词</span>
+    </div>
+    <div class="catalog-tools">
+      <button class="btn-blue" id="sortByDefault">默认顺序</button>
+      <button class="btn-orange" id="sortByViewAsc">按次数 ↑</button>
+      <button class="btn-red" id="sortByViewDesc">按次数 ↓</button>
+      <button class="btn-green" id="resetViewCount">清零次数</button>
+      <label>
+        <input type="checkbox" id="onlyUnseen"> 仅显示没看过的
+      </label>
+    </div>
+    <div class="catalog-grid" id="catalogGrid">
+      <div style="color:#aaa; font-size:14px; padding:8px;">加载词库后显示目录</div>
+    </div>
   </div>
 
   <div class="setting-area">
@@ -151,7 +385,6 @@ button:disabled{ opacity:0.5; pointer-events:none; }
       <input type="number" id="speechRate" value="1" min="0.5" max="2" step="0.1">
     </div>
     <div class="switch-wrap">
-      <!-- 随机顺序开关已移除 -->
       <div class="switch-item">
         <div class="switch active" id="readEnSwitch"></div>
         <span>朗读英文</span>
@@ -176,85 +409,37 @@ button:disabled{ opacity:0.5; pointer-events:none; }
 
 <script>
 // ================= 全局状态 =================
-let wordList = [];                 // 当前词库单词数组
-let currentIndex = 0;             // 当前索引
-let running = false;              // 是否正在刷词
-let isSpeaking = false;           // 语音是否播放中
-let speechToken = 0;              // 语音令牌，用于中断过时语音
+let wordList = [];
+let currentIndex = 0;
+let running = false;
+let isSpeaking = false;
+let speechToken = 0;
+let displaySession = 0;
 
-// 防止重复点击加载/跳转
+// 查看次数：以「单词本身」为键存储（跨词库共享，同一单词无论哪个词库都累计）
+let viewCountMap = {};        // { word: count }
+let currentSortMode = 'default';   // default | viewAsc | viewDesc
+let onlyUnseen = false;
+
 let isLoading = false;
 let lastClickTime = 0;
-const CLICK_DELAY = 500;           // 毫秒
+const CLICK_DELAY = 500;
 
-// 词库配置 (与之前保持一致，但为了简洁只显示部分示例，实际使用完整配置)
+// localStorage key
+const VIEW_COUNT_KEY = 'wordViewCounts_v1';
+
+// 词库配置
 const dictConfig = [
-  {
-    name: "小学词汇",
-    files: [
-      "primarylist1.json","primarylist2.json","primarylist3.json","primarylist4.json","primarylist5.json",
-      "primarylist6.json","primarylist7.json","primarylist8.json","primarylist9.json","primarylist10.json",
-      "primarylist11.json","primarylist12.json","primarylist13.json","primarylist14.json","primarylist15.json",
-      "primarylist16.json","primarylist17.json","primarylist18.json","primarylist19.json","primarylist20.json"
-    ]
-  },
-  {
-    name: "初中词汇",
-    files: [
-      "juniorlist1.json","juniorlist2.json","juniorlist3.json","juniorlist4.json","juniorlist5.json",
-      "juniorlist6.json","juniorlist7.json","juniorlist8.json","juniorlist9.json","juniorlist10.json",
-      "juniorlist11.json","juniorlist12.json","juniorlist13.json","juniorlist14.json","juniorlist15.json",
-      "juniorlist16.json","juniorlist17.json","juniorlist18.json","juniorlist19.json","juniorlist20.json"
-    ]
-  },
-  {
-    name: "高中词汇",
-    files: [
-      "seniorlist1.json","seniorlist2.json","seniorlist3.json","seniorlist4.json","seniorlist5.json",
-      "seniorlist6.json","seniorlist7.json","seniorlist8.json","seniorlist9.json","seniorlist10.json",
-      "seniorlist11.json","seniorlist12.json","seniorlist13.json","seniorlist14.json","seniorlist15.json",
-      "seniorlist16.json","seniorlist17.json","seniorlist18.json","seniorlist19.json","seniorlist20.json"
-    ]
-  },
-  {
-    name: "四级词汇 4000词",
-    files: [
-      "cet4list1.json","cet4list2.json","cet4list3.json","cet4list4.json","cet4list5.json",
-      "cet4list6.json","cet4list7.json","cet4list8.json","cet4list9.json","cet4list10.json",
-      "cet4list11.json","cet4list12.json","cet4list13.json","cet4list14.json","cet4list15.json",
-      "cet4list16.json","cet4list17.json","cet4list18.json","cet4list19.json","cet4list20.json"
-    ]
-  },
-  {
-    name: "六级词汇",
-    files: [
-      "cet6list1.json","cet6list2.json","cet6list3.json","cet6list4.json","cet6list5.json",
-      "cet6list6.json","cet6list7.json","cet6list8.json","cet6list9.json","cet6list10.json",
-      "cet6list11.json","cet6list12.json","cet6list13.json","cet6list14.json","cet6list15.json",
-      "cet6list16.json","cet6list17.json","cet6list18.json","cet6list19.json","cet6list20.json"
-    ]
-  },
-  {
-    name: "考研词汇",
-    files: [
-      "kaoyanlist1.json","kaoyanlist2.json","kaoyanlist3.json","kaoyanlist4.json","kaoyanlist5.json",
-      "kaoyanlist6.json","kaoyanlist7.json","kaoyanlist8.json","kaoyanlist9.json","kaoyanlist10.json",
-      "kaoyanlist11.json","kaoyanlist12.json","kaoyanlist13.json","kaoyanlist14.json","kaoyanlist15.json",
-      "kaoyanlist16.json","kaoyanlist17.json","kaoyanlist18.json","kaoyanlist19.json","kaoyanlist20.json"
-    ]
-  },
-  {
-    name: "雅思词汇",
-    files: [
-      "ieltslist1.json","ieltslist2.json","ieltslist3.json","ieltslist4.json","ieltslist5.json",
-      "ieltslist6.json","ieltslist7.json","ieltslist8.json","ieltslist9.json","ieltslist10.json",
-      "ieltslist11.json","ieltslist12.json","ieltslist13.json","ieltslist14.json","ieltslist15.json",
-      "ieltslist16.json","ieltslist17.json","ieltslist18.json","ieltslist19.json","ieltslist20.json"
-    ]
-  }
+  { name: "小学词汇", files: ["primarylist1.json","primarylist2.json","primarylist3.json","primarylist4.json","primarylist5.json","primarylist6.json","primarylist7.json","primarylist8.json","primarylist9.json","primarylist10.json","primarylist11.json","primarylist12.json","primarylist13.json","primarylist14.json","primarylist15.json","primarylist16.json","primarylist17.json","primarylist18.json","primarylist19.json","primarylist20.json"] },
+  { name: "初中词汇", files: ["juniorlist1.json","juniorlist2.json","juniorlist3.json","juniorlist4.json","juniorlist5.json","juniorlist6.json","juniorlist7.json","juniorlist8.json","juniorlist9.json","juniorlist10.json","juniorlist11.json","juniorlist12.json","juniorlist13.json","juniorlist14.json","juniorlist15.json","juniorlist16.json","juniorlist17.json","juniorlist18.json","juniorlist19.json","juniorlist20.json"] },
+  { name: "高中词汇", files: ["seniorlist1.json","seniorlist2.json","seniorlist3.json","seniorlist4.json","seniorlist5.json","seniorlist6.json","seniorlist7.json","seniorlist8.json","seniorlist9.json","seniorlist10.json","seniorlist11.json","seniorlist12.json","seniorlist13.json","seniorlist14.json","seniorlist15.json","seniorlist16.json","seniorlist17.json","seniorlist18.json","seniorlist19.json","seniorlist20.json"] },
+  { name: "四级词汇 4000词", files: ["cet4list1.json","cet4list2.json","cet4list3.json","cet4list4.json","cet4list5.json","cet4list6.json","cet4list7.json","cet4list8.json","cet4list9.json","cet4list10.json","cet4list11.json","cet4list12.json","cet4list13.json","cet4list14.json","cet4list15.json","cet4list16.json","cet4list17.json","cet4list18.json","cet4list19.json","cet4list20.json"] },
+  { name: "六级词汇", files: ["cet6list1.json","cet6list2.json","cet6list3.json","cet6list4.json","cet6list5.json","cet6list6.json","cet6list7.json","cet6list8.json","cet6list9.json","cet6list10.json","cet6list11.json","cet6list12.json","cet6list13.json","cet6list14.json","cet6list15.json","cet6list16.json","cet6list17.json","cet6list18.json","cet6list19.json","cet6list20.json"] },
+  { name: "考研词汇", files: ["kaoyanlist1.json","kaoyanlist2.json","kaoyanlist3.json","kaoyanlist4.json","kaoyanlist5.json","kaoyanlist6.json","kaoyanlist7.json","kaoyanlist8.json","kaoyanlist9.json","kaoyanlist10.json","kaoyanlist11.json","kaoyanlist12.json","kaoyanlist13.json","kaoyanlist14.json","kaoyanlist15.json","kaoyanlist16.json","kaoyanlist17.json","kaoyanlist18.json","kaoyanlist19.json","kaoyanlist20.json"] },
+  { name: "雅思词汇", files: ["ieltslist1.json","ieltslist2.json","ieltslist3.json","ieltslist4.json","ieltslist5.json","ieltslist6.json","ieltslist7.json","ieltslist8.json","ieltslist9.json","ieltslist10.json","ieltslist11.json","ieltslist12.json","ieltslist13.json","ieltslist14.json","ieltslist15.json","ieltslist16.json","ieltslist17.json","ieltslist18.json","ieltslist19.json","ieltslist20.json"] }
 ];
 
-// ================= DOM 元素 =================
+// ================= DOM =================
 const domWord = document.getElementById('word');
 const domMean = document.getElementById('meaning');
 const domSenEn = document.getElementById('senEn');
@@ -271,7 +456,15 @@ const readEnSwitch = document.getElementById('readEnSwitch');
 const readMeanSwitch = document.getElementById('readMeanSwitch');
 const readSenSwitch = document.getElementById('readSenSwitch');
 
-// 初始化词库下拉
+const catalogGrid = document.getElementById('catalogGrid');
+const catalogCount = document.getElementById('catalogCount');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+// 查看次数相关 DOM
+const viewCountEl = document.getElementById('viewCount');
+const viewBadge = document.getElementById('viewBadge');
+
 dictConfig.forEach((item, idx) => {
   const opt = document.createElement('option');
   opt.value = idx;
@@ -279,17 +472,71 @@ dictConfig.forEach((item, idx) => {
   dictSelect.appendChild(opt);
 });
 
-// 开关点击
 readEnSwitch.onclick = () => readEnSwitch.classList.toggle("active");
 readMeanSwitch.onclick = () => readMeanSwitch.classList.toggle("active");
 readSenSwitch.onclick = () => readSenSwitch.classList.toggle("active");
 
-// ================= 辅助函数 =================
+// ================= 查看次数管理 =================
+function loadViewCounts() {
+  try {
+    const raw = localStorage.getItem(VIEW_COUNT_KEY);
+    viewCountMap = raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    viewCountMap = {};
+  }
+}
+
+function saveViewCounts() {
+  try {
+    localStorage.setItem(VIEW_COUNT_KEY, JSON.stringify(viewCountMap));
+  } catch (e) {
+    console.warn('保存查看次数失败', e);
+  }
+}
+
+// 增加一次查看次数
+function incrementViewCount(word) {
+  if (!word) return 0;
+  viewCountMap[word] = (viewCountMap[word] || 0) + 1;
+  saveViewCounts();
+  return viewCountMap[word];
+}
+
+// 获取某个单词的查看次数
+function getViewCount(word) {
+  return viewCountMap[word] || 0;
+}
+
+// 刷新卡片上的查看次数徽章
+function refreshViewBadge() {
+  const item = wordList[currentIndex];
+  if (!item) {
+    viewCountEl.innerText = '0';
+    return;
+  }
+  const c = getViewCount(item.word);
+  viewCountEl.innerText = c;
+  // 根据次数改变徽章颜色深浅
+  if (c === 0) {
+    viewBadge.style.background = 'linear-gradient(135deg, #eee, #ddd)';
+    viewBadge.style.color = '#888';
+  } else if (c < 3) {
+    viewBadge.style.background = 'linear-gradient(135deg, #ffe3f1, #ffc9e2)';
+    viewBadge.style.color = '#7a2a55';
+  } else if (c < 6) {
+    viewBadge.style.background = 'linear-gradient(135deg, #ffd6ec, #ffb3dd)';
+    viewBadge.style.color = '#7a2a55';
+  } else {
+    viewBadge.style.background = 'linear-gradient(135deg, #ffb3dd, #ff88bc)';
+    viewBadge.style.color = '#fff';
+  }
+}
+
+// ================= 辅助 =================
 function sleep(ms) {
   return new Promise(res => setTimeout(res, ms));
 }
 
-// 更新进度显示并保存索引
 function updateProgress() {
   if (wordList.length === 0) {
     progressText.innerText = `进度：0 / 0`;
@@ -298,28 +545,97 @@ function updateProgress() {
   progressText.innerText = `进度：${currentIndex+1} / ${wordList.length}`;
   const selectIdx = Number(dictSelect.value);
   localStorage.setItem(`memIndex_${selectIdx}`, currentIndex);
+  highlightCatalogItem();
+  refreshViewBadge();
 }
 
-// 安全重置语音引擎 (解决卡顿/无声)
+function highlightCatalogItem() {
+  const items = catalogGrid.querySelectorAll('.catalog-item');
+  items.forEach((el) => {
+    const idx = Number(el.dataset.index);
+    if (idx === currentIndex) {
+      el.classList.add('active');
+    } else {
+      el.classList.remove('active');
+    }
+  });
+  const activeEl = catalogGrid.querySelector('.catalog-item.active');
+  if (activeEl) {
+    activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+// 生成目录（支持排序、过滤）
+function buildCatalog() {
+  catalogGrid.innerHTML = '';
+  if (!wordList || wordList.length === 0) {
+    catalogGrid.innerHTML = '<div style="color:#aaa; font-size:14px; padding:8px;">暂无单词，请加载词库</div>';
+    catalogCount.innerText = '0 个单词';
+    return;
+  }
+
+  // 构造带原始索引的数组
+  let items = wordList.map((item, idx) => ({
+    item,
+    originalIndex: idx,
+    word: item.word || '',
+    count: getViewCount(item.word)
+  }));
+
+  // 过滤
+  if (onlyUnseen) {
+    items = items.filter(x => x.count === 0);
+  }
+
+  // 排序
+  if (currentSortMode === 'viewAsc') {
+    items.sort((a, b) => a.count - b.count || a.originalIndex - b.originalIndex);
+  } else if (currentSortMode === 'viewDesc') {
+    items.sort((a, b) => b.count - a.count || a.originalIndex - b.originalIndex);
+  }
+  // default 模式保持原顺序
+
+  catalogCount.innerText = onlyUnseen
+    ? `${items.length} 个未看 (共 ${wordList.length})`
+    : `${wordList.length} 个单词`;
+
+  const fragment = document.createDocumentFragment();
+  items.forEach(({ item, originalIndex, word, count }) => {
+    const div = document.createElement('div');
+    div.className = 'catalog-item';
+    div.dataset.index = originalIndex;
+    div.innerHTML = `${word}${count > 0 ? `<span class="badge">${count}</span>` : ''}`;
+    div.addEventListener('click', () => {
+      if (originalIndex === currentIndex) return;
+      running = false;
+      resetSpeech();
+      currentIndex = originalIndex;
+      updateProgress();
+      showWord(wordList[currentIndex]);
+    });
+    fragment.appendChild(div);
+  });
+  catalogGrid.appendChild(fragment);
+  highlightCatalogItem();
+}
+
+// 安全重置语音 + 递增会话ID
 function resetSpeech() {
   try {
     window.speechSynthesis.cancel();
   } catch (e) {}
   isSpeaking = false;
+  displaySession++;
 }
 
-// 带令牌的语音播放 (解决声音不同步/乱跳)
 async function speakText(text, lang = "en-US") {
   if (!text || !('speechSynthesis' in window)) return;
-  // 生成当前令牌，任何打断操作会更新全局令牌
   const myToken = ++speechToken;
-  // 等待之前的语音结束 (最多等待2秒防止卡死)
   let waitCount = 0;
   while (isSpeaking && waitCount < 20) {
     await sleep(100);
     waitCount++;
   }
-  // 如果令牌已过期（说明有新的语音或停止操作），直接返回
   if (myToken !== speechToken) return;
 
   isSpeaking = true;
@@ -329,17 +645,11 @@ async function speakText(text, lang = "en-US") {
 
   return new Promise((resolve) => {
     utter.onend = () => {
-      // 只有令牌未过期时才重置状态
-      if (myToken === speechToken) {
-        isSpeaking = false;
-      }
+      if (myToken === speechToken) isSpeaking = false;
       resolve();
     };
-    utter.onerror = (e) => {
-      // 出错也释放
-      if (myToken === speechToken) {
-        isSpeaking = false;
-      }
+    utter.onerror = () => {
+      if (myToken === speechToken) isSpeaking = false;
       resolve();
     };
     try {
@@ -351,63 +661,83 @@ async function speakText(text, lang = "en-US") {
   });
 }
 
-// 朗读一个单词的所有内容
-async function speakWordAudio(item) {
-  if (!item) return;
-  // 朗读英文
+async function speakWordAudio(item, session) {
+  if (!item || session !== displaySession) return;
+
   if (readEnSwitch.classList.contains("active") && item.word) {
     const times = Number(enReadCountInput.value) || 2;
     for (let i = 0; i < times; i++) {
+      if (session !== displaySession) return;
       await speakText(item.word, "en-US");
     }
   }
-  // 朗读释义
+  if (session !== displaySession) return;
+
   if (readMeanSwitch.classList.contains("active") && item.mean) {
     await speakText(item.mean, "zh-CN");
   }
-  // 朗读例句
+  if (session !== displaySession) return;
+
   if (readSenSwitch.classList.contains("active") && item.sentenceEn) {
     await speakText(item.sentenceEn, "en-US");
+    if (session !== displaySession) return;
     if (item.sentenceCn) await speakText(item.sentenceCn, "zh-CN");
   }
 }
 
-// 显示单词 (取消随机，只顺序)
+// 显示单词
 async function showWord(item) {
   if (!item) return;
-  // 显示前重置语音，防止旧语音干扰新单词
-  resetSpeech();
-  // 更新UI
+  const session = displaySession;
+
+  // ★ 关键：显示单词即视为"查看一次"，增加次数
+  incrementViewCount(item.word);
+
   domWord.innerText = item.word || '';
   domMean.innerText = item.mean || '';
   domSenEn.innerText = item.sentenceEn || '';
   domSenCn.innerText = item.sentenceCn || '';
 
-  // 播放语音（会等待完成）
-  await speakWordAudio(item);
+  // 刷新徽章显示 + 目录高亮（目录徽章数字也需要刷新）
+  refreshViewBadge();
+  highlightCatalogItem();
+  // 如果当前排序是按次数，需要重建目录以保持顺序
+  if (currentSortMode !== 'default' || onlyUnseen) {
+    buildCatalog();
+  } else {
+    // 默认顺序下只需刷新当前目录项上的角标即可，但简单起见也可重建
+    buildCatalog();
+  }
 
-  // 如果正在运行，等待间隔后切下一个
+  await speakWordAudio(item, session);
+
+  if (session !== displaySession) return;
+
   if (running) {
     await sleep(Number(intervalInput.value) * 1000);
-    // 再次检查running，避免等待期间被暂停
-    if (running) {
-      next();
-    }
+    if (session !== displaySession) return;
+    if (running) next();
   }
 }
 
-// 切换到下一个单词 (顺序，不随机)
 function next() {
   if (!running || wordList.length === 0) return;
   currentIndex = (currentIndex + 1) % wordList.length;
   updateProgress();
-  // 注意：showWord是异步的，但不需要等待，让它自己流转
   showWord(wordList[currentIndex]);
 }
 
-// ================= 加载词库 (优化版：使用 Promise.all 加速，防止重复点击) =================
+function prev() {
+  if (wordList.length === 0) return;
+  if (running) running = false;
+  resetSpeech();
+  currentIndex = (currentIndex - 1 + wordList.length) % wordList.length;
+  updateProgress();
+  showWord(wordList[currentIndex]);
+}
+
+// ================= 加载词库 =================
 document.getElementById('loadOnline').onclick = async () => {
-  // 防抖 & 防重复点击
   const now = Date.now();
   if (isLoading || now - lastClickTime < CLICK_DELAY) return;
   lastClickTime = now;
@@ -418,7 +748,6 @@ document.getElementById('loadOnline').onclick = async () => {
   const dictItem = dictConfig[selectIdx];
   const fileList = dictItem.files;
 
-  // 使用 Promise.all 并发请求 (优化加载速度)
   const fetchPromises = fileList.map(filename =>
     fetch(`./${filename}`)
       .then(res => {
@@ -431,13 +760,12 @@ document.getElementById('loadOnline').onclick = async () => {
       })
       .catch(err => {
         console.warn(`加载 ${filename} 失败：`, err);
-        return []; // 失败返回空数组，不影响整体
+        return [];
       })
   );
 
   try {
     const results = await Promise.all(fetchPromises);
-    // 合并所有单词
     const mergedWords = results.flat();
     if (mergedWords.length === 0) {
       alert("加载失败：没有任何词库文件读取成功。\n请检查文件名是否和配置一致。");
@@ -448,7 +776,6 @@ document.getElementById('loadOnline').onclick = async () => {
 
     wordList = mergedWords;
 
-    // 恢复上次进度
     const saved = localStorage.getItem(`memIndex_${selectIdx}`);
     if (saved !== null) {
       currentIndex = Math.min(Number(saved), wordList.length - 1);
@@ -456,15 +783,16 @@ document.getElementById('loadOnline').onclick = async () => {
       currentIndex = 0;
     }
 
-    // 停止当前播放
     running = false;
     resetSpeech();
     updateProgress();
-    // 显示第一个单词（不自动播放，除非用户点开始）
     domWord.innerText = wordList[currentIndex].word || '';
     domMean.innerText = wordList[currentIndex].mean || '';
     domSenEn.innerText = wordList[currentIndex].sentenceEn || '';
     domSenCn.innerText = wordList[currentIndex].sentenceCn || '';
+    refreshViewBadge();
+
+    buildCatalog();
 
     const successCount = results.filter(arr => arr.length > 0).length;
     loadStatus.innerText = `加载成功：${successCount}/${fileList.length} 个文件，共 ${wordList.length} 词`;
@@ -478,7 +806,7 @@ document.getElementById('loadOnline').onclick = async () => {
   }
 };
 
-// ================= 跳转 (防抖) =================
+// ================= 跳转 =================
 document.getElementById('jumpBtn').onclick = function() {
   const now = Date.now();
   if (now - lastClickTime < CLICK_DELAY) return;
@@ -487,12 +815,11 @@ document.getElementById('jumpBtn').onclick = function() {
   if (wordList.length === 0) { alert("请先加载词库"); return; }
   const num = Number(jumpIndex.value);
   if (isNaN(num) || num < 1 || num > wordList.length) { alert("超出范围"); return; }
-  currentIndex = num - 1;
-  updateProgress();
-  // 停止当前播放并重置语音
+
   running = false;
   resetSpeech();
-  // 显示单词
+  currentIndex = num - 1;
+  updateProgress();
   showWord(wordList[currentIndex]);
 };
 
@@ -526,6 +853,7 @@ document.getElementById('fileInput').onchange = function(e) {
         if (wordList.length > 0) {
           showWord(wordList[currentIndex]);
         }
+        buildCatalog();
         loadStatus.innerText = `本地词库加载成功：${wordList.length} 词`;
         alert(`本地词库加载成功\n文件数：${files.length}\n单词总数：${wordList.length}`);
       }
@@ -537,14 +865,10 @@ document.getElementById('fileInput').onchange = function(e) {
 // ================= 开始/暂停 =================
 document.getElementById('startBtn').onclick = function() {
   if (wordList.length === 0) { alert("请先加载词库！"); return; }
-  // 防止重复点击开始导致多个循环
   if (running) return;
   running = true;
-  // 先重置语音环境
   resetSpeech();
-  // 从当前单词开始（如果当前显示的不是wordList[currentIndex]则修正）
   if (wordList[currentIndex]) {
-    // 直接调用showWord会开始朗读，然后自动进入next
     showWord(wordList[currentIndex]);
   } else {
     next();
@@ -554,17 +878,57 @@ document.getElementById('startBtn').onclick = function() {
 document.getElementById('stopBtn').onclick = function() {
   running = false;
   resetSpeech();
-  // 额外重置令牌使等待的语音失效
   speechToken++;
   isSpeaking = false;
 };
 
-// ================= 页面卸载时清理语音 =================
+// ================= 上一个/下一个 =================
+prevBtn.onclick = function() {
+  if (wordList.length === 0) { alert("请先加载词库"); return; }
+  prev();
+};
+
+nextBtn.onclick = function() {
+  if (wordList.length === 0) { alert("请先加载词库"); return; }
+  if (running) running = false;
+  resetSpeech();
+  currentIndex = (currentIndex + 1) % wordList.length;
+  updateProgress();
+  showWord(wordList[currentIndex]);
+};
+
+// ================= 目录工具条事件 =================
+document.getElementById('sortByDefault').onclick = () => {
+  currentSortMode = 'default';
+  buildCatalog();
+};
+document.getElementById('sortByViewAsc').onclick = () => {
+  currentSortMode = 'viewAsc';
+  buildCatalog();
+};
+document.getElementById('sortByViewDesc').onclick = () => {
+  currentSortMode = 'viewDesc';
+  buildCatalog();
+};
+document.getElementById('resetViewCount').onclick = () => {
+  if (!confirm('确定要清零所有单词的查看次数吗？此操作不可恢复。')) return;
+  viewCountMap = {};
+  saveViewCounts();
+  refreshViewBadge();
+  buildCatalog();
+};
+document.getElementById('onlyUnseen').onchange = (e) => {
+  onlyUnseen = e.target.checked;
+  buildCatalog();
+};
+
+// ================= 卸载清理 =================
 window.addEventListener('beforeunload', () => {
   resetSpeech();
 });
 
-// 初始化进度显示
+// ================= 初始化 =================
+loadViewCounts();
 updateProgress();
 </script>
 </body>
