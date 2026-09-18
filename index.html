@@ -8,9 +8,6 @@
 <meta http-equiv="Expires" content="0" />
 <title>小张刷英语 · ADHD友好版</title>
 <style>
-/* ============================================================
-   主题变量
-   ============================================================ */
 :root {
   --bg: #faf5ee;
   --bg-gradient:
@@ -59,7 +56,6 @@
   --radius: 28px;
 }
 
-/* 玻璃轻奢 */
 body[data-theme="glass"] {
   --bg: #e8ecf8;
   --bg-gradient:
@@ -116,7 +112,6 @@ body[data-theme="glass"] .review-bar {
   -webkit-backdrop-filter: blur(24px) saturate(180%);
 }
 
-/* 极光霓虹 */
 body[data-theme="neon"] {
   --bg: #0a0614;
   --bg-gradient:
@@ -180,7 +175,6 @@ body[data-theme="neon"] .card::before {
   pointer-events: none; opacity: 0.6;
 }
 
-/* 极简高级 */
 body[data-theme="minimal"] {
   --bg: #f7f7f7;
   --bg-gradient: none;
@@ -229,11 +223,8 @@ body[data-theme="minimal"] .catalog-item.active .word-en,
 body[data-theme="minimal"] .catalog-item.active .word-cn { color: #ffffff; }
 body[data-theme="minimal"] .deco { display: none; }
 body[data-theme="minimal"] .top-title h2 { color: #0f0f0f; font-weight: 700; }
-body[data-theme="minimal"] button { letter-spacing: 0.2px; }
 
-/* ============================================================
-   基础
-   ============================================================ */
+/* 基础 */
 *{
   margin: 0; padding: 0; box-sizing: border-box;
   font-family: system-ui, -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
@@ -274,44 +265,33 @@ body::before{
 .deco-5{ bottom: 34px; left: 14px; font-size: 16px; opacity: calc(var(--deco-opacity) * 0.8); }
 .deco-6{ bottom: 34px; right: 14px; font-size: 16px; opacity: calc(var(--deco-opacity) * 0.8); }
 
-/* ============================================================
-   主题按钮
-   ============================================================ */
+/* 主题按钮：圆形小图标，不挡字 */
 .theme-toggle{
   position: fixed;
-  top: calc(16px + env(safe-area-inset-top, 0px));
-  right: 16px;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: 12px;
   z-index: 10001;
+  width: 40px;
   height: 40px;
-  padding: 0 14px;
-  border-radius: 999px;
+  padding: 0;
+  border-radius: 50%;
   border: 1px solid var(--panel-border);
   background: var(--card-bg);
   color: var(--text);
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 18px;
   cursor: pointer;
   box-shadow: var(--card-shadow);
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: transform 0.2s, background 0.4s, color 0.4s;
+  justify-content: center;
+  transition: transform 0.2s, background 0.4s;
 }
 .theme-toggle:active{ transform: scale(0.94); }
-.theme-hint{
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-}
-@media (max-width: 380px){
-  .theme-hint{ display: none; }
-  .theme-toggle{ width: 40px; padding: 0; justify-content: center; }
-}
 
 .theme-panel{
   position: fixed;
-  top: calc(64px + env(safe-area-inset-top, 0px));
-  right: 16px;
+  top: calc(60px + env(safe-area-inset-top, 0px));
+  right: 12px;
   z-index: 10001;
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
@@ -342,13 +322,11 @@ body::before{
 }
 .theme-swatch .emoji{ font-size: 16px; }
 
-/* ============================================================
-   顶部
-   ============================================================ */
+/* 顶部：留出右侧按钮空间 */
 .top-title{
   position: relative; z-index: 2;
   text-align: center;
-  padding: 40px 16px 8px;
+  padding: 56px 60px 8px 60px;
 }
 .top-title h2{
   font-size: 19px; font-weight: 600;
@@ -362,9 +340,7 @@ body::before{
   min-height: 18px;
 }
 
-/* ============================================================
-   控制区
-   ============================================================ */
+/* 控制区 */
 .ctrl{
   position: relative; z-index: 2;
   display: flex; flex-direction: column; gap: 10px;
@@ -433,9 +409,7 @@ button:active{ transform: scale(0.95); filter: brightness(0.98); }
 button:disabled{ opacity:0.5; pointer-events:none; }
 button.speaking{ opacity:0.55; pointer-events:none; }
 
-/* ============================================================
-   卡片
-   ============================================================ */
+/* 卡片 */
 .container{
   position: relative; z-index: 2;
   padding: 0 16px; max-width: 600px; margin: 0 auto;
@@ -505,9 +479,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 }
 .nav-buttons button{ padding: 12px 26px; font-size: 14px; flex: 0 1 auto; }
 
-/* ============================================================
-   复习栏
-   ============================================================ */
+/* 复习栏 */
 .review-bar{
   margin-top: 18px;
   background: var(--panel-bg);
@@ -528,10 +500,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   font-weight: 600; letter-spacing: 0.5px;
   text-align: center; margin-bottom: 4px;
 }
-.review-bar button{
-  padding: 10px 6px; font-size: 12px;
-  font-weight: 600; width: 100%;
-}
+.review-bar button{ padding: 10px 6px; font-size: 12px; font-weight: 600; width: 100%; }
 .review-bar .hint{
   grid-column: 1 / -1;
   font-size: 11px; color: var(--text-muted);
@@ -540,9 +509,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   min-height: 14px;
 }
 
-/* ============================================================
-   设置
-   ============================================================ */
+/* 设置 */
 .setting-area{
   margin-top: 18px;
   background: var(--panel-bg);
@@ -585,9 +552,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 .switch.active{ background: var(--btn-blue-text); }
 .switch.active::after{ left: 21px; }
 
-/* ============================================================
-   导入
-   ============================================================ */
+/* 导入 */
 .import-wrap{
   margin-top: 22px;
   display: flex; gap: 10px;
@@ -633,21 +598,28 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   line-height: 1.6;
 }
 
-/* ============================================================
-   进度条
-   ============================================================ */
+/* 粉色进度条（保证显示） */
 .progress-bar{
-  margin: 8px auto 0;
-  width: 100%; max-width: 280px;
-  display: none; opacity: 0;
+  margin: 10px auto 0;
+  width: 100%; max-width: 300px;
+  display: none;
+  opacity: 0;
   transform: translateY(-4px);
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
-.progress-bar.active{ display: block; opacity: 1; transform: translateY(0); }
+.progress-bar.active{
+  display: block !important;
+  opacity: 1 !important;
+  transform: translateY(0);
+}
 .progress-bar-track{
-  position: relative; width: 100%; height: 6px;
+  position: relative;
+  width: 100%;
+  height: 8px;
   background: var(--progress-track);
-  border-radius: 999px; overflow: hidden;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .progress-bar-fill{
   position: relative; height: 100%; width: 0%;
@@ -685,9 +657,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   font-weight: 800;
 }
 
-/* ============================================================
-   目录
-   ============================================================ */
+/* 目录 */
 .catalog-panel{
   margin-top: 18px;
   background: var(--panel-bg);
@@ -824,9 +794,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   grid-column: 1 / -1; letter-spacing: 0.3px;
 }
 
-/* ============================================================
-   翻转浮层
-   ============================================================ */
+/* 翻转浮层 */
 .flip-overlay{
   position: fixed; inset: 0;
   background: rgba(90, 80, 70, 0.35);
@@ -965,9 +933,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 .flip-nav button:active{ transform: scale(0.94); }
 .flip-nav button:disabled{ opacity: 0.4; pointer-events: none; }
 
-/* ============================================================
-   帮助
-   ============================================================ */
+/* 帮助 */
 .help-overlay{
   position: fixed; inset: 0;
   background: rgba(90, 80, 70, 0.4);
@@ -1050,9 +1016,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 }
 .help-close:active{ transform: scale(0.92); }
 
-/* ============================================================
-   Toast
-   ============================================================ */
+/* Toast */
 .toast{
   position: fixed; bottom: 40px; left: 50%;
   transform: translateX(-50%) translateY(20px);
@@ -1070,9 +1034,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 }
 .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* ============================================================
-   响应式
-   ============================================================ */
+/* 响应式 */
 @media (max-width: 380px) {
   .container{ padding: 0 12px; }
   .ctrl{ margin: 8px 14px 14px; }
@@ -1086,6 +1048,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   .catalog-item{ min-height: 82px; padding: 12px 6px 16px; }
   .catalog-item .word-en{ font-size: 12px; }
   .catalog-item .word-cn{ font-size: 9px; }
+  .top-title{ padding: 52px 56px 8px 56px; }
 }
 @media (min-width: 768px) and (orientation: portrait) {
   .container{ max-width: 640px; padding: 0 24px; }
@@ -1127,7 +1090,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   .card{ max-width: 680px; margin: 0 auto; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
-  .top-title{ padding: 20px 16px 4px; }
+  .top-title{ padding: 20px 60px 4px 60px; }
   .top-title h2{ font-size: 17px; }
   .ctrl{ margin: 6px 18px 12px; gap: 6px; }
   .card{ padding: 26px 22px 20px; }
@@ -1144,11 +1107,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 </head>
 <body>
 
-<!-- 主题按钮 -->
-<button class="theme-toggle" id="themeToggle" title="换主题">
-  🎨
-  <span class="theme-hint">换主题</span>
-</button>
+<button class="theme-toggle" id="themeToggle" title="换主题" aria-label="换主题">🎨</button>
 <div class="theme-panel" id="themePanel">
   <div class="theme-swatch active" data-theme="cream"><span class="emoji">🌸</span> 奶油治愈</div>
   <div class="theme-swatch" data-theme="glass"><span class="emoji">🧊</span> 玻璃轻奢</div>
@@ -1275,7 +1234,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   </div>
 </div>
 
-<!-- 翻转浮层 -->
 <div class="flip-overlay" id="flipOverlay">
   <div class="flip-wrap">
     <div class="flip-top-bar">
@@ -1306,14 +1264,11 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   </div>
 </div>
 
-<!-- 帮助浮层 -->
 <div class="help-overlay" id="helpOverlay">
   <div class="help-panel">
     <button class="help-close" id="helpClose">✕</button>
-
     <h3>📖 制作词库（超简单，照着做）</h3>
     <p>⚠️ 一次最多 150 个单词，多了分几批做</p>
-
     <h4>第 1 步：把单词发给 DeepSeek</h4>
     <p>你手上的单词<b>长什么样就贴什么样</b>，不用整理。一行一个、逗号隔开、带中文、一段笔记都行。</p>
     <p>复制下面这段话，粘贴到 DeepSeek，在最后加上你的单词：</p>
@@ -1326,7 +1281,6 @@ sentenceEn（英文例句）、sentenceCn（例句中文翻译）。
 [{"word":"apple","mean":"苹果","sentenceEn":"I eat an apple.","sentenceCn":"我吃一个苹果。"}]
 我的单词：
 （在这里贴你的单词）</pre>
-
     <h4>第 2 步：保存成文件</h4>
     <ol>
       <li>复制 DeepSeek 回复的<b>全部内容</b></li>
@@ -1336,14 +1290,12 @@ sentenceEn（英文例句）、sentenceCn（例句中文翻译）。
       <li>文件名最后改成 <code>.json</code>（例如 <code>我的词库.json</code>）</li>
       <li>保存 → 回到网页点【选择本地词库】→ 选中这个文件 ✅</li>
     </ol>
-
     <h4>⚠️ 注意</h4>
     <div class="help-warn">
       ✅ 一次不超过 150 个单词<br>
       ❌ 不要手动改大括号 <code>{}</code>、引号 <code>""</code>，错一个符号就导入失败<br>
       ❌ 保存时「编码」要选 <code>UTF-8</code>，中文才不乱码
     </div>
-
     <h4>💾 关于本地词库的保存</h4>
     <div class="help-note">
       <b>本地词库是一次性的</b>，上传后只存在当前页面内存里。<br>
@@ -1390,7 +1342,7 @@ document.addEventListener('click', (e) => {
   themePanel.classList.remove('active');
 });
 
-// ================= 全局状态 =================
+// ================= 全局 =================
 let wordList = [];
 let currentIndex = 0;
 let running = false;
@@ -1421,7 +1373,7 @@ const dictConfig = [
   { name: "雅思词汇", files: ["ieltslist1.json","ieltslist2.json","ieltslist3.json","ieltslist4.json","ieltslist5.json","ieltslist6.json","ieltslist7.json","ieltslist8.json","ieltslist9.json","ieltslist10.json","ieltslist11.json","ieltslist12.json","ieltslist13.json","ieltslist14.json","ieltslist15.json","ieltslist16.json","ieltslist17.json","ieltslist18.json","ieltslist19.json","ieltslist20.json"] }
 ];
 
-// ================= DOM =================
+// DOM
 const domWord = document.getElementById('word');
 const domMean = document.getElementById('meaning');
 const domSenEn = document.getElementById('senEn');
@@ -1498,7 +1450,7 @@ function hideProgress() {
   progressPercent.querySelector('.num').innerText = '0';
 }
 
-// ================= 下拉框 =================
+// 下拉框
 dictConfig.forEach((item, idx) => {
   const opt = document.createElement('option');
   opt.value = idx;
@@ -1506,7 +1458,7 @@ dictConfig.forEach((item, idx) => {
   dictSelect.appendChild(opt);
 });
 
-// ================= 开关 =================
+// 开关
 readEnSwitch.onclick = () => { readEnSwitch.classList.toggle("active"); saveSettings(); };
 readMeanSwitch.onclick = () => { readMeanSwitch.classList.toggle("active"); saveSettings(); };
 readSenSwitch.onclick = () => { readSenSwitch.classList.toggle("active"); saveSettings(); };
@@ -1515,7 +1467,6 @@ catalogHeader.addEventListener('click', () => {
   catalogPanel.classList.toggle('open');
 });
 
-// 目录模式
 document.querySelectorAll('.catalog-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.catalog-tab').forEach(t => t.classList.remove('active'));
@@ -1525,14 +1476,13 @@ document.querySelectorAll('.catalog-tab').forEach(tab => {
   });
 });
 
-// 帮助
 helpBtn.addEventListener('click', () => helpOverlay.classList.add('active'));
 helpClose.addEventListener('click', () => helpOverlay.classList.remove('active'));
 helpOverlay.addEventListener('click', (e) => {
   if (e.target === helpOverlay) helpOverlay.classList.remove('active');
 });
 
-// ================= 设置持久化 =================
+// ================= 设置 =================
 function loadSettings() {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
@@ -1544,7 +1494,7 @@ function loadSettings() {
     if (s.readEn !== undefined) readEnSwitch.classList.toggle('active', s.readEn);
     if (s.readMean !== undefined) readMeanSwitch.classList.toggle('active', s.readMean);
     if (s.readSen !== undefined) readSenSwitch.classList.toggle('active', s.readSen);
-  } catch (e) { console.warn('读取设置失败', e); }
+  } catch (e) {}
 }
 function saveSettings() {
   try {
@@ -1556,7 +1506,7 @@ function saveSettings() {
       readMean: readMeanSwitch.classList.contains('active'),
       readSen: readSenSwitch.classList.contains('active')
     }));
-  } catch (e) { console.warn('保存设置失败', e); }
+  } catch (e) {}
 }
 intervalInput.addEventListener('change', saveSettings);
 enReadCountInput.addEventListener('change', saveSettings);
@@ -1570,8 +1520,7 @@ function loadViewCounts() {
   } catch (e) { viewCountMap = {}; }
 }
 function saveViewCounts() {
-  try { localStorage.setItem(VIEW_COUNT_KEY, JSON.stringify(viewCountMap)); }
-  catch (e) { console.warn('保存查看次数失败', e); }
+  try { localStorage.setItem(VIEW_COUNT_KEY, JSON.stringify(viewCountMap)); } catch (e) {}
 }
 function incrementViewCount(word) {
   if (!word) return 0;
@@ -1698,62 +1647,77 @@ function renderCatalog() {
   if (catalogGridWrap) catalogGridWrap.scrollTop = savedScroll;
 }
 
-// ================= 语音（少御女声优化） =================
-let cachedVoice = null;
+// ================= 语音：强制女声 =================
+let cachedVoiceEn = null;
+let cachedVoiceZh = null;
 let voiceCacheTime = 0;
 
-function getBestVoice(lang) {
+function findFemaleVoice(lang) {
   if (!('speechSynthesis' in window)) return null;
-  const now = Date.now();
-  if (cachedVoice && now - voiceCacheTime < 5000) {
-    if (cachedVoice.lang && cachedVoice.lang.toLowerCase().startsWith(lang.toLowerCase().slice(0,2))) {
-      return cachedVoice;
-    }
-  }
   const voices = window.speechSynthesis.getVoices();
   if (!voices || voices.length === 0) return null;
 
   const isEn = lang.toLowerCase().startsWith('en');
   const isZh = lang.toLowerCase().startsWith('zh');
 
-  const enFemaleNames = [
-    'Samantha','Karen','Moira','Tessa','Fiona','Serena','Allison','Ava','Susan','Victoria',
-    'Microsoft Zira','Microsoft Aria','Microsoft Jenny','Microsoft Michelle','Microsoft Ana',
+  const enFemale = [
+    'Samantha','Karen','Moira','Tessa','Fiona','Serena','Allison','Ava',
+    'Susan','Victoria','Princess','Zosia','Kanya',
+    'Microsoft Zira','Microsoft Aria','Microsoft Jenny','Microsoft Michelle',
+    'Microsoft Ana','Microsoft Emily','Microsoft Clara',
     'Google US English','Google UK English Female'
   ];
-  const zhFemaleNames = [
-    'Tingting','Ting-Ting','Meijia','Mei-Jia','Sinji','Ya-Ling',
-    'Microsoft Xiaoxiao','Microsoft Xiaoyi','Microsoft Huihui','Microsoft Yaoyao','Google 普通话'
+  const zhFemale = [
+    'Tingting','Ting-Ting','Meijia','Mei-Jia','Sinji','Ya-Ling','Panpan',
+    'Microsoft Xiaoxiao','Microsoft Xiaoyi','Microsoft Huihui','Microsoft Yaoyao',
+    'Google 普通话'
   ];
 
-  // 男声黑名单
-  const maleKeywords = /male|man|男|Daniel|Alex|Fred|Tom|Oliver|Mark|David|James|Thomas|Jorge|Diego|Aaron|Xander|Reed|Rocko|Rishi|Tiantian|Kangkang|Yunyang|Yunxi|Yunjian/i;
+  const maleRegex = /male\b|man\b|Daniel|Alex\b|Fred|Tom\b|Oliver|Mark|David|James|Thomas|Jorge|Diego|Aaron|Xander|Reed|Rocko|Rishi|Tiantian|Kangkang|Yunyang|Yunxi|Yunjian|Enrique|Eddy|Junior|Grandpa|Siri Voice 2|Siri Voice 4/i;
 
-  const preferred = isEn ? enFemaleNames : (isZh ? zhFemaleNames : []);
+  const preferred = isEn ? enFemale : (isZh ? zhFemale : []);
   for (const name of preferred) {
-    const v = voices.find(v => v.name && v.name.indexOf(name) !== -1);
-    if (v) { cachedVoice = v; voiceCacheTime = now; return v; }
+    const v = voices.find(v => 
+      v.name && v.name.indexOf(name) !== -1 && !maleRegex.test(v.name)
+    );
+    if (v) return v;
   }
 
   const langVoices = voices.filter(v =>
     v.lang && v.lang.toLowerCase().startsWith(isEn ? 'en' : (isZh ? 'zh' : lang.slice(0,2).toLowerCase()))
   );
-  const notMale = langVoices.filter(v => !maleKeywords.test(v.name || ''));
-  const female = notMale.find(v => /female|woman|女/i.test(v.name));
-  if (female) { cachedVoice = female; voiceCacheTime = now; return female; }
-  if (notMale.length > 0) { cachedVoice = notMale[0]; voiceCacheTime = now; return notMale[0]; }
-  cachedVoice = voices[0]; voiceCacheTime = now; return voices[0];
+  const notMale = langVoices.filter(v => !maleRegex.test(v.name || ''));
+  const female = notMale.find(v => /female|woman|girl|女/i.test(v.name));
+  if (female) return female;
+  if (notMale.length > 0) return notMale[0];
+  return langVoices[0] || voices[0] || null;
+}
+
+function getBestVoice(lang) {
+  const now = Date.now();
+  const isEn = lang.toLowerCase().startsWith('en');
+  const isZh = lang.toLowerCase().startsWith('zh');
+  if (now - voiceCacheTime < 10000) {
+    if (isEn && cachedVoiceEn) return cachedVoiceEn;
+    if (isZh && cachedVoiceZh) return cachedVoiceZh;
+  }
+  const v = findFemaleVoice(lang);
+  voiceCacheTime = now;
+  if (isEn) cachedVoiceEn = v;
+  if (isZh) cachedVoiceZh = v;
+  return v;
 }
 
 if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => {
-    cachedVoice = null;
+    cachedVoiceEn = null;
+    cachedVoiceZh = null;
     voiceCacheTime = 0;
   };
   window.speechSynthesis.getVoices();
 }
 
-// ================= 主页面语音 =================
+// ================= 主语音 =================
 function resetSpeech() {
   try { window.speechSynthesis.cancel(); } catch (e) {}
   isSpeaking = false;
@@ -1776,7 +1740,8 @@ async function speakText(text, lang = "en-US") {
   if (voice) utter.voice = voice;
 
   const isEn = lang.toLowerCase().startsWith('en');
-  utter.pitch = isEn ? 1.0 : 1.05;
+  const isZh = lang.toLowerCase().startsWith('zh');
+  utter.pitch = isEn ? 1.0 : (isZh ? 1.15 : 1.0);
   utter.rate = (Number(speechRateInput.value) || 1) * 0.95;
   utter.volume = 1;
 
@@ -1809,20 +1774,13 @@ async function speakWordAudio(item, session) {
   }
 }
 
-// ================= 显示单词 =================
+// ================= 显示单词（优化：先UI后语音） =================
 async function showWord(item) {
   if (!item) return;
   const session = displaySession;
   incrementViewCount(item.word);
 
-  cardContent.classList.remove('fade-in');
-  cardContent.classList.add('fade-out');
-  await sleep(200);
-  if (session !== displaySession) {
-    cardContent.classList.remove('fade-out');
-    return;
-  }
-
+  // 先切 UI
   domWord.classList.remove('waiting');
   domWord.innerText = item.word || '';
   domMean.innerText = item.mean || '';
@@ -1835,9 +1793,11 @@ async function showWord(item) {
   refreshViewBadge();
   updateCurrentCatalogItem();
 
+  // 再念语音（异步）
   await speakWordAudio(item, session);
   if (session !== displaySession) return;
 
+  // 自动跳下一个
   if (running) {
     await sleep(Number(intervalInput.value) * 1000);
     if (session !== displaySession) return;
@@ -1852,8 +1812,13 @@ async function next() {
   try {
     currentIndex = (currentIndex + 1) % wordList.length;
     updateProgress();
-    await showWord(wordList[currentIndex]);
-  } finally { switching = false; }
+    await Promise.race([
+      showWord(wordList[currentIndex]),
+      new Promise(resolve => setTimeout(resolve, 30000))
+    ]);
+  } finally {
+    switching = false;
+  }
 }
 
 async function prev() {
@@ -1955,7 +1920,8 @@ async function flipSpeak(text, lang = 'en-US') {
   const voice = getBestVoice(lang);
   if (voice) utter.voice = voice;
   const isEn = lang.toLowerCase().startsWith('en');
-  utter.pitch = isEn ? 1.0 : 1.05;
+  const isZh = lang.toLowerCase().startsWith('zh');
+  utter.pitch = isEn ? 1.0 : (isZh ? 1.15 : 1.0);
   utter.rate = (Number(speechRateInput.value) || 1) * 0.95;
   utter.volume = 1;
 
@@ -1999,7 +1965,7 @@ flipOverlay.addEventListener('click', (e) => {
   if (e.target === flipOverlay) closeFlipCard();
 });
 
-// ================= 加载词库（分批优化） =================
+// ================= 加载词库 =================
 document.getElementById('loadOnline').onclick = async () => {
   const now = Date.now();
   if (isLoading || now - lastClickTime < CLICK_DELAY) return;
@@ -2016,7 +1982,7 @@ document.getElementById('loadOnline').onclick = async () => {
   loadStatus.innerText = `正在加载 0/${total} ...`;
   showProgress(0, total);
 
-  const BATCH_SIZE = 5;
+  const BATCH_SIZE = 10;
   const results = [];
 
   try {
@@ -2196,6 +2162,7 @@ document.getElementById('startBtn').onclick = function() {
 
 document.getElementById('stopBtn').onclick = function() {
   running = false;
+  switching = false;
   resetSpeech();
   speechToken++;
   isSpeaking = false;
