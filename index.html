@@ -107,7 +107,8 @@ body[data-theme="glass"] {
 body[data-theme="glass"] .card,
 body[data-theme="glass"] .setting-area,
 body[data-theme="glass"] .catalog-panel,
-body[data-theme="glass"] .review-bar {
+body[data-theme="glass"] .review-bar,
+body[data-theme="glass"] .progress-bar {
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
 }
@@ -224,7 +225,6 @@ body[data-theme="minimal"] .catalog-item.active .word-cn { color: #ffffff; }
 body[data-theme="minimal"] .deco { display: none; }
 body[data-theme="minimal"] .top-title h2 { color: #0f0f0f; font-weight: 700; }
 
-/* 基础 */
 *{
   margin: 0; padding: 0; box-sizing: border-box;
   font-family: system-ui, -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
@@ -265,7 +265,6 @@ body::before{
 .deco-5{ bottom: 34px; left: 14px; font-size: 16px; opacity: calc(var(--deco-opacity) * 0.8); }
 .deco-6{ bottom: 34px; right: 14px; font-size: 16px; opacity: calc(var(--deco-opacity) * 0.8); }
 
-/* 主题按钮：圆形小图标，不挡字 */
 .theme-toggle{
   position: fixed;
   top: calc(12px + env(safe-area-inset-top, 0px));
@@ -322,7 +321,6 @@ body::before{
 }
 .theme-swatch .emoji{ font-size: 16px; }
 
-/* 顶部：留出右侧按钮空间 */
 .top-title{
   position: relative; z-index: 2;
   text-align: center;
@@ -340,7 +338,6 @@ body::before{
   min-height: 18px;
 }
 
-/* 控制区 */
 .ctrl{
   position: relative; z-index: 2;
   display: flex; flex-direction: column; gap: 10px;
@@ -409,7 +406,6 @@ button:active{ transform: scale(0.95); filter: brightness(0.98); }
 button:disabled{ opacity:0.5; pointer-events:none; }
 button.speaking{ opacity:0.55; pointer-events:none; }
 
-/* 卡片 */
 .container{
   position: relative; z-index: 2;
   padding: 0 16px; max-width: 600px; margin: 0 auto;
@@ -479,7 +475,72 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 }
 .nav-buttons button{ padding: 12px 26px; font-size: 14px; flex: 0 1 auto; }
 
-/* 复习栏 */
+/* ★ 进度条：显示在单词卡下方 */
+.progress-bar{
+  margin: 14px auto 0;
+  width: 100%;
+  max-width: 100%;
+  padding: 14px 20px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  box-shadow: var(--panel-shadow);
+  display: none;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 2;
+}
+.progress-bar.active{
+  display: block !important;
+  opacity: 1 !important;
+  transform: translateY(0);
+}
+.progress-bar-track{
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: var(--progress-track);
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.progress-bar-fill{
+  position: relative; height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--progress-fill-1), var(--progress-fill-2), var(--progress-fill-3), var(--progress-fill-2), var(--progress-fill-1));
+  background-size: 200% 100%;
+  border-radius: 999px;
+  transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  animation: progressFlow 2s linear infinite;
+}
+.progress-bar-fill::after{
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+  border-radius: 999px;
+  animation: progressShine 1.6s ease-in-out infinite;
+}
+@keyframes progressFlow {
+  0%   { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes progressShine {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  40%  { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+.progress-percent{
+  margin-top: 8px; text-align: center;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--progress-percent);
+  transition: color 0.3s;
+}
+.progress-percent .num{
+  font-size: 13px;
+  color: var(--progress-percent-num);
+  font-weight: 800;
+}
+
 .review-bar{
   margin-top: 18px;
   background: var(--panel-bg);
@@ -509,7 +570,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   min-height: 14px;
 }
 
-/* 设置 */
 .setting-area{
   margin-top: 18px;
   background: var(--panel-bg);
@@ -552,7 +612,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 .switch.active{ background: var(--btn-blue-text); }
 .switch.active::after{ left: 21px; }
 
-/* 导入 */
 .import-wrap{
   margin-top: 22px;
   display: flex; gap: 10px;
@@ -598,66 +657,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   line-height: 1.6;
 }
 
-/* 粉色进度条（保证显示） */
-.progress-bar{
-  margin: 10px auto 0;
-  width: 100%; max-width: 300px;
-  display: none;
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.progress-bar.active{
-  display: block !important;
-  opacity: 1 !important;
-  transform: translateY(0);
-}
-.progress-bar-track{
-  position: relative;
-  width: 100%;
-  height: 8px;
-  background: var(--progress-track);
-  border-radius: 999px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-.progress-bar-fill{
-  position: relative; height: 100%; width: 0%;
-  background: linear-gradient(90deg, var(--progress-fill-1), var(--progress-fill-2), var(--progress-fill-3), var(--progress-fill-2), var(--progress-fill-1));
-  background-size: 200% 100%;
-  border-radius: 999px;
-  transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  animation: progressFlow 2s linear infinite;
-}
-.progress-bar-fill::after{
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
-  border-radius: 999px;
-  animation: progressShine 1.6s ease-in-out infinite;
-}
-@keyframes progressFlow {
-  0%   { background-position: 0% 0; }
-  100% { background-position: 200% 0; }
-}
-@keyframes progressShine {
-  0%   { transform: translateX(-100%); opacity: 0; }
-  40%  { opacity: 1; }
-  100% { transform: translateX(100%); opacity: 0; }
-}
-.progress-percent{
-  margin-top: 6px; text-align: center;
-  font-size: 11px; font-weight: 700;
-  letter-spacing: 0.5px;
-  color: var(--progress-percent);
-  transition: color 0.3s;
-}
-.progress-percent .num{
-  font-size: 13px;
-  color: var(--progress-percent-num);
-  font-weight: 800;
-}
-
-/* 目录 */
 .catalog-panel{
   margin-top: 18px;
   background: var(--panel-bg);
@@ -794,7 +793,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   grid-column: 1 / -1; letter-spacing: 0.3px;
 }
 
-/* 翻转浮层 */
 .flip-overlay{
   position: fixed; inset: 0;
   background: rgba(90, 80, 70, 0.35);
@@ -933,7 +931,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 .flip-nav button:active{ transform: scale(0.94); }
 .flip-nav button:disabled{ opacity: 0.4; pointer-events: none; }
 
-/* 帮助 */
 .help-overlay{
   position: fixed; inset: 0;
   background: rgba(90, 80, 70, 0.4);
@@ -1016,7 +1013,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 }
 .help-close:active{ transform: scale(0.92); }
 
-/* Toast */
 .toast{
   position: fixed; bottom: 40px; left: 50%;
   transform: translateX(-50%) translateY(20px);
@@ -1034,7 +1030,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 }
 .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* 响应式 */
 @media (max-width: 380px) {
   .container{ padding: 0 12px; }
   .ctrl{ margin: 8px 14px 14px; }
@@ -1159,6 +1154,16 @@ button.speaking{ opacity:0.55; pointer-events:none; }
     </div>
   </div>
 
+  <!-- ★ 进度条：显示在卡片下方 -->
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-percent" id="progressPercent">
+      <span class="num">0</span>%
+    </div>
+  </div>
+
   <div class="review-bar">
     <span class="label">🔍 复习</span>
     <button class="btn-blue" id="reviewLeast">最不熟</button>
@@ -1190,7 +1195,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   <div class="setting-area">
     <div class="set-row">
       <span>间隔（秒）：</span>
-      <input type="number" id="interval" value="4" min="1">
+      <input type="number" id="interval" value="2" min="1">
     </div>
     <div class="set-row">
       <span>单词朗读次数：</span>
@@ -1223,14 +1228,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   </div>
   <div class="load-status-wrap">
     <div id="loadStatus"></div>
-    <div class="progress-bar" id="progressBar">
-      <div class="progress-bar-track">
-        <div class="progress-bar-fill" id="progressFill"></div>
-      </div>
-      <div class="progress-percent" id="progressPercent">
-        <span class="num">0</span>%
-      </div>
-    </div>
   </div>
 </div>
 
@@ -1373,7 +1370,6 @@ const dictConfig = [
   { name: "雅思词汇", files: ["ieltslist1.json","ieltslist2.json","ieltslist3.json","ieltslist4.json","ieltslist5.json","ieltslist6.json","ieltslist7.json","ieltslist8.json","ieltslist9.json","ieltslist10.json","ieltslist11.json","ieltslist12.json","ieltslist13.json","ieltslist14.json","ieltslist15.json","ieltslist16.json","ieltslist17.json","ieltslist18.json","ieltslist19.json","ieltslist20.json"] }
 ];
 
-// DOM
 const domWord = document.getElementById('word');
 const domMean = document.getElementById('meaning');
 const domSenEn = document.getElementById('senEn');
@@ -1426,7 +1422,7 @@ const helpOverlay = document.getElementById('helpOverlay');
 const helpBtn = document.getElementById('helpBtn');
 const helpClose = document.getElementById('helpClose');
 
-// ================= Toast =================
+// Toast
 let toastTimer = null;
 function showToast(msg, duration = 1800) {
   toastEl.innerText = msg;
@@ -1437,7 +1433,7 @@ function showToast(msg, duration = 1800) {
   }, duration);
 }
 
-// ================= 进度 =================
+// 进度
 function showProgress(done, total) {
   progressBar.classList.add('active');
   const pct = Math.min(100, Math.round((done / total) * 100));
@@ -1445,12 +1441,17 @@ function showProgress(done, total) {
   progressPercent.querySelector('.num').innerText = pct;
 }
 function hideProgress() {
-  progressBar.classList.remove('active');
-  progressFill.style.width = '0%';
-  progressPercent.querySelector('.num').innerText = '0';
+  progressFill.style.width = '100%';
+  progressPercent.querySelector('.num').innerText = '100';
+  setTimeout(() => {
+    progressBar.classList.remove('active');
+    setTimeout(() => {
+      progressFill.style.width = '0%';
+      progressPercent.querySelector('.num').innerText = '0';
+    }, 300);
+  }, 800);
 }
 
-// 下拉框
 dictConfig.forEach((item, idx) => {
   const opt = document.createElement('option');
   opt.value = idx;
@@ -1458,7 +1459,6 @@ dictConfig.forEach((item, idx) => {
   dictSelect.appendChild(opt);
 });
 
-// 开关
 readEnSwitch.onclick = () => { readEnSwitch.classList.toggle("active"); saveSettings(); };
 readMeanSwitch.onclick = () => { readMeanSwitch.classList.toggle("active"); saveSettings(); };
 readSenSwitch.onclick = () => { readSenSwitch.classList.toggle("active"); saveSettings(); };
@@ -1482,7 +1482,6 @@ helpOverlay.addEventListener('click', (e) => {
   if (e.target === helpOverlay) helpOverlay.classList.remove('active');
 });
 
-// ================= 设置 =================
 function loadSettings() {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
@@ -1512,7 +1511,6 @@ intervalInput.addEventListener('change', saveSettings);
 enReadCountInput.addEventListener('change', saveSettings);
 speechRateInput.addEventListener('change', saveSettings);
 
-// ================= 查看次数 =================
 function loadViewCounts() {
   try {
     const raw = localStorage.getItem(VIEW_COUNT_KEY);
@@ -1543,7 +1541,6 @@ function refreshViewBadge() {
   else viewBadge.classList.remove('high');
 }
 
-// ================= 工具 =================
 function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
 
 function updateProgress() {
@@ -1717,7 +1714,6 @@ if ('speechSynthesis' in window) {
   window.speechSynthesis.getVoices();
 }
 
-// ================= 主语音 =================
 function resetSpeech() {
   try { window.speechSynthesis.cancel(); } catch (e) {}
   isSpeaking = false;
@@ -1739,10 +1735,9 @@ async function speakText(text, lang = "en-US") {
   const voice = getBestVoice(lang);
   if (voice) utter.voice = voice;
 
-  const isEn = lang.toLowerCase().startsWith('en');
   const isZh = lang.toLowerCase().startsWith('zh');
-  utter.pitch = isEn ? 1.0 : (isZh ? 1.15 : 1.0);
-  utter.rate = (Number(speechRateInput.value) || 1) * 0.95;
+  utter.pitch = isZh ? 1.05 : 1.0;
+  utter.rate = (Number(speechRateInput.value) || 1) * 0.88;
   utter.volume = 1;
 
   return new Promise((resolve) => {
@@ -1774,13 +1769,11 @@ async function speakWordAudio(item, session) {
   }
 }
 
-// ================= 显示单词（优化：先UI后语音） =================
 async function showWord(item) {
   if (!item) return;
   const session = displaySession;
   incrementViewCount(item.word);
 
-  // 先切 UI
   domWord.classList.remove('waiting');
   domWord.innerText = item.word || '';
   domMean.innerText = item.mean || '';
@@ -1793,11 +1786,9 @@ async function showWord(item) {
   refreshViewBadge();
   updateCurrentCatalogItem();
 
-  // 再念语音（异步）
   await speakWordAudio(item, session);
   if (session !== displaySession) return;
 
-  // 自动跳下一个
   if (running) {
     await sleep(Number(intervalInput.value) * 1000);
     if (session !== displaySession) return;
@@ -1834,7 +1825,6 @@ async function prev() {
   } finally { switching = false; }
 }
 
-// ================= 翻转浮层 =================
 let flipSession = 0;
 let flipSpeaking = false;
 let flipToken = 0;
@@ -1919,10 +1909,9 @@ async function flipSpeak(text, lang = 'en-US') {
   utter.lang = lang;
   const voice = getBestVoice(lang);
   if (voice) utter.voice = voice;
-  const isEn = lang.toLowerCase().startsWith('en');
   const isZh = lang.toLowerCase().startsWith('zh');
-  utter.pitch = isEn ? 1.0 : (isZh ? 1.15 : 1.0);
-  utter.rate = (Number(speechRateInput.value) || 1) * 0.95;
+  utter.pitch = isZh ? 1.05 : 1.0;
+  utter.rate = (Number(speechRateInput.value) || 1) * 0.88;
   utter.volume = 1;
 
   return new Promise((resolve) => {
@@ -1965,7 +1954,7 @@ flipOverlay.addEventListener('click', (e) => {
   if (e.target === flipOverlay) closeFlipCard();
 });
 
-// ================= 加载词库 =================
+// ================= 加载词库（优化速度） =================
 document.getElementById('loadOnline').onclick = async () => {
   const now = Date.now();
   if (isLoading || now - lastClickTime < CLICK_DELAY) return;
@@ -1982,40 +1971,35 @@ document.getElementById('loadOnline').onclick = async () => {
   loadStatus.innerText = `正在加载 0/${total} ...`;
   showProgress(0, total);
 
-  const BATCH_SIZE = 10;
-  const results = [];
+  // ★ 优化：并发 20（一次全部发起），几乎瞬间完成
+  const BATCH_SIZE = 20;
 
   try {
-    for (let i = 0; i < fileList.length; i += BATCH_SIZE) {
-      const batch = fileList.slice(i, i + BATCH_SIZE);
-      const batchResults = await Promise.all(
-        batch.map(filename =>
-          fetch(`./${filename}`)
-            .then(res => {
-              if (!res.ok) throw new Error(`文件 ${filename} 加载失败`);
-              return res.json();
-            })
-            .then(data => {
-              if (Array.isArray(data)) return data;
-              else throw new Error(`文件 ${filename} 不是数组`);
-            })
-            .catch(err => {
-              console.warn(`加载 ${filename} 失败：`, err);
-              failedFiles.push(filename);
-              return [];
-            })
-            .finally(() => {
-              doneCount++;
-              loadStatus.innerText = `正在加载 ${doneCount}/${total} ...`;
-              showProgress(doneCount, total);
-            })
-        )
-      );
-      results.push(...batchResults);
-      await new Promise(r => setTimeout(r, 0));
-    }
+    const allPromises = fileList.map(filename =>
+      fetch(`./${filename}`)
+        .then(res => {
+          if (!res.ok) throw new Error(`文件 ${filename} 加载失败`);
+          return res.json();
+        })
+        .then(data => {
+          if (Array.isArray(data)) return data;
+          else throw new Error(`文件 ${filename} 不是数组`);
+        })
+        .catch(err => {
+          console.warn(`加载 ${filename} 失败：`, err);
+          failedFiles.push(filename);
+          return [];
+        })
+        .finally(() => {
+          doneCount++;
+          loadStatus.innerText = `正在加载 ${doneCount}/${total} ...`;
+          showProgress(doneCount, total);
+        })
+    );
 
+    const results = await Promise.all(allPromises);
     const mergedWords = results.flat();
+
     if (mergedWords.length === 0) {
       alert("加载失败：没有任何词库文件读取成功。\n请检查文件名是否和配置一致。");
       loadStatus.innerText = '加载失败，请检查文件';
@@ -2062,7 +2046,6 @@ document.getElementById('loadOnline').onclick = async () => {
   }
 };
 
-// ================= 跳转 =================
 document.getElementById('jumpBtn').onclick = async function() {
   const now = Date.now();
   if (now - lastClickTime < CLICK_DELAY) return;
@@ -2087,7 +2070,6 @@ document.getElementById('jumpBtn').onclick = async function() {
   } finally { switching = false; }
 };
 
-// ================= 本地导入 =================
 document.getElementById('fileInput').onchange = function(e) {
   const files = Array.from(e.target.files);
   if (files.length === 0) return;
@@ -2150,7 +2132,6 @@ function finishLocalImport(allWords, files, failed) {
   showToast(`导入成功 · ${wordList.length} 词`, 2200);
 }
 
-// ================= 开始/暂停 =================
 document.getElementById('startBtn').onclick = function() {
   if (wordList.length === 0) { showToast('请先加载词库'); return; }
   if (running) return;
@@ -2168,7 +2149,6 @@ document.getElementById('stopBtn').onclick = function() {
   isSpeaking = false;
 };
 
-// ================= 上/下一个 =================
 prevBtn.onclick = async function() {
   if (wordList.length === 0) { showToast('请先加载词库'); return; }
   if (switching) return;
@@ -2194,7 +2174,6 @@ nextBtn.onclick = async function() {
   }
 };
 
-// ================= 复习 =================
 document.getElementById('reviewLeast').onclick = async () => {
   if (wordList.length === 0) { showToast('请先加载词库'); return; }
   if (switching) return;
@@ -2271,10 +2250,8 @@ document.getElementById('resetViewCount').onclick = () => {
   reviewHint.innerText = '查看次数已清零';
 };
 
-// ================= 卸载 =================
 window.addEventListener('beforeunload', () => { resetSpeech(); });
 
-// ================= 初始化 =================
 loadTheme();
 loadViewCounts();
 loadSettings();
