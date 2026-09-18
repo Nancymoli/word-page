@@ -1,4 +1,4 @@
-<!-- v=1.8 所有词库统一按20个分文件加载 -->
+<!-- v=1.9 优化加载速度 + 语音卡顿修复，新增跳过朗读、读完再切换开关 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -56,6 +56,7 @@ button:active{ transform:scale(0.96); }
 .btn-pink{ background:#ffb3dd; color:#fff; }
 .btn-green{ background:#9de0c4; color:#222; }
 .btn-orange{ background:#ffd29d; color:#222; }
+.btn-red{ background:#ff8888; color:#fff; }
 
 .container{ position:relative; z-index:1; padding:0 14px; max-width:640px; margin:0 auto; }
 .card{
@@ -126,6 +127,7 @@ button:active{ transform:scale(0.96); }
   </div>
   <button class="btn-pink" id="startBtn">开始刷词</button>
   <button class="btn-green" id="stopBtn">暂停</button>
+  <button class="btn-red" id="skipSpeakBtn">跳过朗读</button>
 </div>
 
 <div class="container">
@@ -147,7 +149,7 @@ button:active{ transform:scale(0.96); }
     </div>
     <div class="set-row">
       <span>朗读速率：</span>
-      <input type="number" id="speechRate" value="1" min="0.5" max="2" step="0.1">
+      <input type="number" id="speechRate" value="1" min="0.5" max="2.5" step="0.1">
     </div>
     <div class="switch-wrap">
       <div class="switch-item">
@@ -166,6 +168,10 @@ button:active{ transform:scale(0.96); }
         <div class="switch active" id="readSenSwitch"></div>
         <span>朗读例句</span>
       </div>
+      <div class="switch-item">
+        <div class="switch active" id="waitReadSwitch"></div>
+        <span>读完再切换</span>
+      </div>
     </div>
   </div>
 
@@ -179,9 +185,210 @@ button:active{ transform:scale(0.96); }
 let wordList = [];
 let currentIndex = 0;
 let running = false;
-let isSpeaking = false;
 
-// ===== 词库配置：所有词库统一按 20 个分文件加载 =====
+const domWord = document.getElementById('word');
+const domMean = document.getElementById('meaning');
+const domSenEn = document.getElementById('senEn');
+const domSenCn = document.getElementById('senCn');
+const intervalInput = document.getElementById('interval');
+const enReadCountInput = document.getElementById('enReadCount');
+const speechRateInput = document.getElementById('speechRate');
+const dictSelect = document.getElementById('dictSelect');
+const progressText = document.getElementById('progressText');
+const jumpIndex = document.getElementById('jumpIndex');
+
+const randomSwitch = document.getElementById('randomSwitch');
+const readEnSwitch = document.getElementById('readEnSwitch');
+const readMeanSwitch = document.getElementById('readMeanSwitch');
+const readSenSwitch = document.getElementById('readSenSwitch');
+const waitReadSwitch = document.getElementById('waitReadSwitch');
+
+dictConfig.forEach((item, idx)=>{
+  const opt = document.createElement('option');
+  opt.value = idx;
+  opt.innerText = item.name;
+  dictSelect.appendChild(opt);
+})
+
+randomSwitch.onclick = ()=> randomSwitch.classList.toggle("active");
+readEnSwitch.onclick = ()=> readEnSwitch.classList.toggle("active");
+readMeanSwitch.onclick = ()=> readMeanSwitch.classList.toggle("active");
+readSenSwitch.onclick = ()=> readSenSwitch.classList.toggle("active");
+waitReadSwitch.onclick = ()=> waitReadSwitch.classList.toggle("active");
+
+function updateProgress(){
+  progressText.innerText = `进度：${currentIndex+1} / ${wordList.length}`;
+  const selectIdx = Number(dictSelect.value);
+  localStorage.setItem(`memIndex_${selectIdx}`, currentIndex);
+}
+
+// 并发分批加载，一次最多同时5个请求，提速
+async function batchFetchFiles(files, concurrency = 5) {
+  const results = [];
+  let index = 0;
+  const failedFiles = [];
+  async function worker() {
+    while(index < files.length) {
+      const filename = files[index++];
+      try{
+        const res = await fetch(`./${filename}`);
+        if(!res.ok) throw new Error("http error");
+        const json = await res.json();
+        if(Array.isArray(json)) results.push(...json);
+      }catch(e){
+        failedFiles.push(filename);
+      }
+    }
+  }
+  const workers = Array.from({length: concurrency}, ()=> worker());
+  await Promise.all(workers);
+  return {wordArr: results, failed: failedFiles};
+}
+
+document.getElementById('loadOnline').onclick = async ()=>{
+  const selectIdx = Number(dictSelect.value);
+  const dictItem = dictConfig[selectIdx];
+  const fileList = dictItem.files;
+
+  const {wordArr, failed} = await batchFetchFiles(fileList,5);
+  if(wordArr.length === 0){
+    alert("加载失败：没有任何词库文件读取成功。\n请检查文件名是否和配置一致。");
+    return;
+  }
+  wordList = wordArr;
+
+  const saved = localStorage.getItem(`memIndex_${selectIdx}`);
+  if(saved !== null){
+    currentIndex = Math.min(Number(saved), wordList.length -1);
+  }else{
+    currentIndex = 0;
+  }
+
+  updateProgress();
+  showWord(wordList[currentIndex]);
+
+  let msg = `词库【${dictItem.name}】加载完成\n单词总数：${wordList.length}\n上次背到第 ${currentIndex+1} 个`;
+  if(failed.length > 0){
+    msg += `\n\n加载失败文件：\n${failed.join("\n")}`;
+  }
+  alert(msg);
+}
+
+document.getElementById('jumpBtn').onclick = function(){
+  const num = Number(jumpIndex.value);
+  if(wordList.length === 0){alert("请先加载词库");return;}
+  if(num < 1 || num > wordList.length){alert("超出范围");return;}
+  currentIndex = num - 1;
+  updateProgress();
+  showWord(wordList[currentIndex]);
+}
+
+document.getElementById('fileInput').onchange = function(e){
+  const files = Array.from(e.target.files);
+  if(files.length === 0) return;
+  let allWords = [];
+  let done = 0;
+  files.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = evt=>{
+      try{
+        const data = JSON.parse(evt.target.result);
+        if(Array.isArray(data)) allWords = allWords.concat(data);
+      }catch(err){
+        console.warn(`${file.name} 解析失败：`, err);
+      }
+      done++;
+      if(done === files.length){
+        wordList = allWords;
+        currentIndex = 0;
+        updateProgress();
+        showWord(wordList[currentIndex]);
+        alert(`本地词库加载成功\n文件数：${files.length}\n单词总数：${wordList.length}`);
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+function sleep(ms){
+  return new Promise(res=>setTimeout(res,ms));
+}
+
+// 语音：直接取消旧语音，去掉轮询等待
+async function speakText(text, lang="en-US"){
+  if(!text) return;
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  utter.rate = Number(speechRateInput.value) || 1;
+  return new Promise(resolve => {
+    utter.onend = ()=> resolve();
+    speechSynthesis.speak(utter);
+  });
+}
+
+async function speakWordAudio(item){
+  const readTimes = Number(enReadCountInput.value) || 2;
+  if(readEnSwitch.classList.contains("active")){
+    for(let i=0; i<readTimes; i++){
+      await speakText(item.word, "en-US");
+    }
+  }
+  if(readMeanSwitch.classList.contains("active") && item.mean){
+    await speakText(item.mean, "zh-CN");
+  }
+  if(readSenSwitch.classList.contains("active") && item.sentenceEn){
+    await speakText(item.sentenceEn, "en-US");
+    if(item.sentenceCn) await speakText(item.sentenceCn, "zh-CN");
+  }
+}
+
+async function showWord(item){
+  domWord.innerText = item.word;
+  domMean.innerText = item.mean || "";
+  domSenEn.innerText = item.sentenceEn || "";
+  domSenCn.innerText = item.sentenceCn || "";
+
+  const waitRead = waitReadSwitch.classList.contains("active");
+  const speakPromise = speakWordAudio(item);
+
+  if(running){
+    const sec = Number(intervalInput.value)*1000;
+    if(waitRead){
+      await speakPromise;
+      await sleep(sec);
+    }else{
+      await sleep(sec);
+    }
+    next();
+  }
+}
+
+function next(){
+  if(!running) return;
+  if(randomSwitch.classList.contains("active")){
+    currentIndex = Math.floor(Math.random() * wordList.length);
+  }else{
+    currentIndex = (currentIndex+1) % wordList.length;
+  }
+  updateProgress();
+  showWord(wordList[currentIndex]);
+}
+
+document.getElementById('startBtn').onclick = function(){
+  if(wordList.length === 0){alert("请先加载词库！");return;}
+  running = true;
+  next();
+}
+document.getElementById('stopBtn').onclick = function(){
+  running = false;
+  speechSynthesis.cancel();
+}
+document.getElementById('skipSpeakBtn').onclick = function(){
+  speechSynthesis.cancel();
+}
+
+// ===== 词库配置 =====
 const dictConfig = [
   {
     name: "小学词汇",
@@ -247,210 +454,6 @@ const dictConfig = [
     ]
   }
 ];
-
-const domWord = document.getElementById('word');
-const domMean = document.getElementById('meaning');
-const domSenEn = document.getElementById('senEn');
-const domSenCn = document.getElementById('senCn');
-const intervalInput = document.getElementById('interval');
-const enReadCountInput = document.getElementById('enReadCount');
-const speechRateInput = document.getElementById('speechRate');
-const dictSelect = document.getElementById('dictSelect');
-const progressText = document.getElementById('progressText');
-const jumpIndex = document.getElementById('jumpIndex');
-
-const randomSwitch = document.getElementById('randomSwitch');
-const readEnSwitch = document.getElementById('readEnSwitch');
-const readMeanSwitch = document.getElementById('readMeanSwitch');
-const readSenSwitch = document.getElementById('readSenSwitch');
-
-dictConfig.forEach((item, idx)=>{
-  const opt = document.createElement('option');
-  opt.value = idx;
-  opt.innerText = item.name;
-  dictSelect.appendChild(opt);
-})
-
-randomSwitch.onclick = ()=> randomSwitch.classList.toggle("active");
-readEnSwitch.onclick = ()=> readEnSwitch.classList.toggle("active");
-readMeanSwitch.onclick = ()=> readMeanSwitch.classList.toggle("active");
-readSenSwitch.onclick = ()=> readSenSwitch.classList.toggle("active");
-
-function updateProgress(){
-  progressText.innerText = `进度：${currentIndex+1} / ${wordList.length}`;
-  const selectIdx = Number(dictSelect.value);
-  localStorage.setItem(`memIndex_${selectIdx}`, currentIndex);
-}
-
-// ===== 加载选中词库：多个分文件自动合并 =====
-document.getElementById('loadOnline').onclick = async ()=>{
-  const selectIdx = Number(dictSelect.value);
-  const dictItem = dictConfig[selectIdx];
-  const fileList = dictItem.files;
-  let mergedWords = [];
-  let loadedFiles = 0;
-  let failedFiles = [];
-
-  try{
-    for(const filename of fileList){
-      try{
-        const res = await fetch(`./${filename}`);
-        if(!res.ok){
-          failedFiles.push(filename);
-          continue;
-        }
-        const arr = await res.json();
-        if(Array.isArray(arr)){
-          mergedWords = mergedWords.concat(arr);
-          loadedFiles++;
-        }else{
-          failedFiles.push(filename);
-        }
-      }catch(err){
-        console.warn(`加载 ${filename} 失败：`, err);
-        failedFiles.push(filename);
-      }
-    }
-
-    if(mergedWords.length === 0){
-      alert("加载失败：没有任何词库文件读取成功。\n请检查文件名是否和配置一致。");
-      return;
-    }
-
-    wordList = mergedWords;
-
-    const saved = localStorage.getItem(`memIndex_${selectIdx}`);
-    if(saved !== null){
-      currentIndex = Math.min(Number(saved), wordList.length -1);
-    }else{
-      currentIndex = 0;
-    }
-
-    updateProgress();
-    showWord(wordList[currentIndex]);
-
-    let msg = `词库【${dictItem.name}】加载完成\n成功文件：${loadedFiles} 个\n单词总数：${wordList.length}\n上次背到第 ${currentIndex+1} 个`;
-    if(failedFiles.length > 0){
-      msg += `\n\n以下文件加载失败：\n${failedFiles.join("\n")}`;
-    }
-    alert(msg);
-  }catch(e){
-    console.error(e);
-    alert("加载出错，请检查控制台。");
-  }
-}
-
-// ===== 跳转 =====
-document.getElementById('jumpBtn').onclick = function(){
-  const num = Number(jumpIndex.value);
-  if(wordList.length === 0){alert("请先加载词库");return;}
-  if(num < 1 || num > wordList.length){alert("超出范围");return;}
-  currentIndex = num - 1;
-  updateProgress();
-  showWord(wordList[currentIndex]);
-}
-
-// ===== 本地导入（支持多文件合并）=====
-document.getElementById('fileInput').onchange = function(e){
-  const files = Array.from(e.target.files);
-  if(files.length === 0) return;
-
-  let allWords = [];
-  let done = 0;
-
-  files.forEach(file=>{
-    const reader = new FileReader();
-    reader.onload = evt=>{
-      try{
-        const data = JSON.parse(evt.target.result);
-        if(Array.isArray(data)){
-          allWords = allWords.concat(data);
-        }
-      }catch(err){
-        console.warn(`${file.name} 解析失败：`, err);
-      }
-      done++;
-      if(done === files.length){
-        wordList = allWords;
-        currentIndex = 0;
-        updateProgress();
-        showWord(wordList[currentIndex]);
-        alert(`本地词库加载成功\n文件数：${files.length}\n单词总数：${wordList.length}`);
-      }
-    };
-    reader.readAsText(file);
-  });
-}
-
-function sleep(ms){
-  return new Promise(res=>setTimeout(res,ms));
-}
-
-async function speakText(text, lang="en-US"){
-  if(!text) return;
-  while(isSpeaking) await sleep(100);
-  isSpeaking = true;
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = lang;
-  utter.rate = Number(speechRateInput.value) || 1;
-  await new Promise(resolve => {
-    utter.onend = ()=>{
-      isSpeaking = false;
-      resolve();
-    };
-    speechSynthesis.speak(utter);
-  });
-}
-
-async function speakWordAudio(item){
-  const readTimes = Number(enReadCountInput.value) || 2;
-  if(readEnSwitch.classList.contains("active")){
-    for(let i=0; i<readTimes; i++){
-      await speakText(item.word, "en-US");
-    }
-  }
-  if(readMeanSwitch.classList.contains("active") && item.mean){
-    await speakText(item.mean, "zh-CN");
-  }
-  if(readSenSwitch.classList.contains("active") && item.sentenceEn){
-    await speakText(item.sentenceEn, "en-US");
-    if(item.sentenceCn) await speakText(item.sentenceCn, "zh-CN");
-  }
-}
-
-async function showWord(item){
-  domWord.innerText = item.word;
-  domMean.innerText = item.mean || "";
-  domSenEn.innerText = item.sentenceEn || "";
-  domSenCn.innerText = item.sentenceCn || "";
-  await speakWordAudio(item);
-  if(running){
-    await sleep(Number(intervalInput.value)*1000);
-    next();
-  }
-}
-
-function next(){
-  if(!running) return;
-  if(randomSwitch.classList.contains("active")){
-    currentIndex = Math.floor(Math.random() * wordList.length);
-  }else{
-    currentIndex = (currentIndex+1) % wordList.length;
-  }
-  updateProgress();
-  showWord(wordList[currentIndex]);
-}
-
-document.getElementById('startBtn').onclick = function(){
-  if(wordList.length === 0){alert("请先加载词库！");return;}
-  running = true;
-  next();
-}
-document.getElementById('stopBtn').onclick = function(){
-  running = false;
-  speechSynthesis.cancel();
-  isSpeaking = false;
-}
 </script>
 </body>
 </html>
