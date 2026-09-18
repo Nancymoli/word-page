@@ -1,4 +1,4 @@
-<!-- v=1.4 增加小学/初中/高中词库，全部7套词库，每个词库独立记忆背诵断点 -->
+<!-- v=1.7 所有词库统一按8个分文件加载 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -22,7 +22,6 @@ body{
   overflow-x: hidden;
   padding-bottom: 30px;
 }
-/* 背景模糊泡泡 */
 .bubble{
   position:absolute;
   border-radius:50%;
@@ -31,218 +30,82 @@ body{
   z-index: 0;
   pointer-events:none;
 }
-.bubble1{
-  width:260px;
-  height:260px;
-  background:#ffb8dc;
-  top:90px;
-  left:-60px;
-}
-.bubble2{
-  width:220px;
-  height:220px;
-  background:#b5dcff;
-  top:110px;
-  right:-40px;
-}
-/* 顶部标题 */
-.top-title{
-  position:relative;
-  z-index:2;
-  text-align:center;
-  padding:14px 12px 4px;
-}
-.top-title h2{
-  font-size:22px;
-  font-weight:600;
-  color:#333;
-}
-.progress-text{
-  margin-top:6px;
-  font-size:16px;
-  color:#555;
-}
-/* 顶部按钮组 */
+.bubble1{ width:260px; height:260px; background:#ffb8dc; top:90px; left:-60px; }
+.bubble2{ width:220px; height:220px; background:#b5dcff; top:110px; right:-40px; }
+
+.top-title{ position:relative; z-index:2; text-align:center; padding:14px 12px 4px; }
+.top-title h2{ font-size:22px; font-weight:600; color:#333; }
+.progress-text{ margin-top:6px; font-size:16px; color:#555; }
+
 .ctrl{
-  position:relative;
-  z-index:2;
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  justify-content:center;
-  margin:14px 12px 18px;
+  position:relative; z-index:2;
+  display:flex; flex-wrap:wrap; gap:10px;
+  justify-content:center; margin:14px 12px 18px;
   align-items:center;
 }
-#dictSelect{
-  padding:10px 14px;
-  border-radius:999px;
-  border:none;
-  font-size:16px;
-}
-.jump-area{
-  display:flex;
-  gap:8px;
-  align-items:center;
-}
-#jumpIndex{
-  width:80px;
-  padding:10px;
-  border-radius:999px;
-  border:none;
-  font-size:16px;
-  text-align:center;
-}
+#dictSelect{ padding:10px 14px; border-radius:999px; border:none; font-size:16px; }
+.jump-area{ display:flex; gap:8px; align-items:center; }
+#jumpIndex{ width:80px; padding:10px; border-radius:999px; border:none; font-size:16px; text-align:center; }
+
 button{
-  border:none;
-  padding:14px 22px;
-  border-radius:999px;
-  font-size:16px;
-  font-weight:600;
-  cursor:pointer;
-  transition:0.2s;
+  border:none; padding:14px 22px; border-radius:999px;
+  font-size:16px; font-weight:600; cursor:pointer; transition:0.2s;
 }
-button:active{
-  transform:scale(0.96);
-}
-.btn-blue{
-  background:#a3d4ff;
-  color:#222;
-}
-.btn-pink{
-  background:#ffb3dd;
-  color:#fff;
-}
-.btn-green{
-  background:#9de0c4;
-  color:#222;
-}
-.btn-orange{
-  background:#ffd29d;
-  color:#222;
-}
-/* 单词主卡片 */
-.container{
-  position:relative;
-  z-index:1;
-  padding:0 14px;
-  max-width:640px;
-  margin:0 auto;
-}
+button:active{ transform:scale(0.96); }
+.btn-blue{ background:#a3d4ff; color:#222; }
+.btn-pink{ background:#ffb3dd; color:#fff; }
+.btn-green{ background:#9de0c4; color:#222; }
+.btn-orange{ background:#ffd29d; color:#222; }
+
+.container{ position:relative; z-index:1; padding:0 14px; max-width:640px; margin:0 auto; }
 .card{
-  background:#ffffff;
-  border-radius:28px;
-  padding:32px 22px 28px;
-  text-align:center;
-  box-shadow:0 10px 30px rgba(255, 182, 220, 0.18);
-  position:relative;
-  z-index:2;
+  background:#ffffff; border-radius:28px; padding:32px 22px 28px;
+  text-align:center; box-shadow:0 10px 30px rgba(255, 182, 220, 0.18);
+  position:relative; z-index:2;
 }
-.word{
-  font-size:52px;
-  font-weight:800;
-  color:#222;
-  margin-bottom:12px;
-}
+.word{ font-size:52px; font-weight:800; color:#222; margin-bottom:12px; }
 .meaning-tag{
-  display:inline-block;
-  background:#a3d4ff;
-  color:#222;
-  font-size:20px;
-  font-weight:600;
-  padding:8px 18px;
-  border-radius:999px;
-  margin-bottom:24px;
+  display:inline-block; background:#a3d4ff; color:#222;
+  font-size:20px; font-weight:600; padding:8px 18px;
+  border-radius:999px; margin-bottom:24px;
 }
-.sentence-en{
-  font-size:18px;
-  color:#333;
-  line-height:1.6;
-  margin-bottom:8px;
-}
-.sentence-cn{
-  font-size:17px;
-  color:#666;
-  line-height:1.5;
-}
-/* 设置面板 */
+.sentence-en{ font-size:18px; color:#333; line-height:1.6; margin-bottom:8px; }
+.sentence-cn{ font-size:17px; color:#666; line-height:1.5; }
+
 .setting-area{
-  margin-top:20px;
-  background:#ffffff;
-  border-radius:24px;
-  padding:20px;
+  margin-top:20px; background:#ffffff; border-radius:24px; padding:20px;
   box-shadow:0 8px 24px rgba(163, 212, 255, 0.15);
 }
 .set-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin:16px 0;
-  font-size:16px;
-  color:#333;
+  display:flex; align-items:center; justify-content:space-between;
+  margin:16px 0; font-size:16px; color:#333;
 }
 .set-row input[type="number"]{
-  width:72px;
-  padding:8px;
-  border-radius:10px;
-  border:1px solid #ffc9e2;
-  background:#fff;
-  text-align:center;
-  font-size:16px;
+  width:72px; padding:8px; border-radius:10px;
+  border:1px solid #ffc9e2; background:#fff;
+  text-align:center; font-size:16px;
 }
-/* 自定义开关 */
-.switch-wrap{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-top:10px;
-}
-.switch-item{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
+.switch-wrap{ display:flex; gap:12px; flex-wrap:wrap; margin-top:10px; }
+.switch-item{ display:flex; align-items:center; gap:8px; }
 .switch{
-  position:relative;
-  width:48px;
-  height:28px;
-  background:#ffc5e3;
-  border-radius:999px;
-  cursor:pointer;
-  transition:0.3s;
+  position:relative; width:48px; height:28px;
+  background:#ffc5e3; border-radius:999px; cursor:pointer; transition:0.3s;
 }
 .switch::after{
-  content:"";
-  position:absolute;
-  top:3px;
-  left:3px;
-  width:22px;
-  height:22px;
-  background:#fff;
-  border-radius:50%;
-  transition:0.3s;
+  content:""; position:absolute; top:3px; left:3px;
+  width:22px; height:22px; background:#fff;
+  border-radius:50%; transition:0.3s;
 }
-.switch.active{
-  background:#ff88bc;
-}
-.switch.active::after{
-  left:23px;
-}
-/* 底部导入按钮 */
-.import-wrap{
-  margin-top:22px;
-  text-align:center;
-}
+.switch.active{ background:#ff88bc; }
+.switch.active::after{ left:23px; }
+
+.import-wrap{ margin-top:22px; text-align:center; }
 .import-btn{
-  display:inline-block;
-  padding:14px 28px;
-  background:#a3d4ff;
-  border-radius:999px;
-  font-weight:600;
-  cursor:pointer;
+  display:inline-block; padding:14px 28px;
+  background:#a3d4ff; border-radius:999px;
+  font-weight:600; cursor:pointer;
 }
-#fileInput{
-  display:none;
-}
+#fileInput{ display:none; }
 </style>
 </head>
 <body>
@@ -307,8 +170,8 @@ button:active{
   </div>
 
   <div class="import-wrap">
-    <label class="import-btn" for="fileInput">选择本地词库</label>
-    <input type="file" id="fileInput" accept=".json">
+    <label class="import-btn" for="fileInput">选择本地词库（可多选）</label>
+    <input type="file" id="fileInput" accept=".json" multiple>
   </div>
 </div>
 
@@ -318,35 +181,56 @@ let currentIndex = 0;
 let running = false;
 let isSpeaking = false;
 
-// 词库配置：小学、初中、高中、四级、六级、考研、雅思
+// ===== 词库配置：所有词库统一按 8 个分文件加载 =====
 const dictConfig = [
   {
     name: "小学词汇",
-    files: ["primarylist.json"]
+    files: [
+      "primarylist1.json","primarylist2.json","primarylist3.json","primarylist4.json",
+      "primarylist5.json","primarylist6.json","primarylist7.json","primarylist8.json"
+    ]
   },
   {
     name: "初中词汇",
-    files: ["juniorlist.json"]
+    files: [
+      "juniorlist1.json","juniorlist2.json","juniorlist3.json","juniorlist4.json",
+      "juniorlist5.json","juniorlist6.json","juniorlist7.json","juniorlist8.json"
+    ]
   },
   {
     name: "高中词汇",
-    files: ["seniorlist.json"]
+    files: [
+      "seniorlist1.json","seniorlist2.json","seniorlist3.json","seniorlist4.json",
+      "seniorlist5.json","seniorlist6.json","seniorlist7.json","seniorlist8.json"
+    ]
   },
   {
-    name: "四级词汇 4000词（单文件）",
-    files: ["cet4list.json"]
+    name: "四级词汇 4000词",
+    files: [
+      "cet4list1.json","cet4list2.json","cet4list3.json","cet4list4.json",
+      "cet4list5.json","cet4list6.json","cet4list7.json","cet4list8.json"
+    ]
   },
   {
     name: "六级词汇",
-    files: ["cet6list.json"]
+    files: [
+      "cet6list1.json","cet6list2.json","cet6list3.json","cet6list4.json",
+      "cet6list5.json","cet6list6.json","cet6list7.json","cet6list8.json"
+    ]
   },
   {
     name: "考研词汇",
-    files: ["kaoyanlist.json"]
+    files: [
+      "kaoyanlist1.json","kaoyanlist2.json","kaoyanlist3.json","kaoyanlist4.json",
+      "kaoyanlist5.json","kaoyanlist6.json","kaoyanlist7.json","kaoyanlist8.json"
+    ]
   },
   {
     name: "雅思词汇",
-    files: ["ieltslist.json"]
+    files: [
+      "ieltslist1.json","ieltslist2.json","ieltslist3.json","ieltslist4.json",
+      "ieltslist5.json","ieltslist6.json","ieltslist7.json","ieltslist8.json"
+    ]
   }
 ];
 
@@ -361,13 +245,11 @@ const dictSelect = document.getElementById('dictSelect');
 const progressText = document.getElementById('progressText');
 const jumpIndex = document.getElementById('jumpIndex');
 
-// 开关DOM
 const randomSwitch = document.getElementById('randomSwitch');
 const readEnSwitch = document.getElementById('readEnSwitch');
 const readMeanSwitch = document.getElementById('readMeanSwitch');
 const readSenSwitch = document.getElementById('readSenSwitch');
 
-// 填充下拉选项
 dictConfig.forEach((item, idx)=>{
   const opt = document.createElement('option');
   opt.value = idx;
@@ -375,77 +257,121 @@ dictConfig.forEach((item, idx)=>{
   dictSelect.appendChild(opt);
 })
 
-// 开关点击事件
 randomSwitch.onclick = ()=> randomSwitch.classList.toggle("active");
 readEnSwitch.onclick = ()=> readEnSwitch.classList.toggle("active");
 readMeanSwitch.onclick = ()=> readMeanSwitch.classList.toggle("active");
 readSenSwitch.onclick = ()=> readSenSwitch.classList.toggle("active");
 
-// 更新进度文字 & 保存当前索引（每个词库独立保存断点）
 function updateProgress(){
   progressText.innerText = `进度：${currentIndex+1} / ${wordList.length}`;
   const selectIdx = Number(dictSelect.value);
   localStorage.setItem(`memIndex_${selectIdx}`, currentIndex);
 }
 
-// 加载选中词库
+// ===== 加载选中词库：多个分文件自动合并 =====
 document.getElementById('loadOnline').onclick = async ()=>{
   const selectIdx = Number(dictSelect.value);
   const dictItem = dictConfig[selectIdx];
   const fileList = dictItem.files;
   let mergedWords = [];
+  let loadedFiles = 0;
+  let failedFiles = [];
+
   try{
     for(const filename of fileList){
-      const res = await fetch(`./${filename}`);
-      const arr = await res.json();
-      mergedWords = mergedWords.concat(arr);
+      try{
+        const res = await fetch(`./${filename}`);
+        if(!res.ok){
+          failedFiles.push(filename);
+          continue;
+        }
+        const arr = await res.json();
+        if(Array.isArray(arr)){
+          mergedWords = mergedWords.concat(arr);
+          loadedFiles++;
+        }else{
+          failedFiles.push(filename);
+        }
+      }catch(err){
+        console.warn(`加载 ${filename} 失败：`, err);
+        failedFiles.push(filename);
+      }
     }
+
+    if(mergedWords.length === 0){
+      alert("加载失败：没有任何词库文件读取成功。\n请检查文件名是否和配置一致。");
+      return;
+    }
+
     wordList = mergedWords;
-    // 读取该词库上次背诵位置
+
     const saved = localStorage.getItem(`memIndex_${selectIdx}`);
     if(saved !== null){
       currentIndex = Math.min(Number(saved), wordList.length -1);
     }else{
       currentIndex = 0;
     }
+
     updateProgress();
     showWord(wordList[currentIndex]);
-    alert(`词库【${dictItem.name}】加载完成，一共${wordList.length}个单词\n上次背到第${currentIndex+1}个`);
+
+    let msg = `词库【${dictItem.name}】加载完成\n成功文件：${loadedFiles} 个\n单词总数：${wordList.length}\n上次背到第 ${currentIndex+1} 个`;
+    if(failedFiles.length > 0){
+      msg += `\n\n以下文件加载失败：\n${failedFiles.join("\n")}`;
+    }
+    alert(msg);
   }catch(e){
     console.error(e);
-    alert("加载失败，请确认文件存在！\n文件列表："+fileList.join(","));
+    alert("加载出错，请检查控制台。");
   }
 }
 
-// 跳转按钮
+// ===== 跳转 =====
 document.getElementById('jumpBtn').onclick = function(){
   const num = Number(jumpIndex.value);
-  if(wordList.length ===0){alert("请先加载词库");return;}
-  if(num <1 || num > wordList.length){alert("超出范围");return;}
-  currentIndex = num -1;
+  if(wordList.length === 0){alert("请先加载词库");return;}
+  if(num < 1 || num > wordList.length){alert("超出范围");return;}
+  currentIndex = num - 1;
   updateProgress();
   showWord(wordList[currentIndex]);
 }
 
-// 本地导入json
+// ===== 本地导入（支持多文件合并）=====
 document.getElementById('fileInput').onchange = function(e){
-  const reader = new FileReader();
-  reader.onload = evt=>{
-    const data = JSON.parse(evt.target.result);
-    wordList = data;
-    currentIndex = 0;
-    updateProgress();
-    showWord(wordList[currentIndex]);
-    alert(`本地词库加载成功，共${wordList.length}个单词`);
-  }
-  reader.readAsText(e.target.files[0]);
+  const files = Array.from(e.target.files);
+  if(files.length === 0) return;
+
+  let allWords = [];
+  let done = 0;
+
+  files.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = evt=>{
+      try{
+        const data = JSON.parse(evt.target.result);
+        if(Array.isArray(data)){
+          allWords = allWords.concat(data);
+        }
+      }catch(err){
+        console.warn(`${file.name} 解析失败：`, err);
+      }
+      done++;
+      if(done === files.length){
+        wordList = allWords;
+        currentIndex = 0;
+        updateProgress();
+        showWord(wordList[currentIndex]);
+        alert(`本地词库加载成功\n文件数：${files.length}\n单词总数：${wordList.length}`);
+      }
+    };
+    reader.readAsText(file);
+  });
 }
 
 function sleep(ms){
   return new Promise(res=>setTimeout(res,ms));
 }
 
-// 语音朗读
 async function speakText(text, lang="en-US"){
   if(!text) return;
   while(isSpeaking) await sleep(100);
@@ -464,17 +390,14 @@ async function speakText(text, lang="en-US"){
 
 async function speakWordAudio(item){
   const readTimes = Number(enReadCountInput.value) || 2;
-  //朗读单词
   if(readEnSwitch.classList.contains("active")){
     for(let i=0; i<readTimes; i++){
       await speakText(item.word, "en-US");
     }
   }
-  //朗读释义
   if(readMeanSwitch.classList.contains("active") && item.mean){
     await speakText(item.mean, "zh-CN");
   }
-  //朗读例句
   if(readSenSwitch.classList.contains("active") && item.sentenceEn){
     await speakText(item.sentenceEn, "en-US");
     if(item.sentenceCn) await speakText(item.sentenceCn, "zh-CN");
@@ -505,8 +428,8 @@ function next(){
 }
 
 document.getElementById('startBtn').onclick = function(){
-  if(wordList.length ===0){alert("请先加载词库！");return;}
-  running=true;
+  if(wordList.length === 0){alert("请先加载词库！");return;}
+  running = true;
   next();
 }
 document.getElementById('stopBtn').onclick = function(){
