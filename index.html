@@ -4,233 +4,223 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<title>小张刷英语 · App版</title>
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>小张刷英语 · ADHD友好版</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="deco deco-1">🌿</div>
-<div class="deco deco-2">🌙</div>
+<!-- 顶部标题 -->
+<div class="top-title">
+  <h2>📖 小张刷英语 · ADHD友好版</h2>
+  <div class="progress-text" id="progressText">进度：0 / 0</div>
+</div>
 
-<header class="app-header">
-  <div class="stat streak">🔥 <span class="num" id="statStreak">0</span> 天</div>
-  <div class="stat goal">🎯 <span class="num" id="statToday">0</span>/<span id="statGoal">20</span></div>
-  <div class="stat time">⏱️ <span class="num" id="statTime">0</span> 分</div>
-</header>
+<!-- 主内容 -->
+<div class="container">
 
-<main class="app-main">
-
-  <section class="tab-page active" data-tab="study">
-
-    <!-- ★ 主界面快捷加载 -->
-    <div class="quick-load">
-      <select id="dictSelectQuick"></select>
-      <button class="btn-blue" id="loadOnlineQuick">加载词库</button>
-    </div>
-    <div class="load-progress" id="quickProgress" style="display:none;">
-      <div class="progress-bar-track">
-        <div class="progress-bar-fill" id="quickProgressFill"></div>
-      </div>
-      <div class="progress-percent">
-        <span class="num" id="quickProgressNum">0</span>%
-      </div>
+  <!-- 模块 1：词库 + 进度条 -->
+  <div class="ctrl">
+    <div class="ctrl-row">
+      <select id="dictSelect"></select>
+      <button class="btn-blue" id="loadOnline">加载词库</button>
     </div>
 
-    <div class="card" id="card">
-      <div class="card-swipe-hint left">不熟</div>
-      <div class="card-swipe-hint right">掌握</div>
-      <div class="card-content" id="cardContent">
-        <div class="word waiting" id="word">点上方按钮加载词库</div>
-        <div class="meaning-tag" id="meaning">--</div>
-        <div class="sentence-en" id="senEn">--</div>
-        <div class="sentence-cn" id="senCn">--</div>
-      </div>
-    </div>
-
-    <div class="mastery-row">
-      <button class="mastery-btn weak" id="markWeak">❌ 不熟</button>
-      <button class="mastery-btn mastered" id="markMastered">✅ 掌握</button>
-    </div>
-
-    <div class="nav-row">
-      <button class="nav-btn" id="prevBtn" aria-label="上一个">◀</button>
-      <button class="nav-btn listen" id="listenBtn" aria-label="重听">🔊</button>
-      <button class="nav-btn" id="nextBtn" aria-label="下一个">▶</button>
-    </div>
-
-    <div class="progress-bar">
+    <div class="progress-bar" id="progressBar">
       <div class="progress-bar-track">
         <div class="progress-bar-fill" id="progressFill"></div>
       </div>
-      <div class="progress-percent">
-        <span class="num" id="progressNum">0</span> / <span id="progressTotal">0</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab-page" data-tab="data">
-    <div class="data-card">
-      <h3>📊 学习进度</h3>
-      <div class="progress-ring-wrap">
-        <div class="progress-ring">
-          <svg viewBox="0 0 140 140">
-            <defs>
-              <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#ffc8dc" />
-                <stop offset="50%" stop-color="#ffa8c8" />
-                <stop offset="100%" stop-color="#ff88b8" />
-              </linearGradient>
-            </defs>
-            <circle class="track" cx="70" cy="70" r="58"></circle>
-            <circle class="fill" id="ringFill" cx="70" cy="70" r="58" stroke-dasharray="364.4" stroke-dashoffset="364.4"></circle>
-          </svg>
-          <div class="ring-text">
-            <div class="pct" id="ringPct">0%</div>
-            <div class="sub" id="ringSub">0 / 0</div>
-          </div>
-        </div>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-box"><div class="label">未测</div><div class="value" id="statUnseen">0</div></div>
-        <div class="stat-box"><div class="label">掌握</div><div class="value" id="statMastered">0</div></div>
-        <div class="stat-box"><div class="label">不熟</div><div class="value" id="statWeak">0</div></div>
-        <div class="stat-box"><div class="label">收藏</div><div class="value" id="statStar">0</div></div>
+      <div class="progress-percent" id="progressPercent">
+        <span class="num">0</span>%
       </div>
     </div>
 
-    <div class="data-card">
-      <h3>📈 本周学习</h3>
-      <div class="week-chart" id="weekChart">
-        <div class="week-bar" data-day="一"><span class="day">一</span></div>
-        <div class="week-bar" data-day="二"><span class="day">二</span></div>
-        <div class="week-bar" data-day="三"><span class="day">三</span></div>
-        <div class="week-bar" data-day="四"><span class="day">四</span></div>
-        <div class="week-bar" data-day="五"><span class="day">五</span></div>
-        <div class="week-bar" data-day="六"><span class="day">六</span></div>
-        <div class="week-bar" data-day="日"><span class="day">日</span></div>
+    <div class="ctrl-row">
+      <div class="jump-area">
+        <input type="number" id="jumpIndex" placeholder="跳至...">
+        <button class="btn-orange" id="jumpBtn">跳转</button>
       </div>
     </div>
 
-    <button class="big-btn btn-green" id="testBtn">🎲 随机抽测 10 题</button>
-    <button class="big-btn btn-soft" id="reviewWeakBtn">🔴 只复习「不熟」的</button>
-    <button class="big-btn btn-soft" id="reviewAllBtn">📚 复习全部</button>
-  </section>
-
-  <section class="tab-page" data-tab="star">
-    <div class="star-list" id="starList">
-      <div class="star-empty">
-        <span class="emoji">⭐</span>
-        还没有收藏的单词<br>
-        点击卡片上的 ☆ 加入生词本
-      </div>
+    <div class="ctrl-row">
+      <button class="btn-pink" id="startBtn">▶ 开始</button>
+      <button class="btn-green" id="stopBtn">⏸ 暂停</button>
     </div>
-    <button class="big-btn btn-purple" id="reviewStarBtn" style="margin-top:16px;">⭐ 只复习生词</button>
-  </section>
-
-  <section class="tab-page" data-tab="settings">
-
-    <div class="setting-group">
-      <h4>🎨 主题皮肤</h4>
-      <div class="theme-grid">
-        <div class="theme-swatch active" data-theme="cream"><span class="emoji">🌸</span>奶油</div>
-        <div class="theme-swatch" data-theme="glass"><span class="emoji">🧊</span>玻璃</div>
-        <div class="theme-swatch" data-theme="neon"><span class="emoji">🌌</span>霓虹</div>
-        <div class="theme-swatch" data-theme="minimal"><span class="emoji">🖤</span>极简</div>
-        <div class="theme-swatch" data-theme="forest"><span class="emoji">🌿</span>森林</div>
-        <div class="theme-swatch" data-theme="night"><span class="emoji">🌙</span>夜间</div>
-      </div>
-    </div>
-
-    <div class="setting-group">
-      <h4>📚 词库</h4>
-      <div class="set-row">
-        <select id="dictSelect"></select>
-      </div>
-      <div class="btn-row">
-        <button class="btn-blue" id="loadOnline">加载在线词库</button>
-        <button class="btn-orange" id="importLocal">导入本地</button>
-      </div>
-      <div style="margin-top:10px; font-size:12px; color:var(--text-muted);" id="loadStatus"></div>
-      <div class="progress-bar" style="max-width:100%; margin-top:10px; display:none;" id="loadProgressBar">
-        <div class="progress-bar-track">
-          <div class="progress-bar-fill" id="loadProgressFill"></div>
-        </div>
-        <div class="progress-percent">
-          <span class="num" id="loadProgressNum">0</span>%
-        </div>
-      </div>
-      <input type="file" id="fileInput" accept=".json" multiple style="display:none;">
-    </div>
-
-    <div class="setting-group">
-      <h4>🎯 每日目标</h4>
-      <div class="set-row">
-        <span class="set-label">每天背几个</span>
-        <input type="number" id="dailyGoal" value="20" min="5" max="500">
-      </div>
-    </div>
-
-    <div class="setting-group">
-      <h4>⏱️ 播放设置</h4>
-      <div class="set-row">
-        <span class="set-label">间隔（秒）</span>
-        <input type="number" id="interval" value="2" min="1" max="30">
-      </div>
-      <div class="set-row">
-        <span class="set-label">单词朗读次数</span>
-        <input type="number" id="enReadCount" value="2" min="1" max="5">
-      </div>
-      <div class="set-row">
-        <span class="set-label">朗读速率</span>
-        <input type="number" id="speechRate" value="1" min="0.5" max="2" step="0.1">
-      </div>
-    </div>
-
-    <div class="setting-group">
-      <h4>🔊 朗读内容</h4>
-      <div class="set-row">
-        <span class="set-label">英文</span>
-        <div class="switch active" id="readEnSwitch"></div>
-      </div>
-      <div class="set-row">
-        <span class="set-label">释义</span>
-        <div class="switch" id="readMeanSwitch"></div>
-      </div>
-      <div class="set-row">
-        <span class="set-label">例句</span>
-        <div class="switch active" id="readSenSwitch"></div>
-      </div>
-    </div>
-
-    <div class="setting-group">
-      <h4>📦 数据管理</h4>
-      <div class="btn-row">
-        <button class="btn-green" id="exportData">📤 导出进度</button>
-        <button class="btn-red" id="resetData">🗑️ 清空标记</button>
-      </div>
-    </div>
-
-  </section>
-
-</main>
-
-<nav class="tab-bar">
-  <button class="tab-btn active" data-tab="study"><span class="icon">🏠</span><span>刷词</span></button>
-  <button class="tab-btn" data-tab="data"><span class="icon">📊</span><span>数据</span></button>
-  <button class="tab-btn" data-tab="star"><span class="icon">⭐</span><span>生词</span></button>
-  <button class="tab-btn" data-tab="settings"><span class="icon">⚙️</span><span>设置</span></button>
-</nav>
-
-<div class="test-overlay" id="testOverlay">
-  <div class="test-header">
-    <div class="progress" id="testProgress">第 1 / 10 题</div>
-    <button class="test-close" id="testClose">✕</button>
   </div>
-  <div class="test-word" id="testWord">—</div>
-  <div class="test-options" id="testOptions"></div>
-  <div class="test-footer" id="testFooter">✅ 0 · ❌ 0</div>
+
+  <!-- 模块 2：单词卡 -->
+  <div class="card">
+    <div class="view-badge" id="viewBadge">已看 <span class="num" id="viewCount">0</span> 次</div>
+    <div class="card-content" id="cardContent">
+      <div class="word waiting" id="word">𝓈𝑜𝒻𝓉 𝓈𝓊𝓂𝓂𝑒𝓇 𝓃𝑒𝓋𝑒𝓇 𝒻𝒶𝒹𝑒𝓈</div>
+      <div class="meaning-tag" id="meaning">--</div>
+      <div class="sentence-en" id="senEn">--</div>
+      <div class="sentence-cn" id="senCn">--</div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn-purple" id="prevBtn">◀ 上一个</button>
+      <button class="btn-purple" id="nextBtn">下一个 ▶</button>
+    </div>
+  </div>
+
+  <!-- 模块 3：复习栏 -->
+  <div class="review-bar">
+    <span class="label">🔍 复习</span>
+    <button class="btn-blue" id="reviewLeast">最不熟</button>
+    <button class="btn-orange" id="reviewMost">最熟</button>
+    <button class="btn-green" id="reviewUnseen">没看过</button>
+    <button class="btn-soft" id="resetViewCount">清零</button>
+    <div class="hint" id="reviewHint">「最不熟」= 查看次数最少的单词</div>
+  </div>
+
+  <!-- 模块 4：单词目录 -->
+  <div class="catalog-panel" id="catalogPanel">
+    <div class="catalog-header" id="catalogHeader">
+      <span class="title">📂 单词目录 <span class="meta" id="catalogCount">0 个单词</span></span>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="catalog-body">
+      <div class="catalog-tabs">
+        <button class="catalog-tab active" data-mode="en">🔤 英文</button>
+        <button class="catalog-tab" data-mode="cn">🀄 中文</button>
+        <button class="catalog-tab" data-mode="both">🌐 中英</button>
+      </div>
+      <div class="catalog-grid-wrap" id="catalogGridWrap">
+        <div class="catalog-grid" id="catalogGrid">
+          <div class="catalog-empty">加载词库后显示目录</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模块 5：设置 -->
+  <div class="setting-area">
+    <div class="set-row">
+      <span>间隔（秒）：</span>
+      <input type="number" id="interval" value="2" min="1">
+    </div>
+    <div class="set-row">
+      <span>单词朗读次数：</span>
+      <input type="number" id="enReadCount" value="2" min="1">
+    </div>
+    <div class="set-row">
+      <span>朗读速率：</span>
+      <input type="number" id="speechRate" value="1" min="0.5" max="2" step="0.1">
+    </div>
+    <div class="set-row">
+      <span>界面皮肤：</span>
+      <select id="themeSelect">
+        <option value="cream">🌸 奶油治愈</option>
+        <option value="glass">🧊 玻璃轻奢</option>
+        <option value="neon">🌌 极光霓虹</option>
+        <option value="minimal">🖤 极简高级</option>
+        <option value="forest">🌿 森林绿</option>
+        <option value="night">🌙 夜间护眼</option>
+      </select>
+    </div>
+    <div class="switch-wrap">
+      <div class="switch-item">
+        <div class="switch active" id="readEnSwitch"></div>
+        <span>英文</span>
+      </div>
+      <div class="switch-item">
+        <div class="switch" id="readMeanSwitch"></div>
+        <span>释义</span>
+      </div>
+      <div class="switch-item">
+        <div class="switch active" id="readSenSwitch"></div>
+        <span>例句</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模块 6：导入 -->
+  <div class="import-wrap">
+    <label class="import-btn" for="fileInput">📁 选择本地词库</label>
+    <button class="help-btn" id="helpBtn">❓ 帮助</button>
+    <input type="file" id="fileInput" accept=".json" multiple>
+  </div>
+  <div class="load-status-wrap">
+    <div id="loadStatus"></div>
+  </div>
 </div>
 
+<!-- 翻转卡片浮层 -->
+<div class="flip-overlay" id="flipOverlay">
+  <div class="flip-wrap">
+    <div class="flip-top-bar">
+      <button class="flip-back-btn" id="flipBackBtn">← 返回</button>
+      <div class="flip-index">
+        <span class="cur" id="flipIndexCur">1</span>
+        <span class="total">/ <span id="flipIndexTotal">0</span></span>
+      </div>
+    </div>
+    <div class="flip-card" id="flipCard">
+      <div class="flip-face flip-front">
+        <div class="flip-face-index" id="flipFaceIndexFront">#1</div>
+        <div class="flip-word" id="flipWordFront">—</div>
+        <div class="flip-hint">点击翻转 · 查看释义</div>
+      </div>
+      <div class="flip-face flip-back">
+        <div class="flip-face-index" id="flipFaceIndexBack">#1</div>
+        <div class="flip-word-back" id="flipWordBack">—</div>
+        <div class="flip-mean" id="flipMean">—</div>
+        <div class="flip-sen-en" id="flipSenEn">—</div>
+        <div class="flip-sen-cn" id="flipSenCn">—</div>
+      </div>
+    </div>
+    <div class="flip-nav">
+      <button id="flipPrevBtn">◀ 上一个</button>
+      <button id="flipNextBtn">下一个 ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- 帮助浮层 -->
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-panel">
+    <button class="help-close" id="helpClose">✕</button>
+    <h3>📖 制作词库（超简单，照着做）</h3>
+    <p>⚠️ 一次最多 150 个单词，多了分几批做</p>
+    <h4>第 1 步：把单词发给 DeepSeek</h4>
+    <p>你手上的单词<b>长什么样就贴什么样</b>，不用整理。一行一个、逗号隔开、带中文、一段笔记都行。</p>
+    <p>复制下面这段话，粘贴到 DeepSeek，在最后加上你的单词：</p>
+    <pre>帮我整理成 JSON 词库数据。
+每个单词 4 项：word（英文）、mean（中文释义）、
+sentenceEn（英文例句）、sentenceCn（例句中文翻译）。
+我给你的内容缺什么就补什么，英文例句和中文翻译都要有。
+只输出 JSON，不要解释、不要注释、不要多余符号。
+格式：
+[{"word":"apple","mean":"苹果","sentenceEn":"I eat an apple.","sentenceCn":"我吃一个苹果。"}]
+我的单词：
+（在这里贴你的单词）</pre>
+    <h4>第 2 步：保存成文件</h4>
+    <ol>
+      <li>复制 DeepSeek 回复的<b>全部内容</b></li>
+      <li>电脑新建记事本，粘贴进去</li>
+      <li>点【文件】→【另存为】</li>
+      <li>底部「编码」选 <code>UTF-8</code>（不会乱码）</li>
+      <li>文件名最后改成 <code>.json</code>（例如 <code>我的词库.json</code>）</li>
+      <li>保存 → 回到网页点【选择本地词库】→ 选中这个文件 ✅</li>
+    </ol>
+    <h4>⚠️ 注意</h4>
+    <div class="help-warn">
+      ✅ 一次不超过 150 个单词<br>
+      ❌ 不要手动改大括号 <code>{}</code>、引号 <code>""</code>，错一个符号就导入失败<br>
+      ❌ 保存时「编码」要选 <code>UTF-8</code>，中文才不乱码
+    </div>
+    <h4>💾 关于本地词库的保存</h4>
+    <div class="help-note">
+      <b>本地词库是一次性的</b>，上传后只存在当前页面内存里。<br>
+      · 刷新页面 / 关掉浏览器 → 会清空，需要重新上传<br>
+      · 你之前上传的 json 文件还在自己电脑上，重新选一次就行<br>
+      · 查看次数、设置、进度、主题<b>会保存</b>，下次打开还在
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script src="app.js"></script>
