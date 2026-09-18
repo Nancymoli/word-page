@@ -917,10 +917,10 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 }
 
 /* ============================================================
-   ★ 横竖屏 / iPad / 手机 自适应
+   横竖屏 / iPad / 手机 自适应
    ============================================================ */
 
-/* 小手机（iPhone SE 等窄屏）：缩小间距 */
+/* 小手机 */
 @media (max-width: 380px) {
   .container{ padding: 0 12px; }
   .ctrl{ margin: 8px 14px 14px; }
@@ -936,7 +936,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   .catalog-item .word-cn{ font-size: 9px; }
 }
 
-/* iPad 竖屏 (768px+)：内容限宽、居中 */
+/* iPad 竖屏 */
 @media (min-width: 768px) and (orientation: portrait) {
   .container{ max-width: 640px; padding: 0 24px; }
   .ctrl{ max-width: 640px; margin: 14px auto 22px; }
@@ -957,54 +957,42 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   .catalog-item .tap-hint{ font-size: 10px; }
 }
 
-/* iPad 横屏 / 大屏横屏 (900px+)：卡片限宽居中，目录多列 */
+/* iPad 横屏 / 大屏横屏 */
 @media (min-width: 900px) and (orientation: landscape) {
   .container{ max-width: 760px; padding: 0 28px; }
   .ctrl{ max-width: 760px; margin: 14px auto 20px; }
-  .card{
-    padding: 44px 40px 32px;
-    max-width: 640px;
-    margin: 0 auto;
-  }
+  .card{ padding: 44px 40px 32px; max-width: 640px; margin: 0 auto; }
   .word{ font-size: 54px; }
   .word.waiting{ font-size: 22px; }
   .meaning-tag{ font-size: 18px; padding: 10px 26px; }
   .sentence-en{ font-size: 18px; }
   .sentence-cn{ font-size: 16px; }
-  .review-bar{
-    padding: 18px 24px 14px;
-  }
+  .review-bar{ padding: 18px 24px 14px; }
   .review-bar button{ font-size: 13px; padding: 12px 8px; }
   .setting-area{ padding: 22px 28px; }
   .set-row{ font-size: 15px; }
-
-  /* ★ 横屏时目录列更多、卡片更大 */
   .catalog-grid{ grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
   .catalog-item{ min-height: 110px; padding: 18px 10px 22px; }
   .catalog-item .word-en{ font-size: 15px; }
   .catalog-item .word-cn{ font-size: 12px; }
   .catalog-item .tap-hint{ font-size: 10px; }
-
-  /* 横屏时翻转卡更大 */
   .flip-wrap{ max-width: 380px; }
   .flip-front .flip-word{ font-size: 46px; }
   .flip-back .flip-word-back{ font-size: 28px; }
   .flip-back .flip-mean{ font-size: 19px; }
   .flip-back .flip-sen-en{ font-size: 15px; }
   .flip-back .flip-sen-cn{ font-size: 14px; }
-
-  /* 帮助面板更宽 */
   .help-panel{ max-width: 560px; }
 }
 
-/* 超大屏 / 桌面：所有内容居中，避免拉太宽 */
+/* 超大屏 */
 @media (min-width: 1200px) {
   .container{ max-width: 780px; }
   .ctrl{ max-width: 780px; }
   .card{ max-width: 680px; margin: 0 auto; }
 }
 
-/* 横屏矮屏（手机横屏，高度 < 500px）：压缩上下留白 */
+/* 横屏矮屏 */
 @media (max-height: 500px) and (orientation: landscape) {
   .top-title{ padding: 20px 16px 4px; }
   .top-title h2{ font-size: 17px; }
@@ -1193,7 +1181,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
         <button class="catalog-tab" data-mode="cn">🀄 中文</button>
         <button class="catalog-tab" data-mode="both">🌐 中英</button>
       </div>
-      <div class="catalog-grid-wrap">
+      <div class="catalog-grid-wrap" id="catalogGridWrap">
         <div class="catalog-grid" id="catalogGrid">
           <div class="catalog-empty">加载词库后显示目录</div>
         </div>
@@ -1386,6 +1374,7 @@ const readMeanSwitch = document.getElementById('readMeanSwitch');
 const readSenSwitch = document.getElementById('readSenSwitch');
 
 const catalogGrid = document.getElementById('catalogGrid');
+const catalogGridWrap = document.getElementById('catalogGridWrap');
 const catalogCount = document.getElementById('catalogCount');
 const catalogPanel = document.getElementById('catalogPanel');
 const catalogHeader = document.getElementById('catalogHeader');
@@ -1558,17 +1547,44 @@ function updateProgress() {
   refreshViewBadge();
 }
 
-function highlightCatalogItem() {
+// ★ 高亮 + 可选滚动
+function highlightCatalogItem(shouldScroll = false) {
   const items = catalogGrid.querySelectorAll('.catalog-item');
   items.forEach((el) => {
     const idx = Number(el.dataset.index);
     if (idx === currentIndex) el.classList.add('active');
     else el.classList.remove('active');
   });
-  const activeEl = catalogGrid.querySelector('.catalog-item.active');
-  if (activeEl && catalogPanel.classList.contains('open')) {
-    activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  if (shouldScroll) {
+    const activeEl = catalogGrid.querySelector('.catalog-item.active');
+    if (activeEl && catalogPanel.classList.contains('open')) {
+      activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
   }
+}
+
+// ★ 只更新当前单词卡片，不重建整个目录
+function updateCurrentCatalogItem() {
+  const item = wordList[currentIndex];
+  if (!item) return;
+  const el = catalogGrid.querySelector(`.catalog-item[data-index="${currentIndex}"]`);
+  if (!el) return;
+
+  const count = getViewCount(item.word);
+  let badge = el.querySelector('.badge');
+  if (count > 0) {
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'badge';
+      el.appendChild(badge);
+    }
+    badge.innerText = count;
+  } else if (badge) {
+    badge.remove();
+  }
+
+  catalogGrid.querySelectorAll('.catalog-item').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
 }
 
 let catalogRenderTimer = null;
@@ -1580,6 +1596,9 @@ function buildCatalog() {
 }
 
 function renderCatalog() {
+  // ★ 保存滚动位置
+  const savedScroll = catalogGridWrap ? catalogGridWrap.scrollTop : 0;
+
   catalogGrid.innerHTML = '';
   if (!wordList || wordList.length === 0) {
     catalogGrid.innerHTML = '<div class="catalog-empty">加载词库后显示目录</div>';
@@ -1616,9 +1635,7 @@ function renderCatalog() {
     } else {
       displayHtml = `<div class="word-en">${word || '—'}</div><div class="word-cn">${mean || ''}</div>`;
     }
-
     displayHtml += `<div class="tap-hint">👆 点击查看</div>`;
-
     div.innerHTML = displayHtml + (count > 0 ? `<span class="badge">${count}</span>` : '');
 
     div.addEventListener('click', () => {
@@ -1628,6 +1645,9 @@ function renderCatalog() {
   });
   catalogGrid.appendChild(fragment);
   highlightCatalogItem();
+
+  // ★ 恢复滚动位置
+  if (catalogGridWrap) catalogGridWrap.scrollTop = savedScroll;
 }
 
 // ================= 语音优化：少御音 =================
@@ -1636,14 +1656,12 @@ let voiceCacheTime = 0;
 
 function getBestVoice(lang) {
   if (!('speechSynthesis' in window)) return null;
-
   const now = Date.now();
   if (cachedVoice && now - voiceCacheTime < 5000) {
     if (cachedVoice.lang && cachedVoice.lang.toLowerCase().startsWith(lang.toLowerCase().slice(0,2))) {
       return cachedVoice;
     }
   }
-
   const voices = window.speechSynthesis.getVoices();
   if (!voices || voices.length === 0) return null;
 
@@ -1651,25 +1669,20 @@ function getBestVoice(lang) {
   const isZh = lang.toLowerCase().startsWith('zh');
 
   const enPreferred = [
-    'Samantha', 'Karen', 'Moira', 'Tessa',
-    'Microsoft Aria', 'Microsoft Jenny', 'Microsoft Michelle',
-    'Google US English', 'Microsoft Zira'
+    'Samantha','Karen','Moira','Tessa',
+    'Microsoft Aria','Microsoft Jenny','Microsoft Michelle',
+    'Google US English','Microsoft Zira'
   ];
   const zhPreferred = [
-    'Tingting', 'Ting-Ting', 'Meijia', 'Sinji',
-    'Microsoft Xiaoxiao', 'Microsoft Xiaoyi', 'Microsoft Huihui',
+    'Tingting','Ting-Ting','Meijia','Sinji',
+    'Microsoft Xiaoxiao','Microsoft Xiaoyi','Microsoft Huihui',
     'Google 普通话'
   ];
-
   const preferred = isEn ? enPreferred : (isZh ? zhPreferred : []);
 
   for (const name of preferred) {
     const v = voices.find(v => v.name && v.name.indexOf(name) !== -1);
-    if (v) {
-      cachedVoice = v;
-      voiceCacheTime = now;
-      return v;
-    }
+    if (v) { cachedVoice = v; voiceCacheTime = now; return v; }
   }
 
   const langVoices = voices.filter(v =>
@@ -1677,19 +1690,10 @@ function getBestVoice(lang) {
   );
   if (langVoices.length > 0) {
     const female = langVoices.find(v => /female|woman|女/i.test(v.name));
-    if (female) {
-      cachedVoice = female;
-      voiceCacheTime = now;
-      return female;
-    }
-    cachedVoice = langVoices[0];
-    voiceCacheTime = now;
-    return langVoices[0];
+    if (female) { cachedVoice = female; voiceCacheTime = now; return female; }
+    cachedVoice = langVoices[0]; voiceCacheTime = now; return langVoices[0];
   }
-
-  cachedVoice = voices[0];
-  voiceCacheTime = now;
-  return voices[0];
+  cachedVoice = voices[0]; voiceCacheTime = now; return voices[0];
 }
 
 if ('speechSynthesis' in window) {
@@ -1719,11 +1723,9 @@ async function speakText(text, lang = "en-US") {
   isSpeaking = true;
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = lang;
-
   const voice = getBestVoice(lang);
   if (voice) utter.voice = voice;
 
-  // 少御音参数
   const isEn = lang.toLowerCase().startsWith('en');
   utter.pitch = isEn ? 0.95 : 1.0;
   utter.rate = (Number(speechRateInput.value) || 1) * 0.92;
@@ -1783,8 +1785,8 @@ async function showWord(item) {
   cardContent.classList.add('fade-in');
 
   refreshViewBadge();
-  highlightCatalogItem();
-  buildCatalog();
+  // ★ 只更新当前卡片，不重建目录
+  updateCurrentCatalogItem();
 
   await speakWordAudio(item, session);
   if (session !== displaySession) return;
@@ -1916,41 +1918,26 @@ async function flipSpeak(text, lang = 'en-US') {
   flipSpeaking = true;
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = lang;
-
   const voice = getBestVoice(lang);
   if (voice) utter.voice = voice;
 
-  // 少御音参数
   const isEn = lang.toLowerCase().startsWith('en');
   utter.pitch = isEn ? 0.95 : 1.0;
   utter.rate = (Number(speechRateInput.value) || 1) * 0.92;
   utter.volume = 1;
 
   return new Promise((resolve) => {
-    utter.onend = () => {
-      if (myToken === flipToken) flipSpeaking = false;
-      resolve();
-    };
-    utter.onerror = () => {
-      if (myToken === flipToken) flipSpeaking = false;
-      resolve();
-    };
-    try {
-      window.speechSynthesis.speak(utter);
-    } catch (e) {
-      flipSpeaking = false;
-      resolve();
-    }
+    utter.onend = () => { if (myToken === flipToken) flipSpeaking = false; resolve(); };
+    utter.onerror = () => { if (myToken === flipToken) flipSpeaking = false; resolve(); };
+    try { window.speechSynthesis.speak(utter); }
+    catch (e) { flipSpeaking = false; resolve(); }
   });
 }
 
-// 点击卡片翻转
 flipCard.addEventListener('click', async () => {
   const item = flipCurrentItem;
   if (!item) return;
-
   const isFlipped = flipCard.classList.toggle('flipped');
-
   flipToken++;
   try { window.speechSynthesis.cancel(); } catch (e) {}
   flipSpeaking = false;
@@ -2100,6 +2087,7 @@ document.getElementById('jumpBtn').onclick = async function() {
     currentIndex = num - 1;
     updateProgress();
     await showWord(wordList[currentIndex]);
+    highlightCatalogItem(true);  // ★ 用户主动跳转才滚动目录
   } finally {
     switching = false;
   }
@@ -2199,6 +2187,7 @@ prevBtn.onclick = async function() {
   if (wordList.length === 0) { showToast('请先加载词库'); return; }
   if (switching) return;
   await prev();
+  highlightCatalogItem(true);  // ★ 用户主动操作才滚动
 };
 
 nextBtn.onclick = async function() {
@@ -2212,6 +2201,7 @@ nextBtn.onclick = async function() {
     currentIndex = (currentIndex + 1) % wordList.length;
     updateProgress();
     await showWord(wordList[currentIndex]);
+    highlightCatalogItem(true);  // ★ 用户主动操作才滚动
   } finally {
     switching = false;
     nextBtn.classList.remove('speaking');
@@ -2235,6 +2225,7 @@ document.getElementById('reviewLeast').onclick = async () => {
     currentIndex = bestIdx;
     updateProgress();
     await showWord(wordList[currentIndex]);
+    highlightCatalogItem(true);
     reviewHint.innerText = `已跳到最不熟的单词（已看 ${bestCount} 次）`;
   } finally {
     switching = false;
@@ -2257,6 +2248,7 @@ document.getElementById('reviewMost').onclick = async () => {
     currentIndex = bestIdx;
     updateProgress();
     await showWord(wordList[currentIndex]);
+    highlightCatalogItem(true);
     reviewHint.innerText = `已跳到最熟的单词（已看 ${bestCount} 次）`;
   } finally {
     switching = false;
@@ -2279,6 +2271,7 @@ document.getElementById('reviewUnseen').onclick = async () => {
       currentIndex = found;
       updateProgress();
       await showWord(wordList[currentIndex]);
+      highlightCatalogItem(true);
       reviewHint.innerText = `已跳到第 ${found+1} 个未看单词`;
     } else {
       reviewHint.innerText = '🎉 全部单词都看过了！';
