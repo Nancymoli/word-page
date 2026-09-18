@@ -406,6 +406,71 @@ button:active{ transform: scale(0.95); filter: brightness(0.98); }
 button:disabled{ opacity:0.5; pointer-events:none; }
 button.speaking{ opacity:0.55; pointer-events:none; }
 
+/* ★ 进度条：在加载按钮正下方 */
+.progress-bar{
+  margin: 0 auto;
+  width: 100%;
+  padding: 12px 18px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 18px;
+  box-shadow: var(--panel-shadow);
+  display: none;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 2;
+}
+.progress-bar.active{
+  display: block !important;
+  opacity: 1 !important;
+  transform: translateY(0);
+}
+.progress-bar-track{
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: var(--progress-track);
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.progress-bar-fill{
+  position: relative; height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--progress-fill-1), var(--progress-fill-2), var(--progress-fill-3), var(--progress-fill-2), var(--progress-fill-1));
+  background-size: 200% 100%;
+  border-radius: 999px;
+  transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  animation: progressFlow 2s linear infinite;
+}
+.progress-bar-fill::after{
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+  border-radius: 999px;
+  animation: progressShine 1.6s ease-in-out infinite;
+}
+@keyframes progressFlow {
+  0%   { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes progressShine {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  40%  { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+.progress-percent{
+  margin-top: 6px; text-align: center;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--progress-percent);
+  transition: color 0.3s;
+}
+.progress-percent .num{
+  font-size: 13px;
+  color: var(--progress-percent-num);
+  font-weight: 800;
+}
+
 .container{
   position: relative; z-index: 2;
   padding: 0 16px; max-width: 600px; margin: 0 auto;
@@ -474,72 +539,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   gap: 14px; margin-top: 28px;
 }
 .nav-buttons button{ padding: 12px 26px; font-size: 14px; flex: 0 1 auto; }
-
-/* ★ 进度条：显示在单词卡下方 */
-.progress-bar{
-  margin: 14px auto 0;
-  width: 100%;
-  max-width: 100%;
-  padding: 14px 20px;
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: 20px;
-  box-shadow: var(--panel-shadow);
-  display: none;
-  opacity: 0;
-  transform: translateY(-6px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: 2;
-}
-.progress-bar.active{
-  display: block !important;
-  opacity: 1 !important;
-  transform: translateY(0);
-}
-.progress-bar-track{
-  position: relative;
-  width: 100%;
-  height: 8px;
-  background: var(--progress-track);
-  border-radius: 999px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-.progress-bar-fill{
-  position: relative; height: 100%; width: 0%;
-  background: linear-gradient(90deg, var(--progress-fill-1), var(--progress-fill-2), var(--progress-fill-3), var(--progress-fill-2), var(--progress-fill-1));
-  background-size: 200% 100%;
-  border-radius: 999px;
-  transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  animation: progressFlow 2s linear infinite;
-}
-.progress-bar-fill::after{
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
-  border-radius: 999px;
-  animation: progressShine 1.6s ease-in-out infinite;
-}
-@keyframes progressFlow {
-  0%   { background-position: 0% 0; }
-  100% { background-position: 200% 0; }
-}
-@keyframes progressShine {
-  0%   { transform: translateX(-100%); opacity: 0; }
-  40%  { opacity: 1; }
-  100% { transform: translateX(100%); opacity: 0; }
-}
-.progress-percent{
-  margin-top: 8px; text-align: center;
-  font-size: 11px; font-weight: 700;
-  letter-spacing: 0.5px;
-  color: var(--progress-percent);
-  transition: color 0.3s;
-}
-.progress-percent .num{
-  font-size: 13px;
-  color: var(--progress-percent-num);
-  font-weight: 800;
-}
 
 .review-bar{
   margin-top: 18px;
@@ -1127,6 +1126,17 @@ button.speaking{ opacity:0.55; pointer-events:none; }
     <select id="dictSelect"></select>
     <button class="btn-blue" id="loadOnline">加载词库</button>
   </div>
+
+  <!-- ★ 进度条：在加载按钮正下方 -->
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-percent" id="progressPercent">
+      <span class="num">0</span>%
+    </div>
+  </div>
+
   <div class="ctrl-row">
     <div class="jump-area">
       <input type="number" id="jumpIndex" placeholder="跳至...">
@@ -1151,16 +1161,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
     <div class="nav-buttons">
       <button class="btn-purple" id="prevBtn">◀ 上一个</button>
       <button class="btn-purple" id="nextBtn">下一个 ▶</button>
-    </div>
-  </div>
-
-  <!-- ★ 进度条：显示在卡片下方 -->
-  <div class="progress-bar" id="progressBar">
-    <div class="progress-bar-track">
-      <div class="progress-bar-fill" id="progressFill"></div>
-    </div>
-    <div class="progress-percent" id="progressPercent">
-      <span class="num">0</span>%
     </div>
   </div>
 
@@ -1422,7 +1422,6 @@ const helpOverlay = document.getElementById('helpOverlay');
 const helpBtn = document.getElementById('helpBtn');
 const helpClose = document.getElementById('helpClose');
 
-// Toast
 let toastTimer = null;
 function showToast(msg, duration = 1800) {
   toastEl.innerText = msg;
@@ -1433,7 +1432,6 @@ function showToast(msg, duration = 1800) {
   }, duration);
 }
 
-// 进度
 function showProgress(done, total) {
   progressBar.classList.add('active');
   const pct = Math.min(100, Math.round((done / total) * 100));
@@ -1644,76 +1642,7 @@ function renderCatalog() {
   if (catalogGridWrap) catalogGridWrap.scrollTop = savedScroll;
 }
 
-// ================= 语音：强制女声 =================
-let cachedVoiceEn = null;
-let cachedVoiceZh = null;
-let voiceCacheTime = 0;
-
-function findFemaleVoice(lang) {
-  if (!('speechSynthesis' in window)) return null;
-  const voices = window.speechSynthesis.getVoices();
-  if (!voices || voices.length === 0) return null;
-
-  const isEn = lang.toLowerCase().startsWith('en');
-  const isZh = lang.toLowerCase().startsWith('zh');
-
-  const enFemale = [
-    'Samantha','Karen','Moira','Tessa','Fiona','Serena','Allison','Ava',
-    'Susan','Victoria','Princess','Zosia','Kanya',
-    'Microsoft Zira','Microsoft Aria','Microsoft Jenny','Microsoft Michelle',
-    'Microsoft Ana','Microsoft Emily','Microsoft Clara',
-    'Google US English','Google UK English Female'
-  ];
-  const zhFemale = [
-    'Tingting','Ting-Ting','Meijia','Mei-Jia','Sinji','Ya-Ling','Panpan',
-    'Microsoft Xiaoxiao','Microsoft Xiaoyi','Microsoft Huihui','Microsoft Yaoyao',
-    'Google 普通话'
-  ];
-
-  const maleRegex = /male\b|man\b|Daniel|Alex\b|Fred|Tom\b|Oliver|Mark|David|James|Thomas|Jorge|Diego|Aaron|Xander|Reed|Rocko|Rishi|Tiantian|Kangkang|Yunyang|Yunxi|Yunjian|Enrique|Eddy|Junior|Grandpa|Siri Voice 2|Siri Voice 4/i;
-
-  const preferred = isEn ? enFemale : (isZh ? zhFemale : []);
-  for (const name of preferred) {
-    const v = voices.find(v => 
-      v.name && v.name.indexOf(name) !== -1 && !maleRegex.test(v.name)
-    );
-    if (v) return v;
-  }
-
-  const langVoices = voices.filter(v =>
-    v.lang && v.lang.toLowerCase().startsWith(isEn ? 'en' : (isZh ? 'zh' : lang.slice(0,2).toLowerCase()))
-  );
-  const notMale = langVoices.filter(v => !maleRegex.test(v.name || ''));
-  const female = notMale.find(v => /female|woman|girl|女/i.test(v.name));
-  if (female) return female;
-  if (notMale.length > 0) return notMale[0];
-  return langVoices[0] || voices[0] || null;
-}
-
-function getBestVoice(lang) {
-  const now = Date.now();
-  const isEn = lang.toLowerCase().startsWith('en');
-  const isZh = lang.toLowerCase().startsWith('zh');
-  if (now - voiceCacheTime < 10000) {
-    if (isEn && cachedVoiceEn) return cachedVoiceEn;
-    if (isZh && cachedVoiceZh) return cachedVoiceZh;
-  }
-  const v = findFemaleVoice(lang);
-  voiceCacheTime = now;
-  if (isEn) cachedVoiceEn = v;
-  if (isZh) cachedVoiceZh = v;
-  return v;
-}
-
-if ('speechSynthesis' in window) {
-  window.speechSynthesis.onvoiceschanged = () => {
-    cachedVoiceEn = null;
-    cachedVoiceZh = null;
-    voiceCacheTime = 0;
-  };
-  window.speechSynthesis.getVoices();
-}
-
+// ================= 语音：系统默认 =================
 function resetSpeech() {
   try { window.speechSynthesis.cancel(); } catch (e) {}
   isSpeaking = false;
@@ -1732,11 +1661,8 @@ async function speakText(text, lang = "en-US") {
   isSpeaking = true;
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = lang;
-  const voice = getBestVoice(lang);
-  if (voice) utter.voice = voice;
-
-  const isZh = lang.toLowerCase().startsWith('zh');
-  utter.pitch = isZh ? 1.05 : 1.0;
+  // 系统默认声音（不指定 voice）
+  utter.pitch = 1.0;
   utter.rate = (Number(speechRateInput.value) || 1) * 0.88;
   utter.volume = 1;
 
@@ -1907,10 +1833,8 @@ async function flipSpeak(text, lang = 'en-US') {
   flipSpeaking = true;
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = lang;
-  const voice = getBestVoice(lang);
-  if (voice) utter.voice = voice;
-  const isZh = lang.toLowerCase().startsWith('zh');
-  utter.pitch = isZh ? 1.05 : 1.0;
+  // 系统默认声音
+  utter.pitch = 1.0;
   utter.rate = (Number(speechRateInput.value) || 1) * 0.88;
   utter.volume = 1;
 
@@ -1954,7 +1878,7 @@ flipOverlay.addEventListener('click', (e) => {
   if (e.target === flipOverlay) closeFlipCard();
 });
 
-// ================= 加载词库（优化速度） =================
+// ================= 加载词库（快速） =================
 document.getElementById('loadOnline').onclick = async () => {
   const now = Date.now();
   if (isLoading || now - lastClickTime < CLICK_DELAY) return;
@@ -1970,9 +1894,6 @@ document.getElementById('loadOnline').onclick = async () => {
 
   loadStatus.innerText = `正在加载 0/${total} ...`;
   showProgress(0, total);
-
-  // ★ 优化：并发 20（一次全部发起），几乎瞬间完成
-  const BATCH_SIZE = 20;
 
   try {
     const allPromises = fileList.map(filename =>
