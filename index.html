@@ -13,7 +13,7 @@
   font-family: system-ui, -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
-button, .catalog-item, .switch, .catalog-header, .help-btn, .import-btn {
+button, .catalog-item, .switch, .catalog-header, .help-btn, .import-btn, .catalog-tab {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
@@ -330,7 +330,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   line-height: 1.6;
 }
 
-/* 进度条（粉色系 + 流动动画 + 百分比） */
+/* 进度条 */
 .progress-bar{
   margin: 8px auto 0;
   width: 100%;
@@ -439,10 +439,40 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   opacity: 0;
 }
 .catalog-panel.open .catalog-body{
-  max-height: 420px; overflow-y: auto;
+  max-height: 500px; overflow-y: auto;
   padding: 0 22px 18px;
   opacity: 1;
 }
+
+/* 目录模式切换栏 */
+.catalog-tabs{
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  background: #faf4ec;
+  padding: 4px;
+  border-radius: 999px;
+}
+.catalog-tab{
+  flex: 1;
+  padding: 8px 4px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #a8885a;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  border: none;
+  background: transparent;
+}
+.catalog-tab.active{
+  background: #ffffff;
+  color: #7a6a5a;
+  box-shadow: 0 2px 8px rgba(210, 190, 165, 0.2);
+}
+
 .catalog-grid{
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -465,7 +495,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 .catalog-item .word-en{
   font-size: 13px; font-weight: 700; color: #6a5a4a;
   line-height: 1.25; word-break: break-word;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
   overflow: hidden; margin-bottom: 5px; max-width: 100%;
 }
 .catalog-item .word-cn{
@@ -515,8 +545,8 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   align-items: center;
   justify-content: center;
   padding: 24px;
-  padding-top: calc(24px + env(safe-area-inset-top, 0px));
-  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  padding-top: calc(80px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 }
 .flip-overlay.active{
   display: flex;
@@ -614,41 +644,93 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   line-height: 1.5;
   word-break: break-word;
 }
-.flip-close{
+
+/* 卡面序号 */
+.flip-face-index{
   position: absolute;
-  top: -56px;
+  top: 14px;
+  right: 18px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #c8bbac;
+  letter-spacing: 0.3px;
+}
+
+/* 顶部栏 */
+.flip-top-bar{
+  position: absolute;
+  top: -58px;
+  left: 0;
   right: 0;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.flip-back-btn{
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-radius: 999px;
   background: #ffffff;
   border: none;
-  font-size: 18px;
+  font-size: 13px;
+  font-weight: 600;
   color: #a8988a;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(120, 100, 80, 0.18);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: transform 0.15s;
-  padding: 0;
-  font-weight: 600;
 }
-.flip-close:active{ transform: scale(0.92); }
+.flip-back-btn:active{ transform: scale(0.94); }
 
-.flip-badge{
-  position: absolute;
-  top: -46px;
-  left: 0;
-  background: #fff2e6;
-  color: #a8885a;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 5px 13px;
+.flip-index{
+  padding: 8px 16px;
   border-radius: 999px;
-  border: 1px solid #fde8d4;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  color: #a8885a;
+  box-shadow: 0 4px 14px rgba(120, 100, 80, 0.18);
+  letter-spacing: 0.3px;
 }
-.flip-badge .num{ color: #c89468; font-weight: 800; }
+.flip-index .cur{
+  font-size: 14px;
+  color: #c89468;
+}
+.flip-index .total{
+  font-size: 11px;
+  color: #c8bbac;
+  font-weight: 500;
+}
+
+/* 底部导航 */
+.flip-nav{
+  position: absolute;
+  bottom: -62px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+.flip-nav button{
+  padding: 11px 26px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  background: #ffffff;
+  color: #7a6a9a;
+  box-shadow: 0 4px 14px rgba(120, 100, 80, 0.2);
+  transition: transform 0.15s;
+}
+.flip-nav button:active{ transform: scale(0.94); }
+.flip-nav button:disabled{
+  opacity: 0.4;
+  pointer-events: none;
+}
 
 /* 帮助浮层 */
 .help-overlay{
@@ -834,6 +916,9 @@ button.speaking{ opacity:0.55; pointer-events:none; }
     background: linear-gradient(135deg, #5e5145, #6a5c4e);
     border-color: #7a6a5a;
   }
+  .catalog-tabs{ background: #443c32; }
+  .catalog-tab{ color: #a89c8c; }
+  .catalog-tab.active{ background: #5a5044; color: #e0d5c4; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
   .set-row{ color: #c8bfb0; }
   .set-row input[type="number"]{ background: #4a4238; border-color: #5a5044; color: #d8cfc2; }
   .switch-item{ color: #a89c8c; }
@@ -874,9 +959,11 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   .flip-back .flip-mean{ background: #4a4238; color: #d8c8a8; }
   .flip-back .flip-sen-en{ color: #d8cfc2; }
   .flip-back .flip-sen-cn{ color: #a89c8c; }
-  .flip-close{ background: #4a4238; color: #c8bfb0; }
-  .flip-badge{ background:#4a4238; color:#d8c8a8; border-color:#5a5044; }
-  .flip-badge .num{ color:#e8c898; }
+  .flip-face-index{ color: #8a7f70; }
+  .flip-back-btn, .flip-index, .flip-nav button{ background: #4a4238; color: #c8bfb0; }
+  .flip-index .cur{ color: #e8c898; }
+  .flip-index .total{ color: #8a7f70; }
+  .flip-nav button{ color: #c8b8d8; }
 
   .help-panel{ background: #3a342c; border-color: rgba(255,240,220,0.08); }
   .help-panel h3{ color: #e0d5c4; }
@@ -952,6 +1039,11 @@ button.speaking{ opacity:0.55; pointer-events:none; }
       <span class="toggle-icon">▼</span>
     </div>
     <div class="catalog-body">
+      <div class="catalog-tabs">
+        <button class="catalog-tab active" data-mode="en">🔤 英文</button>
+        <button class="catalog-tab" data-mode="cn">🀄 中文</button>
+        <button class="catalog-tab" data-mode="both">🌐 中英</button>
+      </div>
       <div class="catalog-grid" id="catalogGrid">
         <div class="catalog-empty">加载词库后显示目录</div>
       </div>
@@ -1008,19 +1100,32 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 <!-- 翻转卡片浮层 -->
 <div class="flip-overlay" id="flipOverlay">
   <div class="flip-wrap">
-    <div class="flip-badge">已看 <span class="num" id="flipCount">0</span> 次</div>
-    <button class="flip-close" id="flipClose">✕</button>
+    <div class="flip-top-bar">
+      <button class="flip-back-btn" id="flipBackBtn">← 返回</button>
+      <div class="flip-index">
+        <span class="cur" id="flipIndexCur">1</span>
+        <span class="total">/ <span id="flipIndexTotal">0</span></span>
+      </div>
+    </div>
+
     <div class="flip-card" id="flipCard">
       <div class="flip-face flip-front">
+        <div class="flip-face-index" id="flipFaceIndexFront">#1</div>
         <div class="flip-word" id="flipWordFront">—</div>
         <div class="flip-hint">点击翻转 · 查看释义</div>
       </div>
       <div class="flip-face flip-back">
+        <div class="flip-face-index" id="flipFaceIndexBack">#1</div>
         <div class="flip-word-back" id="flipWordBack">—</div>
         <div class="flip-mean" id="flipMean">—</div>
         <div class="flip-sen-en" id="flipSenEn">—</div>
         <div class="flip-sen-cn" id="flipSenCn">—</div>
       </div>
+    </div>
+
+    <div class="flip-nav">
+      <button id="flipPrevBtn">◀ 上一个</button>
+      <button id="flipNextBtn">下一个 ▶</button>
     </div>
   </div>
 </div>
@@ -1089,6 +1194,7 @@ let switching = false;
 let viewCountMap = {};
 let currentSortMode = 'default';
 let onlyUnseen = false;
+let catalogMode = 'en';   // 'en' | 'cn' | 'both'
 
 let isLoading = false;
 let lastClickTime = 0;
@@ -1143,13 +1249,18 @@ const cardContent = document.getElementById('cardContent');
 
 const flipOverlay = document.getElementById('flipOverlay');
 const flipCard = document.getElementById('flipCard');
-const flipClose = document.getElementById('flipClose');
 const flipWordFront = document.getElementById('flipWordFront');
 const flipWordBack = document.getElementById('flipWordBack');
 const flipMean = document.getElementById('flipMean');
 const flipSenEn = document.getElementById('flipSenEn');
 const flipSenCn = document.getElementById('flipSenCn');
-const flipCount = document.getElementById('flipCount');
+const flipIndexCur = document.getElementById('flipIndexCur');
+const flipIndexTotal = document.getElementById('flipIndexTotal');
+const flipFaceIndexFront = document.getElementById('flipFaceIndexFront');
+const flipFaceIndexBack = document.getElementById('flipFaceIndexBack');
+const flipBackBtn = document.getElementById('flipBackBtn');
+const flipPrevBtn = document.getElementById('flipPrevBtn');
+const flipNextBtn = document.getElementById('flipNextBtn');
 
 const helpOverlay = document.getElementById('helpOverlay');
 const helpBtn = document.getElementById('helpBtn');
@@ -1194,6 +1305,16 @@ readSenSwitch.onclick = () => { readSenSwitch.classList.toggle("active"); saveSe
 
 catalogHeader.addEventListener('click', () => {
   catalogPanel.classList.toggle('open');
+});
+
+// ================= 目录模式切换 =================
+document.querySelectorAll('.catalog-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.catalog-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    catalogMode = tab.dataset.mode;
+    renderCatalog();
+  });
 });
 
 // ================= 帮助浮层 =================
@@ -1335,11 +1456,18 @@ function renderCatalog() {
     const div = document.createElement('div');
     div.className = 'catalog-item';
     div.dataset.index = originalIndex;
-    div.innerHTML = `
-      <div class="word-en">${word || '—'}</div>
-      <div class="word-cn">${mean || ''}</div>
-      ${count > 0 ? `<span class="badge">${count}</span>` : ''}
-    `;
+
+    let displayHtml = '';
+    if (catalogMode === 'en') {
+      displayHtml = `<div class="word-en">${word || '—'}</div>`;
+    } else if (catalogMode === 'cn') {
+      displayHtml = `<div class="word-en" style="font-size:12px;font-weight:600;color:#6a5a4a;">${mean || '—'}</div>`;
+    } else {
+      displayHtml = `<div class="word-en">${word || '—'}</div><div class="word-cn">${mean || ''}</div>`;
+    }
+
+    div.innerHTML = displayHtml + (count > 0 ? `<span class="badge">${count}</span>` : '');
+
     div.addEventListener('click', () => {
       openFlipCard(wordList[originalIndex]);
     });
@@ -1470,9 +1598,13 @@ let flipSession = 0;
 let flipSpeaking = false;
 let flipToken = 0;
 let flipCurrentItem = null;
+let flipCurrentIndex = -1;
 
 async function openFlipCard(item) {
   if (!item) return;
+
+  flipCurrentIndex = wordList.findIndex(w => w.word === item.word);
+  if (flipCurrentIndex < 0) flipCurrentIndex = 0;
 
   running = false;
   displaySession++;
@@ -1484,17 +1616,31 @@ async function openFlipCard(item) {
   flipSpeaking = false;
   flipCurrentItem = item;
 
-  flipWordFront.innerText = item.word || '—';
-  flipWordBack.innerText = item.word || '—';
-  flipMean.innerText = item.mean || '—';
-  flipSenEn.innerText = item.sentenceEn || '';
-  flipSenCn.innerText = item.sentenceCn || '';
-  flipCount.innerText = getViewCount(item.word);
+  renderFlipCard(item);
 
   flipCard.classList.remove('flipped');
   flipOverlay.classList.add('active');
 
   await flipSpeak(item.word, 'en-US');
+}
+
+function renderFlipCard(item) {
+  if (!item) return;
+  flipWordFront.innerText = item.word || '—';
+  flipWordBack.innerText = item.word || '—';
+  flipMean.innerText = item.mean || '—';
+  flipSenEn.innerText = item.sentenceEn || '';
+  flipSenCn.innerText = item.sentenceCn || '';
+
+  const curNum = flipCurrentIndex + 1;
+  const totalNum = wordList.length;
+  flipIndexCur.innerText = curNum;
+  flipIndexTotal.innerText = totalNum;
+  flipFaceIndexFront.innerText = '#' + curNum;
+  flipFaceIndexBack.innerText = '#' + curNum;
+
+  flipPrevBtn.disabled = flipCurrentIndex <= 0;
+  flipNextBtn.disabled = flipCurrentIndex >= totalNum - 1;
 }
 
 function closeFlipCard() {
@@ -1505,6 +1651,23 @@ function closeFlipCard() {
   flipOverlay.classList.remove('active');
   flipCard.classList.remove('flipped');
   flipCurrentItem = null;
+}
+
+async function flipGoTo(newIndex) {
+  if (newIndex < 0 || newIndex >= wordList.length) return;
+  if (flipCurrentIndex === newIndex) return;
+  flipCurrentIndex = newIndex;
+  flipCurrentItem = wordList[newIndex];
+
+  flipSession++;
+  flipToken++;
+  try { window.speechSynthesis.cancel(); } catch (e) {}
+  flipSpeaking = false;
+
+  flipCard.classList.remove('flipped');
+  renderFlipCard(flipCurrentItem);
+
+  await flipSpeak(flipCurrentItem.word, 'en-US');
 }
 
 async function flipSpeak(text, lang = 'en-US') {
@@ -1542,8 +1705,8 @@ async function flipSpeak(text, lang = 'en-US') {
   });
 }
 
-flipCard.addEventListener('click', async (e) => {
-  if (e.target === flipClose) return;
+// 点击卡片翻转
+flipCard.addEventListener('click', async () => {
   const item = flipCurrentItem;
   if (!item) return;
 
@@ -1563,11 +1726,26 @@ flipCard.addEventListener('click', async (e) => {
   }
 });
 
-flipClose.addEventListener('click', (e) => {
+// 返回按钮
+flipBackBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   closeFlipCard();
 });
 
+// 上一个 / 下一个
+flipPrevBtn.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  if (flipCurrentIndex <= 0) return;
+  await flipGoTo(flipCurrentIndex - 1);
+});
+
+flipNextBtn.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  if (flipCurrentIndex >= wordList.length - 1) return;
+  await flipGoTo(flipCurrentIndex + 1);
+});
+
+// 点遮罩关闭
 flipOverlay.addEventListener('click', (e) => {
   if (e.target === flipOverlay) closeFlipCard();
 });
