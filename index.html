@@ -9,27 +9,38 @@
 </head>
 <body>
 
-<!-- 背景装饰 -->
 <div class="deco deco-1">🌿</div>
 <div class="deco deco-2">🌙</div>
 
-<!-- 顶部状态栏 -->
 <header class="app-header">
   <div class="stat streak">🔥 <span class="num" id="statStreak">0</span> 天</div>
   <div class="stat goal">🎯 <span class="num" id="statToday">0</span>/<span id="statGoal">20</span></div>
   <div class="stat time">⏱️ <span class="num" id="statTime">0</span> 分</div>
 </header>
 
-<!-- 主内容区 -->
 <main class="app-main">
 
-  <!-- Tab 1: 刷词 -->
   <section class="tab-page active" data-tab="study">
+
+    <!-- ★ 主界面快捷加载 -->
+    <div class="quick-load">
+      <select id="dictSelectQuick"></select>
+      <button class="btn-blue" id="loadOnlineQuick">加载词库</button>
+    </div>
+    <div class="load-progress" id="quickProgress" style="display:none;">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="quickProgressFill"></div>
+      </div>
+      <div class="progress-percent">
+        <span class="num" id="quickProgressNum">0</span>%
+      </div>
+    </div>
+
     <div class="card" id="card">
       <div class="card-swipe-hint left">不熟</div>
       <div class="card-swipe-hint right">掌握</div>
       <div class="card-content" id="cardContent">
-        <div class="word waiting" id="word">点下方按钮加载词库</div>
+        <div class="word waiting" id="word">点上方按钮加载词库</div>
         <div class="meaning-tag" id="meaning">--</div>
         <div class="sentence-en" id="senEn">--</div>
         <div class="sentence-cn" id="senCn">--</div>
@@ -57,7 +68,6 @@
     </div>
   </section>
 
-  <!-- Tab 2: 数据 -->
   <section class="tab-page" data-tab="data">
     <div class="data-card">
       <h3>📊 学习进度</h3>
@@ -72,9 +82,7 @@
               </linearGradient>
             </defs>
             <circle class="track" cx="70" cy="70" r="58"></circle>
-            <circle class="fill" id="ringFill" cx="70" cy="70" r="58"
-                    stroke-dasharray="364.4"
-                    stroke-dashoffset="364.4"></circle>
+            <circle class="fill" id="ringFill" cx="70" cy="70" r="58" stroke-dasharray="364.4" stroke-dashoffset="364.4"></circle>
           </svg>
           <div class="ring-text">
             <div class="pct" id="ringPct">0%</div>
@@ -83,22 +91,10 @@
         </div>
       </div>
       <div class="stats-grid">
-        <div class="stat-box">
-          <div class="label">未测</div>
-          <div class="value" id="statUnseen">0</div>
-        </div>
-        <div class="stat-box">
-          <div class="label">掌握</div>
-          <div class="value" id="statMastered">0</div>
-        </div>
-        <div class="stat-box">
-          <div class="label">不熟</div>
-          <div class="value" id="statWeak">0</div>
-        </div>
-        <div class="stat-box">
-          <div class="label">收藏</div>
-          <div class="value" id="statStar">0</div>
-        </div>
+        <div class="stat-box"><div class="label">未测</div><div class="value" id="statUnseen">0</div></div>
+        <div class="stat-box"><div class="label">掌握</div><div class="value" id="statMastered">0</div></div>
+        <div class="stat-box"><div class="label">不熟</div><div class="value" id="statWeak">0</div></div>
+        <div class="stat-box"><div class="label">收藏</div><div class="value" id="statStar">0</div></div>
       </div>
     </div>
 
@@ -120,7 +116,6 @@
     <button class="big-btn btn-soft" id="reviewAllBtn">📚 复习全部</button>
   </section>
 
-  <!-- Tab 3: 生词本 -->
   <section class="tab-page" data-tab="star">
     <div class="star-list" id="starList">
       <div class="star-empty">
@@ -132,7 +127,6 @@
     <button class="big-btn btn-purple" id="reviewStarBtn" style="margin-top:16px;">⭐ 只复习生词</button>
   </section>
 
-  <!-- Tab 4: 设置 -->
   <section class="tab-page" data-tab="settings">
 
     <div class="setting-group">
@@ -220,27 +214,13 @@
 
 </main>
 
-<!-- 底部 Tab Bar -->
 <nav class="tab-bar">
-  <button class="tab-btn active" data-tab="study">
-    <span class="icon">🏠</span>
-    <span>刷词</span>
-  </button>
-  <button class="tab-btn" data-tab="data">
-    <span class="icon">📊</span>
-    <span>数据</span>
-  </button>
-  <button class="tab-btn" data-tab="star">
-    <span class="icon">⭐</span>
-    <span>生词</span>
-  </button>
-  <button class="tab-btn" data-tab="settings">
-    <span class="icon">⚙️</span>
-    <span>设置</span>
-  </button>
+  <button class="tab-btn active" data-tab="study"><span class="icon">🏠</span><span>刷词</span></button>
+  <button class="tab-btn" data-tab="data"><span class="icon">📊</span><span>数据</span></button>
+  <button class="tab-btn" data-tab="star"><span class="icon">⭐</span><span>生词</span></button>
+  <button class="tab-btn" data-tab="settings"><span class="icon">⚙️</span><span>设置</span></button>
 </nav>
 
-<!-- 抽测浮层 -->
 <div class="test-overlay" id="testOverlay">
   <div class="test-header">
     <div class="progress" id="testProgress">第 1 / 10 题</div>
@@ -251,7 +231,6 @@
   <div class="test-footer" id="testFooter">✅ 0 · ❌ 0</div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script src="app.js"></script>
