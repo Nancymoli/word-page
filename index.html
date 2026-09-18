@@ -1,4 +1,4 @@
-<!-- v=1.7 所有词库统一按8个分文件加载 -->
+<!-- v=1.8 所有词库统一按20个分文件加载 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -181,55 +181,69 @@ let currentIndex = 0;
 let running = false;
 let isSpeaking = false;
 
-// ===== 词库配置：所有词库统一按 8 个分文件加载 =====
+// ===== 词库配置：所有词库统一按 20 个分文件加载 =====
 const dictConfig = [
   {
     name: "小学词汇",
     files: [
-      "primarylist1.json","primarylist2.json","primarylist3.json","primarylist4.json",
-      "primarylist5.json","primarylist6.json","primarylist7.json","primarylist8.json"
+      "primarylist1.json","primarylist2.json","primarylist3.json","primarylist4.json","primarylist5.json",
+      "primarylist6.json","primarylist7.json","primarylist8.json","primarylist9.json","primarylist10.json",
+      "primarylist11.json","primarylist12.json","primarylist13.json","primarylist14.json","primarylist15.json",
+      "primarylist16.json","primarylist17.json","primarylist18.json","primarylist19.json","primarylist20.json"
     ]
   },
   {
     name: "初中词汇",
     files: [
-      "juniorlist1.json","juniorlist2.json","juniorlist3.json","juniorlist4.json",
-      "juniorlist5.json","juniorlist6.json","juniorlist7.json","juniorlist8.json"
+      "juniorlist1.json","juniorlist2.json","juniorlist3.json","juniorlist4.json","juniorlist5.json",
+      "juniorlist6.json","juniorlist7.json","juniorlist8.json","juniorlist9.json","juniorlist10.json",
+      "juniorlist11.json","juniorlist12.json","juniorlist13.json","juniorlist14.json","juniorlist15.json",
+      "juniorlist16.json","juniorlist17.json","juniorlist18.json","juniorlist19.json","juniorlist20.json"
     ]
   },
   {
     name: "高中词汇",
     files: [
-      "seniorlist1.json","seniorlist2.json","seniorlist3.json","seniorlist4.json",
-      "seniorlist5.json","seniorlist6.json","seniorlist7.json","seniorlist8.json"
+      "seniorlist1.json","seniorlist2.json","seniorlist3.json","seniorlist4.json","seniorlist5.json",
+      "seniorlist6.json","seniorlist7.json","seniorlist8.json","seniorlist9.json","seniorlist10.json",
+      "seniorlist11.json","seniorlist12.json","seniorlist13.json","seniorlist14.json","seniorlist15.json",
+      "seniorlist16.json","seniorlist17.json","seniorlist18.json","seniorlist19.json","seniorlist20.json"
     ]
   },
   {
     name: "四级词汇 4000词",
     files: [
-      "cet4list1.json","cet4list2.json","cet4list3.json","cet4list4.json",
-      "cet4list5.json","cet4list6.json","cet4list7.json","cet4list8.json"
+      "cet4list1.json","cet4list2.json","cet4list3.json","cet4list4.json","cet4list5.json",
+      "cet4list6.json","cet4list7.json","cet4list8.json","cet4list9.json","cet4list10.json",
+      "cet4list11.json","cet4list12.json","cet4list13.json","cet4list14.json","cet4list15.json",
+      "cet4list16.json","cet4list17.json","cet4list18.json","cet4list19.json","cet4list20.json"
     ]
   },
   {
     name: "六级词汇",
     files: [
-      "cet6list1.json","cet6list2.json","cet6list3.json","cet6list4.json",
-      "cet6list5.json","cet6list6.json","cet6list7.json","cet6list8.json"
+      "cet6list1.json","cet6list2.json","cet6list3.json","cet6list4.json","cet6list5.json",
+      "cet6list6.json","cet6list7.json","cet6list8.json","cet6list9.json","cet6list10.json",
+      "cet6list11.json","cet6list12.json","cet6list13.json","cet6list14.json","cet6list15.json",
+      "cet6list16.json","cet6list17.json","cet6list18.json","cet6list19.json","cet6list20.json"
     ]
   },
   {
     name: "考研词汇",
     files: [
-      "kaoyanlist1.json","kaoyanlist2.json","kaoyanlist3.json","kaoyanlist4.json",
-      "kaoyanlist5.json","kaoyanlist6.json","kaoyanlist7.json","kaoyanlist8.json"
+      "kaoyanlist1.json","kaoyanlist2.json","kaoyanlist3.json","kaoyanlist4.json","kaoyanlist5.json",
+      "kaoyanlist6.json","kaoyanlist7.json","kaoyanlist8.json","kaoyanlist9.json","kaoyanlist10.json",
+      "kaoyanlist11.json","kaoyanlist12.json","kaoyanlist13.json","kaoyanlist14.json","kaoyanlist15.json",
+      "kaoyanlist16.json","kaoyanlist17.json","kaoyanlist18.json","kaoyanlist19.json","kaoyanlist20.json"
     ]
   },
   {
     name: "雅思词汇",
     files: [
-      "ieltslist1.json","ieltslist2.json","ieltslist3.json","ieltslist4.json",
-      "ieltslist5.json","ieltslist6.json","ieltslist7.json","ieltslist8.json"
+      "ieltslist1.json","ieltslist2.json","ieltslist3.json","ieltslist4.json","ieltslist5.json",
+      "ieltslist6.json","ieltslist7.json","ieltslist8.json","ieltslist9.json","ieltslist10.json",
+      "ieltslist11.json","ieltslist12.json","ieltslist13.json","ieltslist14.json","ieltslist15.json",
+      "ieltslist16.json","ieltslist17.json","ieltslist18.json","ieltslist19.json","ieltslist20.json"
     ]
   }
 ];
