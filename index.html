@@ -36,7 +36,7 @@ body{
 .bubble3{ width:180px; height:180px; background:#ffe3a3; bottom:10%; left:-60px; opacity:0.28; }
 .bubble4{ width:200px; height:200px; background:#c9f0d8; bottom:15%; right:-70px; opacity:0.28; }
 
-/* ===== 贴纸层（减半，降低透明度，纯装饰） ===== */
+/* ===== 贴纸层 ===== */
 .sticker{
   position: fixed;
   z-index: 1;
@@ -70,7 +70,7 @@ body{
 .top-title h2{ font-size:20px; font-weight:600; color:#444; letter-spacing:0.5px; }
 .progress-text{ margin-top:6px; font-size:15px; color:#777; }
 
-/* ===== 控制区（精简为两行） ===== */
+/* ===== 控制区 ===== */
 .ctrl{
   position:relative; z-index:2;
   display:flex; flex-direction:column; gap:12px;
@@ -112,7 +112,7 @@ button:disabled{ opacity:0.5; pointer-events:none; }
 .card{
   background: #ffffff;
   border-radius: 26px;
-  padding: 30px 22px 26px;
+  padding: 36px 22px 26px;
   text-align: center;
   box-shadow: 0 8px 28px rgba(255, 182, 220, 0.20), 0 2px 8px rgba(163, 212, 255, 0.10);
   position: relative;
@@ -120,16 +120,16 @@ button:disabled{ opacity:0.5; pointer-events:none; }
   border: 1.5px solid rgba(255, 255, 255, 0.9);
 }
 
-/* 查看次数徽章（右上角，改为温暖药丸） */
+/* ★ 查看次数徽章：上移到顶部，不再遮挡单词 */
 .view-badge{
   position: absolute;
-  top: 16px;
-  right: 18px;
+  top: 8px;
+  right: 16px;
   background: linear-gradient(135deg, #ffeaf4, #ffd6ec);
   color: #a8497a;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 5px 13px;
+  padding: 4px 12px;
   border-radius: 999px;
   box-shadow: 0 2px 8px rgba(255, 179, 221, 0.35);
   border: 1.5px solid #ffffff;
@@ -140,7 +140,7 @@ button:disabled{ opacity:0.5; pointer-events:none; }
   transition: all 0.3s;
 }
 .view-badge .num{
-  font-size: 15px;
+  font-size: 14px;
   color: #d12a78;
   font-weight: 800;
 }
@@ -150,7 +150,27 @@ button:disabled{ opacity:0.5; pointer-events:none; }
 }
 .view-badge.high .num{ color: #fff; }
 
-.word{ font-size:48px; font-weight:800; color:#2a2a2a; margin-bottom:12px; letter-spacing:-1px; }
+/* ★ 单词：等待时显示双线镂空花体，正常显示英文单词 */
+.word{
+  font-size:48px;
+  font-weight:800;
+  color:#2a2a2a;
+  margin-bottom:12px;
+  letter-spacing:-1px;
+  word-break: break-word;
+}
+/* 等待文字样式：双线镂空花体 */
+.word.waiting{
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  line-height: 1.5;
+  color: #b8a9ff;
+  font-family: "Times New Roman", "STKaiti", "KaiTi", serif;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.8);
+  padding: 10px 0;
+}
+
 .meaning-tag{
   display:inline-block; background:#d3e8ff; color:#2a4a6b;
   font-size:18px; font-weight:600; padding:8px 20px;
@@ -173,7 +193,7 @@ button:disabled{ opacity:0.5; pointer-events:none; }
   box-shadow: 0 3px 10px rgba(217, 179, 255, 0.28);
 }
 
-/* ===== 复习模式快捷栏（替代原目录工具条） ===== */
+/* ===== 复习快捷栏 ===== */
 .review-bar{
   margin-top: 16px;
   background: #ffffff;
@@ -272,31 +292,17 @@ button:disabled{ opacity:0.5; pointer-events:none; }
   user-select: none;
   transition: background 0.2s;
 }
-.catalog-header:hover{
-  background: #faf6ff;
-}
+.catalog-header:hover{ background: #faf6ff; }
 .catalog-header .title{
-  font-weight: 600;
-  font-size: 15px;
-  color: #5a4a7a;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  font-weight: 600; font-size: 15px; color: #5a4a7a;
+  display: flex; align-items: center; gap: 6px;
 }
-.catalog-header .meta{
-  font-size: 13px;
-  color: #999;
-  font-weight: normal;
-}
+.catalog-header .meta{ font-size: 13px; color: #999; font-weight: normal; }
 .catalog-header .toggle-icon{
-  font-size: 12px;
-  color: #b8a9ff;
-  transition: transform 0.3s;
-  margin-left: 8px;
+  font-size: 12px; color: #b8a9ff;
+  transition: transform 0.3s; margin-left: 8px;
 }
-.catalog-panel.open .catalog-header .toggle-icon{
-  transform: rotate(180deg);
-}
+.catalog-panel.open .catalog-header .toggle-icon{ transform: rotate(180deg); }
 
 .catalog-body{
   max-height: 0;
@@ -305,69 +311,102 @@ button:disabled{ opacity:0.5; pointer-events:none; }
   padding: 0 18px;
 }
 .catalog-panel.open .catalog-body{
-  max-height: 320px;
+  max-height: 420px;
   overflow-y: auto;
   padding: 0 18px 16px;
 }
 
+/* ★ 目录项：圆角正方形卡片 */
 .catalog-grid{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 10px;
 }
 .catalog-item{
   background: #f6f2ff;
-  border-radius: 30px;
-  padding: 6px 14px;
-  font-size: 14px;
-  color: #4a4a4a;
+  border-radius: 16px;
+  padding: 12px 6px 10px;
   cursor: pointer;
   transition: 0.15s;
-  border: 1px solid #ece4ff;
-  white-space: nowrap;
+  border: 1.5px solid #ece4ff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 88px;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+}
+.catalog-item .word-en{
+  font-size: 14px;
+  font-weight: 700;
+  color: #3a3a5a;
+  line-height: 1.2;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 4px;
+  max-width: 100%;
+}
+.catalog-item .word-cn{
+  font-size: 11px;
+  color: #888;
+  line-height: 1.3;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 100%;
 }
 .catalog-item .badge{
-  display: inline-block;
+  position: absolute;
+  top: 5px;
+  right: 5px;
   background: #ffd1e8;
   color: #a8497a;
   font-size: 10px;
   font-weight: 700;
-  padding: 1px 6px;
+  min-width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  padding: 0 5px;
   border-radius: 999px;
-  margin-left: 5px;
-  vertical-align: middle;
+  box-shadow: 0 1px 3px rgba(168, 73, 122, 0.2);
 }
 .catalog-item:hover{
   background: #ece4ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 169, 255, 0.28);
 }
 .catalog-item.active{
-  background: #c5b3ff;
-  color: #fff;
+  background: linear-gradient(135deg, #c5b3ff, #b8a9ff);
   border-color: #b8a9ff;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(184, 169, 255, 0.4);
+  box-shadow: 0 4px 14px rgba(184, 169, 255, 0.5);
 }
-.catalog-item.active .badge{
-  background: #fff;
-  color: #a8497a;
-}
+.catalog-item.active .word-en{ color: #fff; }
+.catalog-item.active .word-cn{ color: rgba(255,255,255,0.85); }
+.catalog-item.active .badge{ background: #fff; color: #a8497a; }
 .catalog-empty{
   color: #bbb;
   font-size: 13px;
   padding: 12px 0;
   text-align: center;
+  grid-column: 1 / -1;
 }
 </style>
 </head>
 <body>
 
-<!-- 背景气泡 -->
 <div class="bubble bubble1"></div>
 <div class="bubble bubble2"></div>
 <div class="bubble bubble3"></div>
 <div class="bubble bubble4"></div>
 
-<!-- 边缘贴纸（减半，柔和） -->
 <div class="sticker sticker-1">🌸</div>
 <div class="sticker sticker-2">🍀</div>
 <div class="sticker sticker-3">🎀</div>
@@ -380,7 +419,6 @@ button:disabled{ opacity:0.5; pointer-events:none; }
   <div class="progress-text" id="progressText">进度：0 / 0</div>
 </div>
 
-<!-- 控制区：精简两行 -->
 <div class="ctrl">
   <div class="ctrl-row">
     <select id="dictSelect"></select>
@@ -398,10 +436,10 @@ button:disabled{ opacity:0.5; pointer-events:none; }
 
 <div class="container">
   <div class="card">
-    <!-- 查看次数徽章 -->
     <div class="view-badge" id="viewBadge">已看 <span class="num" id="viewCount">0</span> 次</div>
 
-    <div class="word" id="word">等待加载单词</div>
+    <!-- ★ 等待时显示双线镂空花体 -->
+    <div class="word waiting" id="word">𝔹𝕦𝕥 𝕥𝕙𝕪 𝕖𝕥𝕖𝕣𝕟𝕒𝕝 𝕤𝕦𝕞𝕞𝕖𝕣 𝕤𝕙𝕒𝕝𝕝 𝕟𝕠𝕥 𝕗𝕒𝕕𝕖</div>
     <div class="meaning-tag" id="meaning">--</div>
     <div class="sentence-en" id="senEn">--</div>
     <div class="sentence-cn" id="senCn">--</div>
@@ -412,7 +450,6 @@ button:disabled{ opacity:0.5; pointer-events:none; }
     </div>
   </div>
 
-  <!-- 复习快捷栏 -->
   <div class="review-bar">
     <span class="label">🔍 复习</span>
     <button class="btn-blue" id="reviewLeast">最不熟</button>
@@ -422,7 +459,6 @@ button:disabled{ opacity:0.5; pointer-events:none; }
     <div class="hint" id="reviewHint">「最不熟」= 查看次数最少的单词</div>
   </div>
 
-  <!-- 可折叠目录 -->
   <div class="catalog-panel" id="catalogPanel">
     <div class="catalog-header" id="catalogHeader">
       <span class="title">📂 单词目录 <span class="meta" id="catalogCount">0 个单词</span></span>
@@ -490,7 +526,6 @@ const CLICK_DELAY = 500;
 
 const VIEW_COUNT_KEY = 'wordViewCounts_v1';
 
-// 词库配置
 const dictConfig = [
   { name: "小学词汇", files: ["primarylist1.json","primarylist2.json","primarylist3.json","primarylist4.json","primarylist5.json","primarylist6.json","primarylist7.json","primarylist8.json","primarylist9.json","primarylist10.json","primarylist11.json","primarylist12.json","primarylist13.json","primarylist14.json","primarylist15.json","primarylist16.json","primarylist17.json","primarylist18.json","primarylist19.json","primarylist20.json"] },
   { name: "初中词汇", files: ["juniorlist1.json","juniorlist2.json","juniorlist3.json","juniorlist4.json","juniorlist5.json","juniorlist6.json","juniorlist7.json","juniorlist8.json","juniorlist9.json","juniorlist10.json","juniorlist11.json","juniorlist12.json","juniorlist13.json","juniorlist14.json","juniorlist15.json","juniorlist16.json","juniorlist17.json","juniorlist18.json","juniorlist19.json","juniorlist20.json"] },
@@ -529,6 +564,9 @@ const viewCountEl = document.getElementById('viewCount');
 const viewBadge = document.getElementById('viewBadge');
 const reviewHint = document.getElementById('reviewHint');
 
+// ★ 等待文字（双线镂空花体）
+const WAITING_TEXT = '𝔹𝕦𝕥 𝕥𝕙𝕪 𝕖𝕥𝕖𝕣𝕟𝕒𝕝 𝕤𝕦𝕞𝕞𝕖𝕣 𝕤𝕙𝕒𝕝𝕝 𝕟𝕠𝕥 𝕗𝕒𝕕𝕖';
+
 dictConfig.forEach((item, idx) => {
   const opt = document.createElement('option');
   opt.value = idx;
@@ -540,7 +578,6 @@ readEnSwitch.onclick = () => readEnSwitch.classList.toggle("active");
 readMeanSwitch.onclick = () => readMeanSwitch.classList.toggle("active");
 readSenSwitch.onclick = () => readSenSwitch.classList.toggle("active");
 
-// ================= 目录折叠 =================
 catalogHeader.addEventListener('click', () => {
   catalogPanel.classList.toggle('open');
 });
@@ -552,25 +589,18 @@ function loadViewCounts() {
     viewCountMap = raw ? JSON.parse(raw) : {};
   } catch (e) { viewCountMap = {}; }
 }
-
 function saveViewCounts() {
-  try {
-    localStorage.setItem(VIEW_COUNT_KEY, JSON.stringify(viewCountMap));
-  } catch (e) { console.warn('保存查看次数失败', e); }
+  try { localStorage.setItem(VIEW_COUNT_KEY, JSON.stringify(viewCountMap)); }
+  catch (e) { console.warn('保存查看次数失败', e); }
 }
-
 function incrementViewCount(word) {
   if (!word) return 0;
   viewCountMap[word] = (viewCountMap[word] || 0) + 1;
   saveViewCounts();
   return viewCountMap[word];
 }
+function getViewCount(word) { return viewCountMap[word] || 0; }
 
-function getViewCount(word) {
-  return viewCountMap[word] || 0;
-}
-
-// 刷新徽章
 function refreshViewBadge() {
   const item = wordList[currentIndex];
   if (!item) {
@@ -580,11 +610,8 @@ function refreshViewBadge() {
   }
   const c = getViewCount(item.word);
   viewCountEl.innerText = c;
-  if (c >= 6) {
-    viewBadge.classList.add('high');
-  } else {
-    viewBadge.classList.remove('high');
-  }
+  if (c >= 6) viewBadge.classList.add('high');
+  else viewBadge.classList.remove('high');
 }
 
 // ================= 辅助 =================
@@ -606,19 +633,16 @@ function highlightCatalogItem() {
   const items = catalogGrid.querySelectorAll('.catalog-item');
   items.forEach((el) => {
     const idx = Number(el.dataset.index);
-    if (idx === currentIndex) {
-      el.classList.add('active');
-    } else {
-      el.classList.remove('active');
-    }
+    if (idx === currentIndex) el.classList.add('active');
+    else el.classList.remove('active');
   });
   const activeEl = catalogGrid.querySelector('.catalog-item.active');
-  if (activeEl) {
+  if (activeEl && catalogPanel.classList.contains('open')) {
     activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 }
 
-// 生成目录
+// 生成目录（圆角正方形，英文上、中文下）
 function buildCatalog() {
   catalogGrid.innerHTML = '';
   if (!wordList || wordList.length === 0) {
@@ -630,12 +654,11 @@ function buildCatalog() {
   let items = wordList.map((item, idx) => ({
     item, originalIndex: idx,
     word: item.word || '',
+    mean: item.mean || '',
     count: getViewCount(item.word)
   }));
 
-  if (onlyUnseen) {
-    items = items.filter(x => x.count === 0);
-  }
+  if (onlyUnseen) items = items.filter(x => x.count === 0);
 
   if (currentSortMode === 'viewAsc') {
     items.sort((a, b) => a.count - b.count || a.originalIndex - b.originalIndex);
@@ -648,11 +671,15 @@ function buildCatalog() {
     : `${wordList.length} 个单词`;
 
   const fragment = document.createDocumentFragment();
-  items.forEach(({ originalIndex, word, count }) => {
+  items.forEach(({ originalIndex, word, mean, count }) => {
     const div = document.createElement('div');
     div.className = 'catalog-item';
     div.dataset.index = originalIndex;
-    div.innerHTML = `${word}${count > 0 ? `<span class="badge">${count}</span>` : ''}`;
+    div.innerHTML = `
+      <div class="word-en">${word || '—'}</div>
+      <div class="word-cn">${mean || ''}</div>
+      ${count > 0 ? `<span class="badge">${count}</span>` : ''}
+    `;
     div.addEventListener('click', () => {
       if (originalIndex === currentIndex) return;
       running = false;
@@ -725,6 +752,8 @@ async function showWord(item) {
 
   incrementViewCount(item.word);
 
+  // ★ 显示单词时移除 waiting 类，恢复正常字体
+  domWord.classList.remove('waiting');
   domWord.innerText = item.word || '';
   domMean.innerText = item.mean || '';
   domSenEn.innerText = item.sentenceEn || '';
@@ -810,6 +839,8 @@ document.getElementById('loadOnline').onclick = async () => {
     running = false;
     resetSpeech();
     updateProgress();
+    // 显示时移除 waiting 类
+    domWord.classList.remove('waiting');
     domWord.innerText = wordList[currentIndex].word || '';
     domMean.innerText = wordList[currentIndex].mean || '';
     domSenEn.innerText = wordList[currentIndex].sentenceEn || '';
@@ -916,12 +947,10 @@ nextBtn.onclick = function() {
 };
 
 // ================= 复习模式 =================
-// 「最不熟」：把整个词库按查看次数升序排，跳到第一个
 document.getElementById('reviewLeast').onclick = () => {
   if (wordList.length === 0) { alert("请先加载词库"); return; }
   running = false;
   resetSpeech();
-  // 找到查看次数最少的单词（次数相同时取原索引最小）
   let bestIdx = 0;
   let bestCount = getViewCount(wordList[0].word);
   for (let i = 1; i < wordList.length; i++) {
@@ -934,7 +963,6 @@ document.getElementById('reviewLeast').onclick = () => {
   reviewHint.innerText = `已跳到最不熟的单词（已看 ${bestCount} 次）`;
 };
 
-// 「最熟」：跳到查看次数最多的单词
 document.getElementById('reviewMost').onclick = () => {
   if (wordList.length === 0) { alert("请先加载词库"); return; }
   running = false;
@@ -951,12 +979,10 @@ document.getElementById('reviewMost').onclick = () => {
   reviewHint.innerText = `已跳到最熟的单词（已看 ${bestCount} 次）`;
 };
 
-// 「没看过」：跳到第一个查看次数为 0 的单词
 document.getElementById('reviewUnseen').onclick = () => {
   if (wordList.length === 0) { alert("请先加载词库"); return; }
   running = false;
   resetSpeech();
-  // 从当前索引之后开始找（环形），找不到再说
   for (let offset = 0; offset < wordList.length; offset++) {
     const idx = (currentIndex + offset) % wordList.length;
     if (getViewCount(wordList[idx].word) === 0) {
