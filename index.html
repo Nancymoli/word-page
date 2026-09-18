@@ -17,6 +17,7 @@ button, .catalog-item, .switch, .catalog-header, .help-btn, .import-btn, .catalo
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
+html{ -webkit-text-size-adjust: 100%; }
 body{
   min-height: 100vh;
   background: #fdf8f1;
@@ -330,7 +331,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   line-height: 1.6;
 }
 
-/* 进度条 */
 .progress-bar{
   margin: 8px auto 0;
   width: 100%;
@@ -437,21 +437,26 @@ button.speaking{ opacity:0.55; pointer-events:none; }
               padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
               opacity 0.3s ease;
   opacity: 0;
+  display: flex;
+  flex-direction: column;
 }
 .catalog-panel.open .catalog-body{
-  max-height: 500px; overflow-y: auto;
+  max-height: 500px;
   padding: 0 22px 18px;
   opacity: 1;
 }
 
-/* 目录模式切换栏 */
 .catalog-tabs{
+  flex-shrink: 0;
   display: flex;
   gap: 6px;
   margin-bottom: 12px;
   background: #faf4ec;
   padding: 4px;
   border-radius: 999px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 .catalog-tab{
   flex: 1;
@@ -473,6 +478,12 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   box-shadow: 0 2px 8px rgba(210, 190, 165, 0.2);
 }
 
+.catalog-grid-wrap{
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .catalog-grid{
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -481,11 +492,12 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 .catalog-item{
   background: #fdf8f1;
   border-radius: 18px;
-  padding: 14px 8px 12px;
+  padding: 14px 8px 18px;
   cursor: pointer;
   transition: background 0.2s ease,
-              transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.25s ease;
+              transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1),
+              box-shadow 0.2s ease;
+  will-change: transform;
   border: 1px solid #f2e8d8;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -503,6 +515,27 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   line-height: 1.3; word-break: break-word;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden; max-width: 100%;
+}
+.catalog-item .tap-hint{
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  font-size: 9px;
+  color: #c8bbac;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.25s;
+  letter-spacing: 0.3px;
+}
+.catalog-item:hover .tap-hint,
+.catalog-item:active .tap-hint{
+  opacity: 1;
+}
+@media (hover: none) {
+  .catalog-item .tap-hint{
+    opacity: 0.55;
+  }
 }
 .catalog-item .badge{
   position: absolute; top: 6px; right: 6px;
@@ -644,8 +677,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   line-height: 1.5;
   word-break: break-word;
 }
-
-/* 卡面序号 */
 .flip-face-index{
   position: absolute;
   top: 14px;
@@ -656,7 +687,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   letter-spacing: 0.3px;
 }
 
-/* 顶部栏 */
 .flip-top-bar{
   position: absolute;
   top: -58px;
@@ -704,7 +734,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   font-weight: 500;
 }
 
-/* 底部导航 */
 .flip-nav{
   position: absolute;
   bottom: -62px;
@@ -887,6 +916,125 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   transform: translateX(-50%) translateY(0);
 }
 
+/* ============================================================
+   ★ 横竖屏 / iPad / 手机 自适应
+   ============================================================ */
+
+/* 小手机（iPhone SE 等窄屏）：缩小间距 */
+@media (max-width: 380px) {
+  .container{ padding: 0 12px; }
+  .ctrl{ margin: 8px 14px 14px; }
+  .card{ padding: 36px 18px 24px; }
+  .word{ font-size: 38px; }
+  .word.waiting{ font-size: 17px; }
+  .nav-buttons button{ padding: 11px 20px; font-size: 13px; }
+  .review-bar{ padding: 14px 14px 12px; }
+  .review-bar button{ font-size: 11px; padding: 9px 4px; }
+  .catalog-grid{ grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
+  .catalog-item{ min-height: 82px; padding: 12px 6px 16px; }
+  .catalog-item .word-en{ font-size: 12px; }
+  .catalog-item .word-cn{ font-size: 9px; }
+}
+
+/* iPad 竖屏 (768px+)：内容限宽、居中 */
+@media (min-width: 768px) and (orientation: portrait) {
+  .container{ max-width: 640px; padding: 0 24px; }
+  .ctrl{ max-width: 640px; margin: 14px auto 22px; }
+  .card{ padding: 48px 32px 34px; }
+  .word{ font-size: 56px; }
+  .word.waiting{ font-size: 24px; }
+  .meaning-tag{ font-size: 18px; padding: 10px 26px; }
+  .sentence-en{ font-size: 18px; }
+  .sentence-cn{ font-size: 16px; }
+  .nav-buttons button{ padding: 14px 32px; font-size: 15px; }
+  .review-bar{ padding: 20px 22px 16px; }
+  .review-bar button{ font-size: 13px; padding: 12px 8px; }
+  .setting-area{ padding: 22px 26px; }
+  .catalog-grid{ grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+  .catalog-item{ min-height: 108px; padding: 18px 10px 22px; }
+  .catalog-item .word-en{ font-size: 15px; }
+  .catalog-item .word-cn{ font-size: 12px; }
+  .catalog-item .tap-hint{ font-size: 10px; }
+}
+
+/* iPad 横屏 / 大屏横屏 (900px+)：卡片限宽居中，目录多列 */
+@media (min-width: 900px) and (orientation: landscape) {
+  .container{ max-width: 760px; padding: 0 28px; }
+  .ctrl{ max-width: 760px; margin: 14px auto 20px; }
+  .card{
+    padding: 44px 40px 32px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .word{ font-size: 54px; }
+  .word.waiting{ font-size: 22px; }
+  .meaning-tag{ font-size: 18px; padding: 10px 26px; }
+  .sentence-en{ font-size: 18px; }
+  .sentence-cn{ font-size: 16px; }
+  .review-bar{
+    padding: 18px 24px 14px;
+  }
+  .review-bar button{ font-size: 13px; padding: 12px 8px; }
+  .setting-area{ padding: 22px 28px; }
+  .set-row{ font-size: 15px; }
+
+  /* ★ 横屏时目录列更多、卡片更大 */
+  .catalog-grid{ grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+  .catalog-item{ min-height: 110px; padding: 18px 10px 22px; }
+  .catalog-item .word-en{ font-size: 15px; }
+  .catalog-item .word-cn{ font-size: 12px; }
+  .catalog-item .tap-hint{ font-size: 10px; }
+
+  /* 横屏时翻转卡更大 */
+  .flip-wrap{ max-width: 380px; }
+  .flip-front .flip-word{ font-size: 46px; }
+  .flip-back .flip-word-back{ font-size: 28px; }
+  .flip-back .flip-mean{ font-size: 19px; }
+  .flip-back .flip-sen-en{ font-size: 15px; }
+  .flip-back .flip-sen-cn{ font-size: 14px; }
+
+  /* 帮助面板更宽 */
+  .help-panel{ max-width: 560px; }
+}
+
+/* 超大屏 / 桌面：所有内容居中，避免拉太宽 */
+@media (min-width: 1200px) {
+  .container{ max-width: 780px; }
+  .ctrl{ max-width: 780px; }
+  .card{ max-width: 680px; margin: 0 auto; }
+}
+
+/* 横屏矮屏（手机横屏，高度 < 500px）：压缩上下留白 */
+@media (max-height: 500px) and (orientation: landscape) {
+  .top-title{ padding: 20px 16px 4px; }
+  .top-title h2{ font-size: 17px; }
+  .ctrl{ margin: 6px 18px 12px; gap: 6px; }
+  .card{ padding: 26px 22px 20px; }
+  .word{ font-size: 36px; }
+  .word.waiting{ font-size: 16px; padding: 10px 0 16px; }
+  .meaning-tag{ font-size: 14px; padding: 6px 16px; margin-bottom: 14px; }
+  .sentence-en{ font-size: 14px; }
+  .sentence-cn{ font-size: 12px; }
+  .nav-buttons{ margin-top: 18px; }
+  .nav-buttons button{ padding: 9px 20px; font-size: 13px; }
+  .review-bar{ margin-top: 12px; padding: 12px 14px 10px; }
+  .review-bar .label{ font-size: 12px; margin-bottom: 2px; }
+  .review-bar button{ font-size: 11px; padding: 8px 4px; }
+  .review-bar .hint{ font-size: 10px; margin-top: 2px; }
+  .setting-area{ margin-top: 12px; padding: 12px 16px; }
+  .set-row{ margin: 10px 0; font-size: 13px; }
+  .flip-wrap{ max-width: 260px; }
+  .flip-front .flip-word{ font-size: 32px; }
+  .flip-back .flip-word-back{ font-size: 20px; }
+  .flip-back .flip-mean{ font-size: 15px; }
+  .flip-back .flip-sen-en{ font-size: 12px; }
+  .flip-back .flip-sen-cn{ font-size: 11px; }
+  .flip-overlay{ padding-top: calc(60px + env(safe-area-inset-top, 0px)); padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)); }
+  .flip-top-bar{ top: -48px; }
+  .flip-nav{ bottom: -52px; }
+}
+
+/* 深色模式 */
 @media (prefers-color-scheme: dark) {
   body{ background: #2a2620; color: #d8cfc2; }
   body::before{
@@ -910,6 +1058,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   .catalog-item{ background: #443c32; border-color: #544a3e; }
   .catalog-item .word-en{ color: #e0d5c4; }
   .catalog-item .word-cn{ color: #a89c8c; }
+  .catalog-item .tap-hint{ color: #8a7f70; }
   .catalog-item:hover{ background: #4e4438; }
   .catalog-item:active{ background: #5a4f42 !important; }
   .catalog-item.active{
@@ -1044,8 +1193,10 @@ button.speaking{ opacity:0.55; pointer-events:none; }
         <button class="catalog-tab" data-mode="cn">🀄 中文</button>
         <button class="catalog-tab" data-mode="both">🌐 中英</button>
       </div>
-      <div class="catalog-grid" id="catalogGrid">
-        <div class="catalog-empty">加载词库后显示目录</div>
+      <div class="catalog-grid-wrap">
+        <div class="catalog-grid" id="catalogGrid">
+          <div class="catalog-empty">加载词库后显示目录</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1194,7 +1345,7 @@ let switching = false;
 let viewCountMap = {};
 let currentSortMode = 'default';
 let onlyUnseen = false;
-let catalogMode = 'en';   // 'en' | 'cn' | 'both'
+let catalogMode = 'en';
 
 let isLoading = false;
 let lastClickTime = 0;
@@ -1466,6 +1617,8 @@ function renderCatalog() {
       displayHtml = `<div class="word-en">${word || '—'}</div><div class="word-cn">${mean || ''}</div>`;
     }
 
+    displayHtml += `<div class="tap-hint">👆 点击查看</div>`;
+
     div.innerHTML = displayHtml + (count > 0 ? `<span class="badge">${count}</span>` : '');
 
     div.addEventListener('click', () => {
@@ -1475,6 +1628,76 @@ function renderCatalog() {
   });
   catalogGrid.appendChild(fragment);
   highlightCatalogItem();
+}
+
+// ================= 语音优化：少御音 =================
+let cachedVoice = null;
+let voiceCacheTime = 0;
+
+function getBestVoice(lang) {
+  if (!('speechSynthesis' in window)) return null;
+
+  const now = Date.now();
+  if (cachedVoice && now - voiceCacheTime < 5000) {
+    if (cachedVoice.lang && cachedVoice.lang.toLowerCase().startsWith(lang.toLowerCase().slice(0,2))) {
+      return cachedVoice;
+    }
+  }
+
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices || voices.length === 0) return null;
+
+  const isEn = lang.toLowerCase().startsWith('en');
+  const isZh = lang.toLowerCase().startsWith('zh');
+
+  const enPreferred = [
+    'Samantha', 'Karen', 'Moira', 'Tessa',
+    'Microsoft Aria', 'Microsoft Jenny', 'Microsoft Michelle',
+    'Google US English', 'Microsoft Zira'
+  ];
+  const zhPreferred = [
+    'Tingting', 'Ting-Ting', 'Meijia', 'Sinji',
+    'Microsoft Xiaoxiao', 'Microsoft Xiaoyi', 'Microsoft Huihui',
+    'Google 普通话'
+  ];
+
+  const preferred = isEn ? enPreferred : (isZh ? zhPreferred : []);
+
+  for (const name of preferred) {
+    const v = voices.find(v => v.name && v.name.indexOf(name) !== -1);
+    if (v) {
+      cachedVoice = v;
+      voiceCacheTime = now;
+      return v;
+    }
+  }
+
+  const langVoices = voices.filter(v =>
+    v.lang && v.lang.toLowerCase().startsWith(isEn ? 'en' : (isZh ? 'zh' : lang.slice(0,2).toLowerCase()))
+  );
+  if (langVoices.length > 0) {
+    const female = langVoices.find(v => /female|woman|女/i.test(v.name));
+    if (female) {
+      cachedVoice = female;
+      voiceCacheTime = now;
+      return female;
+    }
+    cachedVoice = langVoices[0];
+    voiceCacheTime = now;
+    return langVoices[0];
+  }
+
+  cachedVoice = voices[0];
+  voiceCacheTime = now;
+  return voices[0];
+}
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    cachedVoice = null;
+    voiceCacheTime = 0;
+  };
+  window.speechSynthesis.getVoices();
 }
 
 // ================= 主页面语音 =================
@@ -1496,7 +1719,15 @@ async function speakText(text, lang = "en-US") {
   isSpeaking = true;
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = lang;
-  utter.rate = Number(speechRateInput.value) || 1;
+
+  const voice = getBestVoice(lang);
+  if (voice) utter.voice = voice;
+
+  // 少御音参数
+  const isEn = lang.toLowerCase().startsWith('en');
+  utter.pitch = isEn ? 0.95 : 1.0;
+  utter.rate = (Number(speechRateInput.value) || 1) * 0.92;
+  utter.volume = 1;
 
   return new Promise((resolve) => {
     utter.onend = () => { if (myToken === speechToken) isSpeaking = false; resolve(); };
@@ -1685,7 +1916,15 @@ async function flipSpeak(text, lang = 'en-US') {
   flipSpeaking = true;
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = lang;
-  utter.rate = Number(speechRateInput.value) || 1;
+
+  const voice = getBestVoice(lang);
+  if (voice) utter.voice = voice;
+
+  // 少御音参数
+  const isEn = lang.toLowerCase().startsWith('en');
+  utter.pitch = isEn ? 0.95 : 1.0;
+  utter.rate = (Number(speechRateInput.value) || 1) * 0.92;
+  utter.volume = 1;
 
   return new Promise((resolve) => {
     utter.onend = () => {
@@ -1726,13 +1965,11 @@ flipCard.addEventListener('click', async () => {
   }
 });
 
-// 返回按钮
 flipBackBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   closeFlipCard();
 });
 
-// 上一个 / 下一个
 flipPrevBtn.addEventListener('click', async (e) => {
   e.stopPropagation();
   if (flipCurrentIndex <= 0) return;
@@ -1745,7 +1982,6 @@ flipNextBtn.addEventListener('click', async (e) => {
   await flipGoTo(flipCurrentIndex + 1);
 });
 
-// 点遮罩关闭
 flipOverlay.addEventListener('click', (e) => {
   if (e.target === flipOverlay) closeFlipCard();
 });
