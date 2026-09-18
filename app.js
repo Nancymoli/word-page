@@ -2,13 +2,11 @@
    小张刷英语 · App版 - 全部逻辑
    ============================================================ */
 
-// ================= 常量 =================
 const THEME_KEY = 'appTheme_v2';
 const MASTERY_KEY = 'masteryMap_v2';
 const STAR_KEY = 'starMap_v2';
 const SETTINGS_KEY = 'settings_v2';
 const DAILY_KEY = 'dailyStats_v2';
-const STREAK_KEY = 'streakData_v2';
 const TODAY_LOG_KEY = 'todayLog_v2';
 
 const dictConfig = [
@@ -21,27 +19,23 @@ const dictConfig = [
   { name: "雅思词汇", files: ["ieltslist1.json","ieltslist2.json","ieltslist3.json","ieltslist4.json","ieltslist5.json","ieltslist6.json","ieltslist7.json","ieltslist8.json","ieltslist9.json","ieltslist10.json","ieltslist11.json","ieltslist12.json","ieltslist13.json","ieltslist14.json","ieltslist15.json","ieltslist16.json","ieltslist17.json","ieltslist18.json","ieltslist19.json","ieltslist20.json"] }
 ];
 
-// ================= 全局状态 =================
 let wordList = [];
-let viewList = [];       // 当前实际浏览的列表（可能被筛选过）
+let viewList = [];
 let currentIndex = 0;
 let running = false;
 let isSpeaking = false;
 let speechToken = 0;
 let displaySession = 0;
 let switching = false;
-let playing = false;     // 自动播放开关
-let masteryMap = {};     // { word: 'weak' | 'mastered' }
-let starMap = {};        // { word: true }
-let dailyStats = {};     // { '2025-01-01': 20 }
-let todayCount = 0;
-let startTime = Date.now();
-let timerInterval = null;
-let elapsedSeconds = 0;
+let playing = false;
+let masteryMap = {};
+let starMap = {};
+let dailyStats = {};
 let dailyGoal = 20;
-let filterMode = 'all';  // 'all' | 'weak' | 'star'
+let filterMode = 'all';
+let elapsedSeconds = 0;
+let timerInterval = null;
 
-// ================= DOM =================
 const $ = (id) => document.getElementById(id);
 
 const domWord = $('word');
@@ -51,45 +45,15 @@ const domSenCn = $('senCn');
 const cardContent = $('cardContent');
 const card = $('card');
 
-const statStreak = $('statStreak');
-const statToday = $('statToday');
-const statGoal = $('statGoal');
-const statTime = $('statTime');
-
-const progressFill = $('progressFill');
-const progressNum = $('progressNum');
-const progressTotal = $('progressTotal');
-
-const ringFill = $('ringFill');
-const ringPct = $('ringPct');
-const ringSub = $('ringSub');
-const statUnseen = $('statUnseen');
-const statMastered = $('statMastered');
-const statWeak = $('statWeak');
-const statStar = $('statStar');
-
-const dictSelect = $('dictSelect');
-const loadStatus = $('loadStatus');
-const fileInput = $('fileInput');
-
-const toastEl = $('toast');
-
-const testOverlay = $('testOverlay');
-const testProgress = $('testProgress');
-const testWord = $('testWord');
-const testOptions = $('testOptions');
-const testFooter = $('testFooter');
-const testClose = $('testClose');
-
-// ================= 工具 =================
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 let toastTimer = null;
 function showToast(msg, duration = 1800) {
-  toastEl.innerText = msg;
-  toastEl.classList.add('show');
+  const el = $('toast');
+  el.innerText = msg;
+  el.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.remove('show'), duration);
+  toastTimer = setTimeout(() => el.classList.remove('show'), duration);
 }
 
 function todayStr() {
@@ -97,7 +61,6 @@ function todayStr() {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-// ================= 本地存储 =================
 function loadAll() {
   try { masteryMap = JSON.parse(localStorage.getItem(MASTERY_KEY) || '{}'); } catch(e) { masteryMap = {}; }
   try { starMap = JSON.parse(localStorage.getItem(STAR_KEY) || '{}'); } catch(e) { starMap = {}; }
@@ -110,7 +73,6 @@ function loadAll() {
   if (s.readMean !== undefined) $('readMeanSwitch').classList.toggle('active', s.readMean);
   if (s.readSen !== undefined) $('readSenSwitch').classList.toggle('active', s.readSen);
   if (s.dailyGoal) { dailyGoal = s.dailyGoal; $('dailyGoal').value = s.dailyGoal; }
-  statGoal.innerText = dailyGoal;
 }
 
 function saveMastery() { try { localStorage.setItem(MASTERY_KEY, JSON.stringify(masteryMap)); } catch(e) {} }
@@ -130,7 +92,6 @@ function saveSettings() {
   } catch(e) {}
 }
 
-// ================= 主题 =================
 function setTheme(name) {
   document.body.dataset.theme = name;
   try { localStorage.setItem(THEME_KEY, name); } catch(e) {}
@@ -144,7 +105,6 @@ function loadTheme() {
   setTheme(name);
 }
 
-// ================= Tab 切换 =================
 function switchTab(name) {
   document.querySelectorAll('.tab-page').forEach(p => {
     p.classList.toggle('active', p.dataset.tab === name);
@@ -152,11 +112,10 @@ function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.tab === name);
   });
-  if (name === 'data') refreshDataTab();
+  if (name === 'data') updateStatsUI();
   if (name === 'star') refreshStarTab();
 }
 
-// ================= 语音 =================
 function resetSpeech() {
   try { window.speechSynthesis.cancel(); } catch(e) {}
   isSpeaking = false;
@@ -172,7 +131,6 @@ async function speakText(text, lang = "en-US") {
   }
   if (myToken !== speechToken) return;
 
-  // 检查系统是否有该语言
   try {
     const voices = window.speechSynthesis.getVoices();
     const isZh = lang.toLowerCase().startsWith('zh');
@@ -218,15 +176,9 @@ async function speakWordAudio(item, session) {
   }
 }
 
-// ================= 显示单词 =================
 async function showWord(item) {
   if (!item) return;
   const session = displaySession;
-
-  // 打卡统计
-  const today = todayStr();
-  dailyStats[today] = (dailyStats[today] || 0);
-  // 不在这里 +1，标记时才 +1
 
   cardContent.classList.remove('fade-in');
   cardContent.classList.add('fade-out');
@@ -271,13 +223,12 @@ function updateMasteryButtons() {
 }
 
 function updateProgress() {
-  progressNum.innerText = currentIndex + 1;
-  progressTotal.innerText = viewList.length;
+  $('progressNum').innerText = viewList.length ? currentIndex + 1 : 0;
+  $('progressTotal').innerText = viewList.length;
   const pct = viewList.length ? ((currentIndex + 1) / viewList.length) * 100 : 0;
-  progressFill.style.width = pct + '%';
+  $('progressFill').style.width = pct + '%';
 }
 
-// ================= 导航 =================
 async function nextWord() {
   if (viewList.length === 0) return;
   if (switching) return;
@@ -300,32 +251,26 @@ async function prevWord() {
   } finally { switching = false; }
 }
 
-// ================= 标记掌握/不熟 =================
 function markMastery(word, status) {
   if (!word) return;
   if (masteryMap[word] === status) {
-    // 再次点击取消
     delete masteryMap[word];
   } else {
     masteryMap[word] = status;
   }
   saveMastery();
 
-  // 今日计数 +1（仅在第一次标记某个词时）
   if (masteryMap[word]) {
     const today = todayStr();
-    // 用一个 set 记录今日已标记的词
     let todayLog = {};
     try { todayLog = JSON.parse(localStorage.getItem(TODAY_LOG_KEY) || '{}'); } catch(e) {}
-    if (todayLog[today] && todayLog[today].includes(word)) {
-      // 已标记过
-    } else {
+    if (!todayLog[today] || !todayLog[today].includes(word)) {
       todayLog[today] = todayLog[today] || [];
       todayLog[today].push(word);
       dailyStats[today] = (dailyStats[today] || 0) + 1;
       saveDaily();
       localStorage.setItem(TODAY_LOG_KEY, JSON.stringify(todayLog));
-      if (dailyStats[today] >= dailyGoal) {
+      if (dailyStats[today] === dailyGoal) {
         showToast('🎉 今日目标达成！');
       }
     }
@@ -334,25 +279,6 @@ function markMastery(word, status) {
   updateMasteryButtons();
 }
 
-// ================= 播放开关 =================
-function startPlaying() {
-  if (viewList.length === 0) { showToast('请先加载词库'); return; }
-  if (playing) return;
-  playing = true;
-  running = true;
-  resetSpeech();
-  showWord(viewList[currentIndex]);
-}
-
-function stopPlaying() {
-  playing = false;
-  running = false;
-  resetSpeech();
-  speechToken++;
-  isSpeaking = false;
-}
-
-// ================= 统计 UI =================
 function updateStatsUI() {
   const total = wordList.length;
   let mastered = 0, weak = 0, star = 0;
@@ -361,28 +287,23 @@ function updateStatsUI() {
     else if (masteryMap[w] === 'weak') weak++;
   }
   for (const w in starMap) if (starMap[w]) star++;
-
   const unseen = total - mastered - weak;
 
-  statUnseen.innerText = unseen;
-  statMastered.innerText = mastered;
-  statWeak.innerText = weak;
-  statStar.innerText = star;
+  $('statUnseen').innerText = unseen;
+  $('statMastered').innerText = mastered;
+  $('statWeak').innerText = weak;
+  $('statStar').innerText = star;
 
   const pct = total ? Math.round((mastered / total) * 100) : 0;
-  ringPct.innerText = pct + '%';
-  ringSub.innerText = `${mastered} / ${total}`;
-
+  $('ringPct').innerText = pct + '%';
+  $('ringSub').innerText = `${mastered} / ${total}`;
   const circumference = 2 * Math.PI * 58;
-  const offset = circumference * (1 - pct / 100);
-  ringFill.style.strokeDashoffset = offset;
+  $('ringFill').style.strokeDashoffset = circumference * (1 - pct / 100);
 
-  // 打卡/今日
   const today = todayStr();
-  statToday.innerText = dailyStats[today] || 0;
-  statGoal.innerText = dailyGoal;
+  $('statToday').innerText = dailyStats[today] || 0;
+  $('statGoal').innerText = dailyGoal;
 
-  // 连续天数
   let streak = 0;
   const d = new Date();
   while (true) {
@@ -392,9 +313,8 @@ function updateStatsUI() {
       d.setDate(d.getDate() - 1);
     } else break;
   }
-  statStreak.innerText = streak;
+  $('statStreak').innerText = streak;
 
-  // 周曲线
   updateWeekChart();
 }
 
@@ -402,10 +322,9 @@ function updateWeekChart() {
   const bars = document.querySelectorAll('.week-bar');
   if (bars.length === 0) return;
   const today = new Date();
-  const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay(); // 1-7
+  const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay();
   const monday = new Date(today);
   monday.setDate(today.getDate() - (dayOfWeek - 1));
-
   const values = [];
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
@@ -420,44 +339,29 @@ function updateWeekChart() {
   });
 }
 
-// ================= 数据 Tab =================
-function refreshDataTab() {
-  updateStatsUI();
-}
-
-// ================= 生词本 Tab =================
 function refreshStarTab() {
   const container = $('starList');
   const list = [];
   for (const w in starMap) if (starMap[w]) list.push(w);
   if (list.length === 0) {
-    container.innerHTML = `
-      <div class="star-empty">
-        <span class="emoji">⭐</span>
-        还没有收藏的单词<br>
-        点击卡片上的 ☆ 加入生词本
-      </div>
-    `;
+    container.innerHTML = `<div class="star-empty"><span class="emoji">⭐</span>还没有收藏的单词<br>点击卡片上的 ☆ 加入生词本</div>`;
     return;
   }
-  // 找到这些单词在 wordList 里的完整信息
   const map = {};
   wordList.forEach(item => { map[item.word] = item; });
   container.innerHTML = list.map(w => {
     const item = map[w] || { word: w, mean: '' };
     const st = masteryMap[w];
     const badge = st === 'mastered' ? '✅' : (st === 'weak' ? '❌' : '');
-    return `
-      <div class="star-item" data-word="${escapeHtml(w)}">
-        <div class="info">
-          <div class="en">${escapeHtml(item.word)} ${badge}</div>
-          <div class="cn">${escapeHtml(item.mean || '')}</div>
-        </div>
-        <div class="actions">
-          <button class="btn-soft" data-action="remove">✕</button>
-        </div>
+    return `<div class="star-item" data-word="${escapeHtml(w)}">
+      <div class="info">
+        <div class="en">${escapeHtml(item.word)} ${badge}</div>
+        <div class="cn">${escapeHtml(item.mean || '')}</div>
       </div>
-    `;
+      <div class="actions">
+        <button class="btn-soft" data-action="remove">✕</button>
+      </div>
+    </div>`;
   }).join('');
 
   container.querySelectorAll('.star-item').forEach(el => {
@@ -484,7 +388,6 @@ function escapeHtml(s) {
 function jumpToWord(word) {
   let idx = viewList.findIndex(item => item.word === word);
   if (idx < 0) {
-    // 如果当前筛选里没有，切回 all
     filterMode = 'all';
     applyFilter();
     idx = viewList.findIndex(item => item.word === word);
@@ -495,7 +398,6 @@ function jumpToWord(word) {
   }
 }
 
-// ================= 筛选 =================
 function applyFilter() {
   if (filterMode === 'weak') {
     viewList = wordList.filter(item => masteryMap[item.word] === 'weak');
@@ -504,18 +406,19 @@ function applyFilter() {
   } else {
     viewList = wordList.slice();
   }
-  if (viewList.length === 0) {
+  if (viewList.length === 0 && wordList.length > 0) {
     showToast('当前筛选没有单词');
     viewList = wordList.slice();
     filterMode = 'all';
   }
   currentIndex = 0;
   updateProgress();
+  updateMasteryButtons();
 }
 
-// ================= 加载词库 =================
 function showLoadProgress(done, total) {
   const bar = $('loadProgressBar');
+  if (!bar) return;
   bar.style.display = 'block';
   const pct = Math.min(100, Math.round((done / total) * 100));
   $('loadProgressFill').style.width = pct + '%';
@@ -523,6 +426,7 @@ function showLoadProgress(done, total) {
 }
 function hideLoadProgress() {
   const bar = $('loadProgressBar');
+  if (!bar) return;
   $('loadProgressFill').style.width = '100%';
   $('loadProgressNum').innerText = '100';
   setTimeout(() => {
@@ -533,14 +437,15 @@ function hideLoadProgress() {
 }
 
 async function loadOnlineDict() {
-  const idx = Number(dictSelect.value);
+  const idx = Number($('dictSelect').value);
   const dict = dictConfig[idx];
   if (!dict) return;
   const total = dict.files.length;
   let done = 0;
   const failed = [];
-  loadStatus.innerText = `正在加载 0/${total} ...`;
+  $('loadStatus').innerText = `正在加载 0/${total} ...`;
   showLoadProgress(0, total);
+  showToast(`开始加载 ${dict.name}...`);
 
   const promises = dict.files.map(filename =>
     fetch(`./${filename}`)
@@ -549,7 +454,7 @@ async function loadOnlineDict() {
       .catch(err => { console.warn(filename, err); failed.push(filename); return []; })
       .finally(() => {
         done++;
-        loadStatus.innerText = `正在加载 ${done}/${total} ...`;
+        $('loadStatus').innerText = `正在加载 ${done}/${total} ...`;
         showLoadProgress(done, total);
       })
   );
@@ -557,7 +462,7 @@ async function loadOnlineDict() {
   const results = await Promise.all(promises);
   const merged = results.flat();
   if (merged.length === 0) {
-    loadStatus.innerText = '加载失败，请检查文件名';
+    $('loadStatus').innerText = '❌ 加载失败，请检查文件名';
     hideLoadProgress();
     return;
   }
@@ -566,20 +471,19 @@ async function loadOnlineDict() {
   applyFilter();
   currentIndex = 0;
   updateStatsUI();
-  loadStatus.innerText = `✅ 共 ${wordList.length} 词`;
+  $('loadStatus').innerText = `✅ 共 ${wordList.length} 词`;
   hideLoadProgress();
   showToast(`加载成功 · ${wordList.length} 词`);
   if (wordList.length > 0) showWord(wordList[0]);
 }
 
-// 本地导入
 function handleLocalFiles(e) {
   const files = Array.from(e.target.files);
   if (files.length === 0) return;
   const total = files.length;
   let all = [];
   let done = 0;
-  loadStatus.innerText = `正在解析 0/${total} ...`;
+  $('loadStatus').innerText = `正在解析 0/${total} ...`;
   showLoadProgress(0, total);
 
   files.forEach(file => {
@@ -590,7 +494,7 @@ function handleLocalFiles(e) {
         if (Array.isArray(data)) all = all.concat(data);
       } catch(err) { console.warn(file.name, err); }
       done++;
-      loadStatus.innerText = `正在解析 ${done}/${total} ...`;
+      $('loadStatus').innerText = `正在解析 ${done}/${total} ...`;
       showLoadProgress(done, total);
       if (done === total) finishLocal(all);
     };
@@ -604,7 +508,7 @@ function handleLocalFiles(e) {
 
 function finishLocal(all) {
   if (all.length === 0) {
-    loadStatus.innerText = '❌ 全部解析失败';
+    $('loadStatus').innerText = '❌ 全部解析失败';
     hideLoadProgress();
     return;
   }
@@ -613,13 +517,12 @@ function finishLocal(all) {
   applyFilter();
   currentIndex = 0;
   updateStatsUI();
-  loadStatus.innerText = `✅ 本地 ${wordList.length} 词`;
+  $('loadStatus').innerText = `✅ 本地 ${wordList.length} 词`;
   hideLoadProgress();
   showToast(`导入成功 · ${wordList.length} 词`);
   if (wordList.length > 0) showWord(wordList[0]);
 }
 
-// ================= 抽测 =================
 let testQuestions = [];
 let testIndex = 0;
 let testCorrect = 0;
@@ -630,36 +533,32 @@ function startTest() {
     showToast('词库太小，无法抽测');
     return;
   }
-  // 优先从"未掌握"里抽
   const pool = wordList.filter(item => masteryMap[item.word] !== 'mastered');
   const source = pool.length >= 10 ? pool : wordList;
-  // 随机抽 10 题
   const shuffled = source.slice().sort(() => Math.random() - 0.5);
   testQuestions = shuffled.slice(0, Math.min(10, shuffled.length));
   testIndex = 0;
   testCorrect = 0;
   testWrong = 0;
-  testOverlay.classList.add('active');
+  $('testOverlay').classList.add('active');
   renderTestQuestion();
 }
 
 function renderTestQuestion() {
   if (testIndex >= testQuestions.length) {
-    // 结束
-    testFooter.innerText = `🎉 完成！✅ ${testCorrect} · ❌ ${testWrong}`;
-    testProgress.innerText = `全部完成`;
+    $('testFooter').innerText = `🎉 完成！✅ ${testCorrect} · ❌ ${testWrong}`;
+    $('testProgress').innerText = `全部完成`;
     setTimeout(() => {
-      testOverlay.classList.remove('active');
+      $('testOverlay').classList.remove('active');
       showToast(`抽测完成：答对 ${testCorrect}/${testQuestions.length}`);
       updateStatsUI();
     }, 1500);
     return;
   }
   const q = testQuestions[testIndex];
-  testProgress.innerText = `第 ${testIndex + 1} / ${testQuestions.length} 题`;
-  testWord.innerText = q.word;
+  $('testProgress').innerText = `第 ${testIndex + 1} / ${testQuestions.length} 题`;
+  $('testWord').innerText = q.word;
 
-  // 生成 3 个干扰项
   const others = wordList.filter(item => item.word !== q.word && item.mean);
   const shuffled = others.slice().sort(() => Math.random() - 0.5);
   const distractors = [];
@@ -671,26 +570,26 @@ function renderTestQuestion() {
 
   const options = [q.mean, ...distractors].sort(() => Math.random() - 0.5);
 
-  testOptions.innerHTML = '';
+  const container = $('testOptions');
+  container.innerHTML = '';
   options.forEach(opt => {
     const btn = document.createElement('button');
     btn.className = 'test-option';
     btn.innerText = opt;
     btn.onclick = () => handleAnswer(btn, opt, q);
-    testOptions.appendChild(btn);
+    container.appendChild(btn);
   });
-  testFooter.innerText = `✅ ${testCorrect} · ❌ ${testWrong}`;
+  $('testFooter').innerText = `✅ ${testCorrect} · ❌ ${testWrong}`;
 }
 
 function handleAnswer(btn, choice, q) {
-  const allBtns = testOptions.querySelectorAll('.test-option');
+  const allBtns = $('testOptions').querySelectorAll('.test-option');
   allBtns.forEach(b => b.disabled = true);
 
   const isCorrect = choice === q.mean;
   if (isCorrect) {
     btn.classList.add('correct');
     testCorrect++;
-    // 答对了就自动标记掌握
     if (masteryMap[q.word] !== 'mastered') {
       masteryMap[q.word] = 'mastered';
       saveMastery();
@@ -698,21 +597,17 @@ function handleAnswer(btn, choice, q) {
   } else {
     btn.classList.add('wrong');
     testWrong++;
-    // 找正确的那个高亮
     allBtns.forEach(b => { if (b.innerText === q.mean) b.classList.add('correct'); });
-    // 答错了标记不熟
     masteryMap[q.word] = 'weak';
     saveMastery();
   }
-  testFooter.innerText = `✅ ${testCorrect} · ❌ ${testWrong}`;
+  $('testFooter').innerText = `✅ ${testCorrect} · ❌ ${testWrong}`;
   testIndex++;
   setTimeout(() => renderTestQuestion(), 800);
 }
 
-// ================= 滑卡 =================
 function setupSwipe() {
   let startX = 0, startY = 0, isDragging = false, moved = false;
-
   card.addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
@@ -720,7 +615,6 @@ function setupSwipe() {
     moved = false;
     card.classList.add('dragging');
   });
-
   card.addEventListener('touchmove', (e) => {
     if (!isDragging) return;
     const dx = e.touches[0].clientX - startX;
@@ -732,7 +626,6 @@ function setupSwipe() {
       card.classList.toggle('swiping-right', dx > 30);
     }
   });
-
   card.addEventListener('touchend', (e) => {
     if (!isDragging) return;
     isDragging = false;
@@ -740,19 +633,15 @@ function setupSwipe() {
     const dx = (e.changedTouches[0].clientX - startX);
     card.style.transform = '';
     card.classList.remove('swiping-left', 'swiping-right');
-
     if (dx < -60 && moved) {
-      // 左滑 = 不熟
       const item = viewList[currentIndex];
       if (item) markMastery(item.word, 'weak');
       nextWord();
     } else if (dx > 60 && moved) {
-      // 右滑 = 掌握
       const item = viewList[currentIndex];
       if (item) markMastery(item.word, 'mastered');
       nextWord();
     } else if (!moved) {
-      // 点击 = 朗读
       const item = viewList[currentIndex];
       if (item) {
         resetSpeech();
@@ -762,15 +651,6 @@ function setupSwipe() {
   });
 }
 
-// ================= 时长统计 =================
-function startTimer() {
-  timerInterval = setInterval(() => {
-    elapsedSeconds++;
-    statTime.innerText = Math.floor(elapsedSeconds / 60);
-  }, 1000);
-}
-
-// ================= 导出数据 =================
 function exportData() {
   const data = {
     mastery: masteryMap,
@@ -788,19 +668,29 @@ function exportData() {
   showToast('已导出');
 }
 
-// ================= 绑定事件 =================
+function initDictSelect() {
+  dictConfig.forEach((item, idx) => {
+    const opt1 = document.createElement('option');
+    opt1.value = idx;
+    opt1.innerText = item.name;
+    $('dictSelect').appendChild(opt1);
+
+    const opt2 = document.createElement('option');
+    opt2.value = idx;
+    opt2.innerText = item.name;
+    $('dictSelectQuick').appendChild(opt2);
+  });
+}
+
 function bindEvents() {
-  // Tab Bar
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.onclick = () => switchTab(btn.dataset.tab);
   });
 
-  // 主题
   document.querySelectorAll('.theme-swatch').forEach(sw => {
     sw.onclick = () => setTheme(sw.dataset.theme);
   });
 
-  // 掌握/不熟
   $('markWeak').onclick = () => {
     const item = viewList[currentIndex];
     if (item) markMastery(item.word, 'weak');
@@ -810,7 +700,6 @@ function bindEvents() {
     if (item) markMastery(item.word, 'mastered');
   };
 
-  // 导航
   $('prevBtn').onclick = () => prevWord();
   $('nextBtn').onclick = () => nextWord();
   $('listenBtn').onclick = () => {
@@ -821,7 +710,6 @@ function bindEvents() {
     }
   };
 
-  // 设置
   $('dictSelect').onchange = saveSettings;
   $('interval').onchange = saveSettings;
   $('enReadCount').onchange = saveSettings;
@@ -831,17 +719,22 @@ function bindEvents() {
   $('readSenSwitch').onclick = () => { $('readSenSwitch').classList.toggle('active'); saveSettings(); };
   $('dailyGoal').onchange = () => {
     dailyGoal = Number($('dailyGoal').value) || 20;
-    statGoal.innerText = dailyGoal;
+    $('statGoal').innerText = dailyGoal;
     saveSettings();
     updateStatsUI();
   };
 
-  // 加载词库
-  $('loadOnline').onclick = loadOnlineDict;
-  $('importLocal').onclick = () => fileInput.click();
-  fileInput.onchange = handleLocalFiles;
+  $('loadOnline').onclick = () => {
+    $('dictSelectQuick').value = $('dictSelect').value;
+    loadOnlineDict();
+  };
+  $('loadOnlineQuick').onclick = () => {
+    $('dictSelect').value = $('dictSelectQuick').value;
+    loadOnlineDict();
+  };
+  $('importLocal').onclick = () => $('fileInput').click();
+  $('fileInput').onchange = handleLocalFiles;
 
-  // 数据管理
   $('exportData').onclick = exportData;
   $('resetData').onclick = () => {
     if (!confirm('确定清空所有掌握/不熟标记吗？')) return;
@@ -854,26 +747,22 @@ function bindEvents() {
     showToast('已清空');
   };
 
-  // 抽测
   $('testBtn').onclick = startTest;
-  testClose.onclick = () => {
-    testOverlay.classList.remove('active');
+  $('testClose').onclick = () => {
+    $('testOverlay').classList.remove('active');
     updateStatsUI();
   };
 
-  // 筛选
   $('reviewWeakBtn').onclick = () => {
     filterMode = 'weak';
     applyFilter();
     if (viewList.length === 0) {
       showToast('还没有标记"不熟"的词');
-      filterMode = 'all';
-      applyFilter();
-    } else {
-      showToast(`只看不熟：${viewList.length} 词`);
-      switchTab('study');
-      showWord(viewList[0]);
+      return;
     }
+    showToast(`只看不熟：${viewList.length} 词`);
+    switchTab('study');
+    showWord(viewList[0]);
   };
   $('reviewAllBtn').onclick = () => {
     filterMode = 'all';
@@ -887,24 +776,12 @@ function bindEvents() {
     applyFilter();
     if (viewList.length === 0) {
       showToast('还没有收藏的词');
-      filterMode = 'all';
-      applyFilter();
-    } else {
-      showToast(`只看生词：${viewList.length} 词`);
-      switchTab('study');
-      showWord(viewList[0]);
+      return;
     }
+    showToast(`只看生词：${viewList.length} 词`);
+    switchTab('study');
+    showWord(viewList[0]);
   };
-}
-
-// ================= 初始化 =================
-function initDictSelect() {
-  dictConfig.forEach((item, idx) => {
-    const opt = document.createElement('option');
-    opt.value = idx;
-    opt.innerText = item.name;
-    dictSelect.appendChild(opt);
-  });
 }
 
 function init() {
@@ -913,7 +790,10 @@ function init() {
   initDictSelect();
   bindEvents();
   setupSwipe();
-  startTimer();
+  timerInterval = setInterval(() => {
+    elapsedSeconds++;
+    $('statTime').innerText = Math.floor(elapsedSeconds / 60);
+  }, 1000);
   updateStatsUI();
   updateProgress();
 }
