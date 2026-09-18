@@ -55,12 +55,186 @@
   --deco-opacity: 0.45;
   --radius: 28px;
 }
+
+/* 🧊 玻璃轻奢 */
+body[data-theme="glass"] {
+  --bg: #e8ecf8;
+  --bg-gradient:
+    radial-gradient(circle at 15% 10%, rgba(255, 200, 225, 0.6) 0%, transparent 42%),
+    radial-gradient(circle at 85% 15%, rgba(180, 210, 255, 0.6) 0%, transparent 45%),
+    radial-gradient(circle at 50% 95%, rgba(200, 240, 230, 0.55) 0%, transparent 45%);
+  --text: #2a2a45;
+  --text-soft: #6a6a90;
+  --text-muted: #9a9ab8;
+  --card-bg: rgba(255, 255, 255, 0.72);
+  --card-border: rgba(255, 255, 255, 0.9);
+  --card-shadow: 0 16px 48px rgba(120, 120, 180, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --panel-bg: rgba(255, 255, 255, 0.62);
+  --panel-border: rgba(255, 255, 255, 0.8);
+  --panel-shadow: 0 8px 32px rgba(120, 120, 180, 0.15);
+  --word-color: #2a2a45;
+  --meaning-bg: rgba(255, 255, 255, 0.8);
+  --meaning-text: #4a4a70;
+  --sentence-en: #3a3a5a;
+  --sentence-cn: #8a8aaa;
+  --btn-blue-bg: rgba(200, 225, 255, 0.85); --btn-blue-text: #3a4a7a;
+  --btn-pink-bg: rgba(255, 200, 225, 0.85); --btn-pink-text: #7a3a5a;
+  --btn-green-bg: rgba(200, 240, 215, 0.85); --btn-green-text: #2a5a3a;
+  --btn-orange-bg: rgba(255, 230, 200, 0.85); --btn-orange-text: #7a5a2a;
+  --btn-purple-bg: rgba(220, 205, 255, 0.85); --btn-purple-text: #4a3a7a;
+  --btn-soft-bg: rgba(240, 240, 250, 0.85); --btn-soft-text: #5a5a7a;
+  --badge-bg: rgba(255, 240, 230, 0.9); --badge-text: #7a5a3a; --badge-border: rgba(255, 255, 255, 0.9);
+  --catalog-item-bg: rgba(255, 255, 255, 0.6);
+  --catalog-item-border: rgba(255, 255, 255, 0.85);
+  --catalog-item-active-from: rgba(220, 205, 255, 0.95);
+  --catalog-item-active-to: rgba(200, 220, 255, 0.95);
+  --catalog-tabs-bg: rgba(255, 255, 255, 0.55);
+  --catalog-tab-text: #5a5a7a;
+  --catalog-tab-active-bg: rgba(255, 255, 255, 0.95);
+  --catalog-tab-active-text: #2a2a45;
+  --progress-track: rgba(255, 255, 255, 0.6);
+  --progress-fill-1: #c8b0ff;
+  --progress-fill-2: #a8c0ff;
+  --progress-fill-3: #80b0ff;
+  --progress-percent: #6a5a9a;
+  --progress-percent-num: #4a3a7a;
+  --input-bg: rgba(255, 255, 255, 0.75);
+  --input-border: rgba(255, 255, 255, 0.85);
+  --input-text: #2a2a45;
+  --deco-opacity: 0.3;
+  --radius: 28px;
+}
+body[data-theme="glass"] .card,
+body[data-theme="glass"] .setting-area,
+body[data-theme="glass"] .catalog-panel,
+body[data-theme="glass"] .review-bar,
+body[data-theme="glass"] .progress-bar,
+body[data-theme="glass"] .help-panel,
+body[data-theme="glass"] .flip-face {
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+}
+
+/* 🌌 极光霓虹 */
+body[data-theme="neon"] {
+  --bg: #0a0614;
+  --bg-gradient:
+    radial-gradient(circle at 15% 8%, rgba(138, 43, 226, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(236, 72, 153, 0.28) 0%, transparent 45%),
+    radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.3) 0%, transparent 50%);
+  --text: #e8e0ff;
+  --text-soft: #9a8fc0;
+  --text-muted: #6a5f90;
+  --card-bg: rgba(20, 12, 40, 0.85);
+  --card-border: rgba(138, 43, 226, 0.35);
+  --card-shadow: 0 0 40px rgba(138, 43, 226, 0.2), 0 16px 40px rgba(0, 0, 0, 0.6);
+  --panel-bg: rgba(18, 10, 35, 0.8);
+  --panel-border: rgba(138, 43, 226, 0.25);
+  --panel-shadow: 0 8px 32px rgba(138, 43, 226, 0.15);
+  --word-color: #f5e8ff;
+  --meaning-bg: rgba(138, 43, 226, 0.22);
+  --meaning-text: #d8b8ff;
+  --sentence-en: #c8b8e8;
+  --sentence-cn: #8a7fa8;
+  --btn-blue-bg: linear-gradient(135deg, #4f46e5, #7c3aed); --btn-blue-text: #ffffff;
+  --btn-pink-bg: linear-gradient(135deg, #db2777, #f43f5e); --btn-pink-text: #ffffff;
+  --btn-green-bg: linear-gradient(135deg, #059669, #06b6d4); --btn-green-text: #ffffff;
+  --btn-orange-bg: linear-gradient(135deg, #ea580c, #db2777); --btn-orange-text: #ffffff;
+  --btn-purple-bg: linear-gradient(135deg, #9333ea, #4f46e5); --btn-purple-text: #ffffff;
+  --btn-soft-bg: rgba(138, 43, 226, 0.18); --btn-soft-text: #d8b8ff;
+  --badge-bg: rgba(219, 39, 119, 0.25); --badge-text: #ffa8d8; --badge-border: rgba(219, 39, 119, 0.45);
+  --catalog-item-bg: rgba(30, 18, 55, 0.8);
+  --catalog-item-border: rgba(138, 43, 226, 0.25);
+  --catalog-item-active-from: rgba(138, 43, 226, 0.6);
+  --catalog-item-active-to: rgba(219, 39, 119, 0.6);
+  --catalog-tabs-bg: rgba(20, 12, 40, 0.8);
+  --catalog-tab-text: #b8a8e8;
+  --catalog-tab-active-bg: rgba(138, 43, 226, 0.5);
+  --catalog-tab-active-text: #ffffff;
+  --progress-track: rgba(30, 18, 55, 0.8);
+  --progress-fill-1: #4f46e5;
+  --progress-fill-2: #9333ea;
+  --progress-fill-3: #db2777;
+  --progress-percent: #d8a8ff;
+  --progress-percent-num: #f0a8ff;
+  --input-bg: rgba(20, 12, 40, 0.8);
+  --input-border: rgba(138, 43, 226, 0.3);
+  --input-text: #d8c0ff;
+  --deco-opacity: 0.15;
+  --radius: 24px;
+}
+body[data-theme="neon"] .word {
+  text-shadow: 0 0 24px rgba(138, 43, 226, 0.6), 0 0 48px rgba(219, 39, 119, 0.3);
+}
+body[data-theme="neon"] .card { position: relative; }
+body[data-theme="neon"] .card::before {
+  content: "";
+  position: absolute; inset: -1px;
+  border-radius: inherit; padding: 1px;
+  background: linear-gradient(135deg, #9333ea, #db2777, #06b6d4);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none; opacity: 0.6;
+}
+
+/* 🖤 极简高级 */
+body[data-theme="minimal"] {
+  --bg: #f7f7f7;
+  --bg-gradient: none;
+  --text: #0f0f0f;
+  --text-soft: #707070;
+  --text-muted: #a0a0a0;
+  --card-bg: #ffffff;
+  --card-border: #ececec;
+  --card-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 8px 24px rgba(0,0,0,0.04);
+  --panel-bg: #ffffff;
+  --panel-border: #ececec;
+  --panel-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  --word-color: #0f0f0f;
+  --meaning-bg: #f4f4f4;
+  --meaning-text: #2a2a2a;
+  --sentence-en: #2a2a2a;
+  --sentence-cn: #909090;
+  --btn-blue-bg: #0f0f0f; --btn-blue-text: #ffffff;
+  --btn-pink-bg: #0f0f0f; --btn-pink-text: #ffffff;
+  --btn-green-bg: #0f0f0f; --btn-green-text: #ffffff;
+  --btn-orange-bg: #0f0f0f; --btn-orange-text: #ffffff;
+  --btn-purple-bg: #0f0f0f; --btn-purple-text: #ffffff;
+  --btn-soft-bg: #f4f4f4; --btn-soft-text: #505050;
+  --badge-bg: #f4f4f4; --badge-text: #505050; --badge-border: #ececec;
+  --catalog-item-bg: #fafafa;
+  --catalog-item-border: #ececec;
+  --catalog-item-active-from: #0f0f0f;
+  --catalog-item-active-to: #2a2a2a;
+  --catalog-tabs-bg: #f4f4f4;
+  --catalog-tab-text: #707070;
+  --catalog-tab-active-bg: #ffffff;
+  --catalog-tab-active-text: #0f0f0f;
+  --progress-track: #ececec;
+  --progress-fill-1: #0f0f0f;
+  --progress-fill-2: #2a2a2a;
+  --progress-fill-3: #505050;
+  --progress-percent: #707070;
+  --progress-percent-num: #0f0f0f;
+  --input-bg: #fafafa;
+  --input-border: #ececec;
+  --input-text: #0f0f0f;
+  --deco-opacity: 0;
+  --radius: 14px;
+}
+body[data-theme="minimal"] .catalog-item.active .word-en,
+body[data-theme="minimal"] .catalog-item.active .word-cn { color: #ffffff; }
+body[data-theme="minimal"] .deco { display: none; }
+body[data-theme="minimal"] .top-title h2 { color: #0f0f0f; font-weight: 700; }
+
+/* ========== 全局 ========== */
 *{
   margin: 0; padding: 0; box-sizing: border-box;
   font-family: system-ui, -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
-button, .catalog-item, .switch, .catalog-header, .help-btn, .import-btn, .catalog-tab {
+button, .catalog-item, .switch, .catalog-header, .help-btn, .import-btn, .catalog-tab, .theme-swatch {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
@@ -95,10 +269,66 @@ body::before{
 .deco-5{ bottom: 34px; left: 14px; font-size: 16px; opacity: calc(var(--deco-opacity) * 0.8); }
 .deco-6{ bottom: 34px; right: 14px; font-size: 16px; opacity: calc(var(--deco-opacity) * 0.8); }
 
+/* ========== 右上角主题按钮 ========== */
+.theme-toggle{
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: 12px;
+  z-index: 10001;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--panel-border);
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background 0.4s;
+}
+.theme-toggle:active{ transform: scale(0.94); }
+.theme-panel{
+  position: fixed;
+  top: calc(60px + env(safe-area-inset-top, 0px));
+  right: 12px;
+  z-index: 10001;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  padding: 10px;
+  box-shadow: var(--panel-shadow);
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 150px;
+}
+.theme-panel.active{ display: flex; }
+.theme-swatch{
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px; font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.theme-swatch:hover{ background: var(--meaning-bg); }
+.theme-swatch.active{
+  background: var(--meaning-bg);
+  outline: 2px solid var(--meaning-text);
+  outline-offset: -2px;
+}
+.theme-swatch .emoji{ font-size: 16px; }
+
 .top-title{
   position: relative; z-index: 2;
   text-align: center;
-  padding: 40px 16px 8px;
+  padding: 56px 60px 8px 60px;
 }
 .top-title h2{
   font-size: 19px; font-weight: 600;
@@ -815,7 +1045,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   .catalog-item{ min-height: 82px; padding: 12px 6px 16px; }
   .catalog-item .word-en{ font-size: 12px; }
   .catalog-item .word-cn{ font-size: 9px; }
-  .top-title{ padding: 36px 16px 8px; }
+  .top-title{ padding: 52px 56px 8px 56px; }
 }
 @media (min-width: 768px) and (orientation: portrait) {
   .container{ max-width: 640px; padding: 0 24px; }
@@ -857,7 +1087,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   .card{ max-width: 680px; margin: 0 auto; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
-  .top-title{ padding: 20px 16px 4px; }
+  .top-title{ padding: 20px 60px 4px 60px; }
   .top-title h2{ font-size: 17px; }
   .ctrl{ margin: 6px 18px 12px; gap: 6px; }
   .card{ padding: 26px 22px 20px; }
@@ -873,6 +1103,15 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 </style>
 </head>
 <body>
+
+<!-- 右上角主题按钮 -->
+<button class="theme-toggle" id="themeToggle" title="换皮肤" aria-label="换皮肤">🎨</button>
+<div class="theme-panel" id="themePanel">
+  <div class="theme-swatch active" data-theme="cream"><span class="emoji">🌸</span> 奶油治愈</div>
+  <div class="theme-swatch" data-theme="glass"><span class="emoji">🧊</span> 玻璃轻奢</div>
+  <div class="theme-swatch" data-theme="neon"><span class="emoji">🌌</span> 极光霓虹</div>
+  <div class="theme-swatch" data-theme="minimal"><span class="emoji">🖤</span> 极简高级</div>
+</div>
 
 <div class="deco deco-1">🌿</div>
 <div class="deco deco-2">🌙</div>
@@ -1062,7 +1301,7 @@ sentenceEn（英文例句）、sentenceCn（例句中文翻译）。
       <b>本地词库是一次性的</b>，上传后只存在当前页面内存里。<br>
       · 刷新页面 / 关掉浏览器 → 会清空，需要重新上传<br>
       · 你之前上传的 json 文件还在自己电脑上，重新选一次就行<br>
-      · 查看次数、设置、进度、主题<b>会保存</b>，下次打开还在
+      · 查看次数、设置、进度、皮肤<b>会保存</b>，下次打开还在
     </div>
   </div>
 </div>
@@ -1070,6 +1309,39 @@ sentenceEn（英文例句）、sentenceCn（例句中文翻译）。
 <div class="toast" id="toast"></div>
 
 <script>
+// ================= 主题 =================
+const THEME_KEY = 'appTheme_v1';
+const themeToggle = document.getElementById('themeToggle');
+const themePanel = document.getElementById('themePanel');
+
+function setTheme(name) {
+  document.body.dataset.theme = name;
+  try { localStorage.setItem(THEME_KEY, name); } catch (e) {}
+  document.querySelectorAll('.theme-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.theme === name);
+  });
+}
+function loadTheme() {
+  let name = 'cream';
+  try { name = localStorage.getItem(THEME_KEY) || 'cream'; } catch (e) {}
+  setTheme(name);
+}
+themeToggle.addEventListener('click', (e) => {
+  e.stopPropagation();
+  themePanel.classList.toggle('active');
+});
+document.querySelectorAll('.theme-swatch').forEach(swatch => {
+  swatch.addEventListener('click', () => {
+    setTheme(swatch.dataset.theme);
+    themePanel.classList.remove('active');
+  });
+});
+document.addEventListener('click', (e) => {
+  if (!themePanel.classList.contains('active')) return;
+  if (themePanel.contains(e.target) || e.target === themeToggle) return;
+  themePanel.classList.remove('active');
+});
+
 // ================= 全局 =================
 let wordList = [];
 let currentIndex = 0;
@@ -1152,7 +1424,6 @@ const helpOverlay = document.getElementById('helpOverlay');
 const helpBtn = document.getElementById('helpBtn');
 const helpClose = document.getElementById('helpClose');
 
-// ================= Toast =================
 let toastTimer = null;
 function showToast(msg, duration = 1800) {
   toastEl.innerText = msg;
@@ -1163,7 +1434,6 @@ function showToast(msg, duration = 1800) {
   }, duration);
 }
 
-// ================= 进度条 =================
 function showProgress(done, total) {
   progressBar.classList.add('active');
   const pct = Math.min(100, Math.round((done / total) * 100));
@@ -1182,7 +1452,6 @@ function hideProgress() {
   }, 800);
 }
 
-// ================= 初始化下拉框 =================
 dictConfig.forEach((item, idx) => {
   const opt = document.createElement('option');
   opt.value = idx;
@@ -1190,7 +1459,6 @@ dictConfig.forEach((item, idx) => {
   dictSelect.appendChild(opt);
 });
 
-// ================= 开关 =================
 readEnSwitch.onclick = () => { readEnSwitch.classList.toggle("active"); saveSettings(); };
 readMeanSwitch.onclick = () => { readMeanSwitch.classList.toggle("active"); saveSettings(); };
 readSenSwitch.onclick = () => { readSenSwitch.classList.toggle("active"); saveSettings(); };
@@ -1214,7 +1482,6 @@ helpOverlay.addEventListener('click', (e) => {
   if (e.target === helpOverlay) helpOverlay.classList.remove('active');
 });
 
-// ================= 设置持久化 =================
 function loadSettings() {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
@@ -1244,7 +1511,6 @@ intervalInput.addEventListener('change', saveSettings);
 enReadCountInput.addEventListener('change', saveSettings);
 speechRateInput.addEventListener('change', saveSettings);
 
-// ================= 查看次数 =================
 function loadViewCounts() {
   try {
     const raw = localStorage.getItem(VIEW_COUNT_KEY);
@@ -1275,7 +1541,6 @@ function refreshViewBadge() {
   else viewBadge.classList.remove('high');
 }
 
-// ================= 工具 =================
 function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
 
 function updateProgress() {
@@ -1431,7 +1696,7 @@ async function speakWordAudio(item, session) {
   }
 }
 
-// ★★★ 核心修复：showWord 内部直接跳下一个，不再调用 next() ★★★
+// ★★★ 核心修复：showWord 内部直接跳下一个，不再调用 next()，不用 switching 锁 ★★★
 async function showWord(item) {
   if (!item) return;
   const session = displaySession;
@@ -1454,7 +1719,7 @@ async function showWord(item) {
   await speakWordAudio(item, session);
   if (session !== displaySession) return;
 
-  // 自动跳下一个（不用 switching 锁）
+  // 自动跳下一个
   if (running) {
     await sleep(Number(intervalInput.value) * 1000);
     if (session !== displaySession) return;
@@ -1484,7 +1749,6 @@ async function prev() {
   await showWord(wordList[currentIndex]);
 }
 
-// ================= 翻转浮层 =================
 let flipSession = 0;
 let flipSpeaking = false;
 let flipToken = 0;
@@ -1611,7 +1875,6 @@ flipOverlay.addEventListener('click', (e) => {
   if (e.target === flipOverlay) closeFlipCard();
 });
 
-// ================= 加载词库 =================
 document.getElementById('loadOnline').onclick = async () => {
   const now = Date.now();
   if (isLoading || now - lastClickTime < CLICK_DELAY) return;
@@ -1700,7 +1963,6 @@ document.getElementById('loadOnline').onclick = async () => {
   }
 };
 
-// ================= 跳转 =================
 document.getElementById('jumpBtn').onclick = async function() {
   const now = Date.now();
   if (now - lastClickTime < CLICK_DELAY) return;
@@ -1721,7 +1983,6 @@ document.getElementById('jumpBtn').onclick = async function() {
   highlightCatalogItem(true);
 };
 
-// ================= 本地导入 =================
 document.getElementById('fileInput').onchange = function(e) {
   const files = Array.from(e.target.files);
   if (files.length === 0) return;
@@ -1784,7 +2045,6 @@ function finishLocalImport(allWords, files, failed) {
   showToast(`导入成功 · ${wordList.length} 词`, 2200);
 }
 
-// ================= 开始/暂停 =================
 document.getElementById('startBtn').onclick = function() {
   if (wordList.length === 0) { showToast('请先加载词库'); return; }
   if (running) return;
@@ -1805,7 +2065,6 @@ document.getElementById('stopBtn').onclick = function() {
   isSpeaking = false;
 };
 
-// ================= 上一个/下一个 =================
 prevBtn.onclick = async function() {
   if (wordList.length === 0) { showToast('请先加载词库'); return; }
   await prev();
@@ -1827,7 +2086,6 @@ nextBtn.onclick = async function() {
   }
 };
 
-// ================= 复习模式 =================
 document.getElementById('reviewLeast').onclick = async () => {
   if (wordList.length === 0) { showToast('请先加载词库'); return; }
   running = false;
@@ -1892,10 +2150,10 @@ document.getElementById('resetViewCount').onclick = () => {
   reviewHint.innerText = '查看次数已清零';
 };
 
-// ================= 卸载 =================
 window.addEventListener('beforeunload', () => { resetSpeech(); });
 
 // ================= 初始化 =================
+loadTheme();
 loadViewCounts();
 loadSettings();
 updateProgress();
