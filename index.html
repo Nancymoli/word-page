@@ -13,7 +13,7 @@
   font-family: system-ui, -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
-button, .catalog-item, .switch, .catalog-header {
+button, .catalog-item, .switch, .catalog-header, .help-btn, .import-btn {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
@@ -59,6 +59,7 @@ body::before{
 .progress-text{
   margin-top: 8px; font-size: 13px;
   color: #b0a396; letter-spacing: 0.5px;
+  min-height: 18px;
 }
 
 .ctrl{
@@ -151,9 +152,18 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   position: relative; z-index: 2;
   border: 1px solid rgba(255, 250, 240, 0.9);
 }
-.card-content{ transition: opacity 0.22s ease, transform 0.22s ease; }
-.card-content.fade-out{ opacity: 0; transform: translateY(6px); }
-.card-content.fade-in{ opacity: 1; transform: translateY(0); }
+.card-content{
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-content.fade-out{
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}
+.card-content.fade-in{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
 
 .view-badge{
   position: absolute; top: 12px; right: 18px;
@@ -232,6 +242,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   font-size: 11px; color: #b8b0a4;
   text-align: center; margin-top: 6px;
   letter-spacing: 0.3px;
+  min-height: 14px;
 }
 
 .setting-area{
@@ -274,10 +285,18 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 .switch.active{ background: #c9d8e8; }
 .switch.active::after{ left: 21px; }
 
-.import-wrap{ margin-top: 22px; text-align: center; position: relative; z-index: 2; }
+.import-wrap{
+  margin-top: 22px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  position: relative; z-index: 2;
+}
 .import-btn{
   display: inline-block;
-  padding: 13px 30px;
+  padding: 13px 26px;
   background: #fff2e6; color: #a8885a;
   border-radius: 999px;
   font-weight: 600; cursor: pointer;
@@ -285,12 +304,102 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   border: 1px solid #fde8d4;
   box-shadow: 0 4px 12px rgba(210, 190, 165, 0.15);
 }
+.help-btn{
+  display: inline-block;
+  padding: 13px 22px;
+  background: #f4ede2;
+  color: #8a7a68;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  border: 1px solid #f0e6d8;
+  box-shadow: 0 4px 12px rgba(210, 190, 165, 0.12);
+  user-select: none;
+}
 #fileInput{ display: none; }
+.load-status-wrap{
+  margin-top: 10px; text-align: center; position: relative; z-index: 2;
+  min-height: 20px;
+}
 #loadStatus{
   font-size: 12px; color: #b8b0a4;
-  margin-top: 10px; min-height: 16px;
   letter-spacing: 0.3px;
   white-space: pre-line;
+  line-height: 1.6;
+}
+
+/* 进度条（粉色系 + 流动动画 + 百分比） */
+.progress-bar{
+  margin: 8px auto 0;
+  width: 100%;
+  max-width: 280px;
+  display: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.progress-bar.active{
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+.progress-bar-track{
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: #ffe8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(232, 168, 192, 0.15);
+}
+.progress-bar-fill{
+  position: relative;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #ffc9e2, #ffb3dd, #ff88bc, #ffb3dd, #ffc9e2);
+  background-size: 200% 100%;
+  border-radius: 999px;
+  transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 0 8px rgba(255, 179, 221, 0.5);
+  animation: progressFlow 2s linear infinite;
+}
+.progress-bar-fill::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  border-radius: 999px;
+  animation: progressShine 1.6s ease-in-out infinite;
+}
+@keyframes progressFlow {
+  0%   { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes progressShine {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  40%  { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+.progress-percent{
+  margin-top: 6px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #e88ab8;
+  transition: color 0.3s;
+}
+.progress-percent .num{
+  font-size: 13px;
+  color: #d96a9e;
+  font-weight: 800;
 }
 
 .catalog-panel{
@@ -321,13 +430,18 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 }
 .catalog-panel.open .catalog-header .toggle-icon{ transform: rotate(180deg); }
 .catalog-body{
-  max-height: 0; overflow: hidden;
-  transition: max-height 0.35s ease, padding 0.35s ease;
+  max-height: 0;
+  overflow: hidden;
   padding: 0 22px;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease;
+  opacity: 0;
 }
 .catalog-panel.open .catalog-body{
   max-height: 420px; overflow-y: auto;
   padding: 0 22px 18px;
+  opacity: 1;
 }
 .catalog-grid{
   display: grid;
@@ -339,7 +453,9 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   border-radius: 18px;
   padding: 14px 8px 12px;
   cursor: pointer;
-  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: background 0.2s ease,
+              transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.25s ease;
   border: 1px solid #f2e8d8;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -387,7 +503,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   grid-column: 1 / -1; letter-spacing: 0.3px;
 }
 
-/* ===== 翻转卡片浮层 ===== */
+/* 翻转卡片浮层 */
 .flip-overlay{
   position: fixed;
   inset: 0;
@@ -446,9 +562,7 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   border: 1.5px solid rgba(255, 255, 255, 0.9);
   overflow: hidden;
 }
-.flip-front{
-  background: #ffffff;
-}
+.flip-front{ background: #ffffff; }
 .flip-front .flip-word{
   font-size: 40px;
   font-weight: 800;
@@ -536,6 +650,161 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 }
 .flip-badge .num{ color: #c89468; font-weight: 800; }
 
+/* 帮助浮层 */
+.help-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(90, 80, 70, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  padding-top: calc(20px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+.help-overlay.active{
+  display: flex;
+  animation: overlayIn 0.2s ease;
+}
+.help-panel{
+  background: #ffffff;
+  border-radius: 28px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 26px 24px 22px;
+  box-shadow:
+    0 20px 48px rgba(120, 100, 80, 0.28),
+    0 2px 8px rgba(120, 100, 80, 0.08);
+  border: 1.5px solid rgba(255, 250, 240, 0.9);
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+}
+.help-panel h3{
+  font-size: 17px;
+  font-weight: 700;
+  color: #7a6a5a;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+.help-panel h4{
+  font-size: 14px;
+  font-weight: 700;
+  color: #a8885a;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+.help-panel p{
+  font-size: 13px;
+  color: #8a7a68;
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+.help-panel .help-warn{
+  background: #fff8ee;
+  border-left: 3px solid #f5c98c;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: #a8885a;
+  line-height: 1.7;
+  margin: 10px 0 6px;
+}
+.help-panel .help-note{
+  background: #f4ede2;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  color: #7a6a5a;
+  line-height: 1.7;
+  margin: 10px 0;
+}
+.help-panel ol{
+  padding-left: 20px;
+  margin: 6px 0 10px;
+}
+.help-panel ol li{
+  font-size: 13px;
+  color: #8a7a68;
+  line-height: 1.9;
+  padding-left: 2px;
+}
+.help-panel code{
+  background: #fdf0e2;
+  color: #a87080;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.help-panel pre{
+  background: #fdf8f1;
+  border: 1px solid #f2e8d8;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 11.5px;
+  color: #6a5a4a;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 8px 0 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.help-close{
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f4ede2;
+  border: none;
+  font-size: 15px;
+  color: #a8988a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s;
+  padding: 0;
+  font-weight: 700;
+}
+.help-close:active{ transform: scale(0.92); }
+
+/* Toast */
+.toast{
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(90, 80, 70, 0.92);
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 20000;
+  max-width: 80vw;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toast.show{
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 @media (prefers-color-scheme: dark) {
   body{ background: #2a2620; color: #d8cfc2; }
   body::before{
@@ -583,10 +852,20 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   .btn-red{ background:#4a3a3a; color:#d8b8b8; }
   .btn-soft{ background:#3e3a34; color:#c8bfb0; }
   .import-btn{ background:#4a4232; color:#d8c8a8; border-color:#5a5040; }
+  .help-btn{ background:#4a4238; color:#c8bfb0; border-color:#5a5044; }
   .view-badge{ background:#4a4238; color:#d8c8a8; border-color:#5a5044; }
   .view-badge .num{ color:#e8c898; }
   .view-badge.high{ background:#4a3a42; color:#d8b8c4; border-color:#5a4a52; }
   .view-badge.high .num{ color:#e8a8c0; }
+
+  .progress-bar-track{ background: #4a3a42; box-shadow: inset 0 1px 2px rgba(232, 168, 192, 0.1); }
+  .progress-bar-fill{
+    background: linear-gradient(90deg, #a86a82, #c87a9a, #e88ab8, #c87a9a, #a86a82);
+    background-size: 200% 100%;
+    box-shadow: 0 0 8px rgba(232, 138, 184, 0.4);
+  }
+  .progress-percent{ color: #e88ab8; }
+  .progress-percent .num{ color: #ffa8cc; }
 
   .flip-front{ background: #3a342c; }
   .flip-front .flip-word{ color: #f0e6d8; }
@@ -598,6 +877,17 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   .flip-close{ background: #4a4238; color: #c8bfb0; }
   .flip-badge{ background:#4a4238; color:#d8c8a8; border-color:#5a5044; }
   .flip-badge .num{ color:#e8c898; }
+
+  .help-panel{ background: #3a342c; border-color: rgba(255,240,220,0.08); }
+  .help-panel h3{ color: #e0d5c4; }
+  .help-panel h4{ color: #d8c8a8; }
+  .help-panel p{ color: #c8bfb0; }
+  .help-panel .help-warn{ background: #4a3f2a; color: #e0c898; border-left-color: #c8a86a; }
+  .help-panel .help-note{ background: #4a4238; color: #d8cfc2; }
+  .help-panel ol li{ color: #c8bfb0; }
+  .help-panel code{ background: #4a3a42; color: #e8b8c8; }
+  .help-panel pre{ background: #443c32; border-color: #544a3e; color: #d8cfc2; }
+  .help-close{ background: #4a4238; color: #c8bfb0; }
 }
 </style>
 </head>
@@ -699,8 +989,19 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 
   <div class="import-wrap">
     <label class="import-btn" for="fileInput">📁 选择本地词库</label>
+    <button class="help-btn" id="helpBtn">❓ 帮助</button>
     <input type="file" id="fileInput" accept=".json" multiple>
+  </div>
+  <div class="load-status-wrap">
     <div id="loadStatus"></div>
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-percent" id="progressPercent">
+        <span class="num">0</span>%
+      </div>
+    </div>
   </div>
 </div>
 
@@ -723,6 +1024,57 @@ button.speaking{ opacity:0.55; pointer-events:none; }
     </div>
   </div>
 </div>
+
+<!-- 帮助浮层 -->
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-panel">
+    <button class="help-close" id="helpClose">✕</button>
+
+    <h3>📖 制作词库（超简单，照着做）</h3>
+    <p>⚠️ 一次最多 150 个单词，多了分几批做</p>
+
+    <h4>第 1 步：把单词发给 DeepSeek</h4>
+    <p>你手上的单词<b>长什么样就贴什么样</b>，不用整理。一行一个、逗号隔开、带中文、一段笔记都行。</p>
+    <p>复制下面这段话，粘贴到 DeepSeek，在最后加上你的单词：</p>
+    <pre>帮我整理成 JSON 词库数据。
+每个单词 4 项：word（英文）、mean（中文释义）、
+sentenceEn（英文例句）、sentenceCn（例句中文翻译）。
+我给你的内容缺什么就补什么，英文例句和中文翻译都要有。
+只输出 JSON，不要解释、不要注释、不要多余符号。
+格式：
+[{"word":"apple","mean":"苹果","sentenceEn":"I eat an apple.","sentenceCn":"我吃一个苹果。"}]
+我的单词：
+（在这里贴你的单词）</pre>
+
+    <h4>第 2 步：保存成文件</h4>
+    <ol>
+      <li>复制 DeepSeek 回复的<b>全部内容</b></li>
+      <li>电脑新建记事本，粘贴进去</li>
+      <li>点【文件】→【另存为】</li>
+      <li>底部「编码」选 <code>UTF-8</code>（不会乱码）</li>
+      <li>文件名最后改成 <code>.json</code>（例如 <code>我的词库.json</code>）</li>
+      <li>保存 → 回到网页点【选择本地词库】→ 选中这个文件 ✅</li>
+    </ol>
+
+    <h4>⚠️ 注意</h4>
+    <div class="help-warn">
+      ✅ 一次不超过 150 个单词<br>
+      ❌ 不要手动改大括号 <code>{}</code>、引号 <code>""</code>，错一个符号就导入失败<br>
+      ❌ 保存时「编码」要选 <code>UTF-8</code>，中文才不乱码
+    </div>
+
+    <h4>💾 关于本地词库的保存</h4>
+    <div class="help-note">
+      <b>本地词库是一次性的</b>，上传后只存在当前页面内存里。<br>
+      · 刷新页面 / 关掉浏览器 → 会清空，需要重新上传<br>
+      · 你之前上传的 json 文件还在自己电脑上，重新选一次就行<br>
+      · 查看次数、设置、进度<b>会保存</b>，下次打开还在
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
 <script>
 // ================= 全局状态 =================
@@ -767,6 +1119,10 @@ const dictSelect = document.getElementById('dictSelect');
 const progressText = document.getElementById('progressText');
 const jumpIndex = document.getElementById('jumpIndex');
 const loadStatus = document.getElementById('loadStatus');
+const progressBar = document.getElementById('progressBar');
+const progressFill = document.getElementById('progressFill');
+const progressPercent = document.getElementById('progressPercent');
+const toastEl = document.getElementById('toast');
 
 const readEnSwitch = document.getElementById('readEnSwitch');
 const readMeanSwitch = document.getElementById('readMeanSwitch');
@@ -785,7 +1141,6 @@ const reviewHint = document.getElementById('reviewHint');
 
 const cardContent = document.getElementById('cardContent');
 
-// 翻转浮层 DOM
 const flipOverlay = document.getElementById('flipOverlay');
 const flipCard = document.getElementById('flipCard');
 const flipClose = document.getElementById('flipClose');
@@ -795,6 +1150,34 @@ const flipMean = document.getElementById('flipMean');
 const flipSenEn = document.getElementById('flipSenEn');
 const flipSenCn = document.getElementById('flipSenCn');
 const flipCount = document.getElementById('flipCount');
+
+const helpOverlay = document.getElementById('helpOverlay');
+const helpBtn = document.getElementById('helpBtn');
+const helpClose = document.getElementById('helpClose');
+
+// ================= Toast =================
+let toastTimer = null;
+function showToast(msg, duration = 1800) {
+  toastEl.innerText = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toastEl.classList.remove('show');
+  }, duration);
+}
+
+// ================= 进度条 =================
+function showProgress(done, total) {
+  progressBar.classList.add('active');
+  const pct = Math.min(100, Math.round((done / total) * 100));
+  progressFill.style.width = pct + '%';
+  progressPercent.querySelector('.num').innerText = pct;
+}
+function hideProgress() {
+  progressBar.classList.remove('active');
+  progressFill.style.width = '0%';
+  progressPercent.querySelector('.num').innerText = '0';
+}
 
 // ================= 初始化下拉框 =================
 dictConfig.forEach((item, idx) => {
@@ -811,6 +1194,17 @@ readSenSwitch.onclick = () => { readSenSwitch.classList.toggle("active"); saveSe
 
 catalogHeader.addEventListener('click', () => {
   catalogPanel.classList.toggle('open');
+});
+
+// ================= 帮助浮层 =================
+helpBtn.addEventListener('click', () => {
+  helpOverlay.classList.add('active');
+});
+helpClose.addEventListener('click', () => {
+  helpOverlay.classList.remove('active');
+});
+helpOverlay.addEventListener('click', (e) => {
+  if (e.target === helpOverlay) helpOverlay.classList.remove('active');
 });
 
 // ================= 设置持久化 =================
@@ -905,7 +1299,15 @@ function highlightCatalogItem() {
   }
 }
 
+let catalogRenderTimer = null;
 function buildCatalog() {
+  if (catalogRenderTimer) clearTimeout(catalogRenderTimer);
+  catalogRenderTimer = setTimeout(() => {
+    renderCatalog();
+  }, 30);
+}
+
+function renderCatalog() {
   catalogGrid.innerHTML = '';
   if (!wordList || wordList.length === 0) {
     catalogGrid.innerHTML = '<div class="catalog-empty">加载词库后显示目录</div>';
@@ -939,7 +1341,6 @@ function buildCatalog() {
       ${count > 0 ? `<span class="badge">${count}</span>` : ''}
     `;
     div.addEventListener('click', () => {
-      // ★ 打开独立翻转浮层
       openFlipCard(wordList[originalIndex]);
     });
     fragment.appendChild(div);
@@ -1073,19 +1474,16 @@ let flipCurrentItem = null;
 async function openFlipCard(item) {
   if (!item) return;
 
-  // ★ 先掐断主页面语音和自动播放
   running = false;
   displaySession++;
   try { window.speechSynthesis.cancel(); } catch (e) {}
   isSpeaking = false;
 
-  // ★ 浮层自己的会话开始
   flipSession++;
   flipToken++;
   flipSpeaking = false;
   flipCurrentItem = item;
 
-  // 填充内容
   flipWordFront.innerText = item.word || '—';
   flipWordBack.innerText = item.word || '—';
   flipMean.innerText = item.mean || '—';
@@ -1093,13 +1491,9 @@ async function openFlipCard(item) {
   flipSenCn.innerText = item.sentenceCn || '';
   flipCount.innerText = getViewCount(item.word);
 
-  // 重置翻转状态（正面朝前）
   flipCard.classList.remove('flipped');
-
-  // 显示浮层
   flipOverlay.classList.add('active');
 
-  // 读正面（只念英文）
   await flipSpeak(item.word, 'en-US');
 }
 
@@ -1148,7 +1542,6 @@ async function flipSpeak(text, lang = 'en-US') {
   });
 }
 
-// 翻转卡片点击
 flipCard.addEventListener('click', async (e) => {
   if (e.target === flipClose) return;
   const item = flipCurrentItem;
@@ -1156,31 +1549,25 @@ flipCard.addEventListener('click', async (e) => {
 
   const isFlipped = flipCard.classList.toggle('flipped');
 
-  // ★ 掐断当前语音，播放新一面的内容
   flipToken++;
   try { window.speechSynthesis.cancel(); } catch (e) {}
   flipSpeaking = false;
 
   if (!isFlipped) {
-    // 翻回正面 → 只念英文
     await flipSpeak(item.word, 'en-US');
   } else {
-    // 翻到背面 → 英文 + 中文释义 + 例句
     await flipSpeak(item.word, 'en-US');
-    if (flipSession !== flipSession) return;
     await flipSpeak(item.mean, 'zh-CN');
     if (item.sentenceEn) await flipSpeak(item.sentenceEn, 'en-US');
     if (item.sentenceCn) await flipSpeak(item.sentenceCn, 'zh-CN');
   }
 });
 
-// 关闭按钮
 flipClose.addEventListener('click', (e) => {
   e.stopPropagation();
   closeFlipCard();
 });
 
-// 点击遮罩关闭
 flipOverlay.addEventListener('click', (e) => {
   if (e.target === flipOverlay) closeFlipCard();
 });
@@ -1191,12 +1578,16 @@ document.getElementById('loadOnline').onclick = async () => {
   if (isLoading || now - lastClickTime < CLICK_DELAY) return;
   lastClickTime = now;
   isLoading = true;
-  loadStatus.innerText = '正在加载词库...';
 
   const selectIdx = Number(dictSelect.value);
   const dictItem = dictConfig[selectIdx];
   const fileList = dictItem.files;
   const failedFiles = [];
+  const total = fileList.length;
+  let doneCount = 0;
+
+  loadStatus.innerText = `正在加载 0/${total} ...`;
+  showProgress(0, total);
 
   const fetchPromises = fileList.map(filename =>
     fetch(`./${filename}`)
@@ -1208,9 +1599,18 @@ document.getElementById('loadOnline').onclick = async () => {
         if (Array.isArray(data)) return data;
         else throw new Error(`文件 ${filename} 不是数组`);
       })
+      .then(data => {
+        doneCount++;
+        loadStatus.innerText = `正在加载 ${doneCount}/${total} ...`;
+        showProgress(doneCount, total);
+        return data;
+      })
       .catch(err => {
         console.warn(`加载 ${filename} 失败：`, err);
         failedFiles.push(filename);
+        doneCount++;
+        loadStatus.innerText = `正在加载 ${doneCount}/${total} ...`;
+        showProgress(doneCount, total);
         return [];
       })
   );
@@ -1221,6 +1621,7 @@ document.getElementById('loadOnline').onclick = async () => {
     if (mergedWords.length === 0) {
       alert("加载失败：没有任何词库文件读取成功。\n请检查文件名是否和配置一致。");
       loadStatus.innerText = '加载失败，请检查文件';
+      hideProgress();
       isLoading = false;
       return;
     }
@@ -1247,21 +1648,18 @@ document.getElementById('loadOnline').onclick = async () => {
     buildCatalog();
 
     const successCount = results.filter(arr => arr.length > 0).length;
-    let statusText = `加载成功：${successCount}/${fileList.length} 个文件，共 ${wordList.length} 词`;
+    let statusText = `✅ 加载成功：${successCount}/${total} 个文件，共 ${wordList.length} 词`;
     if (failedFiles.length > 0) {
-      statusText += `\n失败：${failedFiles.join('、')}`;
+      statusText += `\n⚠️ 失败：${failedFiles.join('、')}`;
     }
     loadStatus.innerText = statusText;
-
-    let alertText = `词库【${dictItem.name}】加载完成\n成功文件：${successCount} 个\n单词总数：${wordList.length}\n上次背到第 ${currentIndex+1} 个`;
-    if (failedFiles.length > 0) {
-      alertText += `\n\n以下文件加载失败：\n${failedFiles.join('\n')}`;
-    }
-    alert(alertText);
+    hideProgress();
+    showToast(`词库加载成功 · ${wordList.length} 词`, 2000);
   } catch (e) {
     console.error(e);
     alert("加载出错，请检查控制台。");
     loadStatus.innerText = '加载出错';
+    hideProgress();
   } finally {
     isLoading = false;
   }
@@ -1273,13 +1671,13 @@ document.getElementById('jumpBtn').onclick = async function() {
   if (now - lastClickTime < CLICK_DELAY) return;
   lastClickTime = now;
 
-  if (wordList.length === 0) { alert("请先加载词库"); return; }
+  if (wordList.length === 0) { showToast('请先加载词库'); return; }
   if (switching) return;
 
   const raw = jumpIndex.value.trim();
-  if (!/^\d+$/.test(raw)) { alert("请输入正整数序号"); return; }
+  if (!/^\d+$/.test(raw)) { showToast('请输入正整数序号'); return; }
   const num = Number(raw);
-  if (num < 1 || num > wordList.length) { alert("超出范围"); return; }
+  if (num < 1 || num > wordList.length) { showToast('超出范围'); return; }
 
   running = false;
   resetSpeech();
@@ -1298,37 +1696,73 @@ document.getElementById('fileInput').onchange = function(e) {
   const files = Array.from(e.target.files);
   if (files.length === 0) return;
 
+  const total = files.length;
   let allWords = [];
   let done = 0;
-  loadStatus.innerText = '正在解析本地文件...';
+  let failed = 0;
+
+  loadStatus.innerText = `正在解析 0/${total} ...`;
+  showProgress(0, total);
 
   files.forEach(file => {
     const reader = new FileReader();
+
     reader.onload = evt => {
       try {
         const data = JSON.parse(evt.target.result);
         if (Array.isArray(data)) allWords = allWords.concat(data);
-      } catch (err) { console.warn(`${file.name} 解析失败：`, err); }
-      done++;
-      if (done === files.length) {
-        wordList = allWords;
-        currentIndex = 0;
-        running = false;
-        resetSpeech();
-        updateProgress();
-        if (wordList.length > 0) showWord(wordList[currentIndex]);
-        buildCatalog();
-        loadStatus.innerText = `本地词库加载成功：${wordList.length} 词`;
-        alert(`本地词库加载成功\n文件数：${files.length}\n单词总数：${wordList.length}`);
+        else failed++;
+      } catch (err) {
+        console.warn(`${file.name} 解析失败：`, err);
+        failed++;
       }
+      done++;
+      loadStatus.innerText = `正在解析 ${done}/${total} ...`;
+      showProgress(done, total);
+
+      if (done === total) finishLocalImport(allWords, files, failed);
     };
+
+    reader.onerror = () => {
+      console.warn(`${file.name} 读取失败`);
+      failed++;
+      done++;
+      loadStatus.innerText = `正在解析 ${done}/${total} ...`;
+      showProgress(done, total);
+      if (done === total) finishLocalImport(allWords, files, failed);
+    };
+
     reader.readAsText(file);
   });
 };
 
+function finishLocalImport(allWords, files, failed) {
+  hideProgress();
+
+  if (allWords.length === 0) {
+    loadStatus.innerText = '❌ 全部文件解析失败，请检查文件格式';
+    showToast('解析失败 · 请检查 JSON 格式');
+    return;
+  }
+
+  wordList = allWords;
+  currentIndex = 0;
+  running = false;
+  resetSpeech();
+  updateProgress();
+  if (wordList.length > 0) showWord(wordList[currentIndex]);
+  buildCatalog();
+
+  let statusText = `✅ 本地词库加载成功：${wordList.length} 词`;
+  if (failed > 0) statusText += `\n⚠️ ${failed} 个文件解析失败`;
+  statusText += `\n⚠️ 本地词库是一次性的，刷新后需要重新上传`;
+  loadStatus.innerText = statusText;
+  showToast(`导入成功 · ${wordList.length} 词`, 2200);
+}
+
 // ================= 开始/暂停 =================
 document.getElementById('startBtn').onclick = function() {
-  if (wordList.length === 0) { alert("请先加载词库！"); return; }
+  if (wordList.length === 0) { showToast('请先加载词库'); return; }
   if (running) return;
   running = true;
   resetSpeech();
@@ -1348,13 +1782,13 @@ document.getElementById('stopBtn').onclick = function() {
 
 // ================= 上一个/下一个 =================
 prevBtn.onclick = async function() {
-  if (wordList.length === 0) { alert("请先加载词库"); return; }
+  if (wordList.length === 0) { showToast('请先加载词库'); return; }
   if (switching) return;
   await prev();
 };
 
 nextBtn.onclick = async function() {
-  if (wordList.length === 0) { alert("请先加载词库"); return; }
+  if (wordList.length === 0) { showToast('请先加载词库'); return; }
   if (switching) return;
   if (running) running = false;
   resetSpeech();
@@ -1372,7 +1806,7 @@ nextBtn.onclick = async function() {
 
 // ================= 复习模式 =================
 document.getElementById('reviewLeast').onclick = async () => {
-  if (wordList.length === 0) { alert("请先加载词库"); return; }
+  if (wordList.length === 0) { showToast('请先加载词库'); return; }
   if (switching) return;
   running = false;
   resetSpeech();
@@ -1394,7 +1828,7 @@ document.getElementById('reviewLeast').onclick = async () => {
 };
 
 document.getElementById('reviewMost').onclick = async () => {
-  if (wordList.length === 0) { alert("请先加载词库"); return; }
+  if (wordList.length === 0) { showToast('请先加载词库'); return; }
   if (switching) return;
   running = false;
   resetSpeech();
@@ -1416,7 +1850,7 @@ document.getElementById('reviewMost').onclick = async () => {
 };
 
 document.getElementById('reviewUnseen').onclick = async () => {
-  if (wordList.length === 0) { alert("请先加载词库"); return; }
+  if (wordList.length === 0) { showToast('请先加载词库'); return; }
   if (switching) return;
   running = false;
   resetSpeech();
@@ -1434,7 +1868,7 @@ document.getElementById('reviewUnseen').onclick = async () => {
       reviewHint.innerText = `已跳到第 ${found+1} 个未看单词`;
     } else {
       reviewHint.innerText = '🎉 全部单词都看过了！';
-      alert('太棒了！全部单词都看过了 🎉');
+      showToast('🎉 全部单词都看过了', 1800);
     }
   } finally {
     switching = false;
