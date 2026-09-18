@@ -136,7 +136,7 @@ button:active{
 }
 input[type="number"]{
   padding:6px;
-  width:60px;
+  width:70px;
   border-radius:8px;
   border:1px solid #ccc;
 }
@@ -173,7 +173,7 @@ input[type="number"]{
       <label>朗读速率(0.5~2)：<input type="number" id="speechRate" value="1" min="0.5" max="2" step="0.1"></label>
     </div>
     <div>
-      <label><input type="checkbox" id="random" checked>随机顺序</label>
+      <label><input type="checkbox" id="random">随机顺序</label>
       <label><input type="checkbox" id="readMean" checked>朗读中文释义</label>
     </div>
     <div>
@@ -192,6 +192,7 @@ input[type="number"]{
 let wordList = [];
 let currentIndex = 0;
 let running = false;
+let isSpeaking = false;
 
 const domWord = document.getElementById('word');
 const domPhonetic = document.getElementById('phonetic');
@@ -234,15 +235,20 @@ function sleep(ms){
   return new Promise(res=>setTimeout(res,ms));
 }
 
-// 朗读函数：强制等待读完才返回，不会中途跳过
+// 朗读函数：一段读完才继续下一段，不会打断正在播放的语音
 async function speakText(text, lang="en-US"){
   if(!text) return;
-  // 不清除语音，保证完整读完当前句子
+  // 等待上一句读完
+  while(isSpeaking) await sleep(100);
+  isSpeaking = true;
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = lang;
   utter.rate = Number(speechRateInput.value) || 1;
   await new Promise(resolve => {
-    utter.onend = resolve;
+    utter.onend = ()=>{
+      isSpeaking = false;
+      resolve();
+    };
     speechSynthesis.speak(utter);
   });
 }
@@ -253,7 +259,7 @@ async function speakWordAudio(item){
   for(let i=0; i<readTimes; i++){
     await speakText(item.word, "en-US");
   }
-  // 读中文释义，必须读完才往下走
+  // 读中文释义
   if(readMeanCheck.checked && item.mean){
     await speakText(item.mean, "zh-CN");
   }
@@ -298,6 +304,7 @@ document.getElementById('startBtn').onclick = function(){
 document.getElementById('stopBtn').onclick = function(){
   running = false;
   speechSynthesis.cancel();
+  isSpeaking = false;
 }
 </script>
 </body>
