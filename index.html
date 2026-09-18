@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>单词卡片背诵</title>
+<title>单词背诵卡片</title>
 <style>
 *{
   margin: 0;
@@ -17,7 +17,7 @@ body{
   position: relative;
   overflow-x:hidden;
 }
-/* 粉蓝模糊泡泡背景，和截图样式一致 */
+/* 粉蓝模糊泡泡背景 */
 .bubble{
   position:absolute;
   border-radius:50%;
@@ -48,23 +48,22 @@ body{
 }
 h1{
   text-align:center;
-  font-size:24px;
+  font-size:28px;
   color:#333;
   margin-bottom:24px;
 }
 .ctrl{
   display:flex;
   flex-wrap:wrap;
-  gap:10px;
+  gap:12px;
   justify-content:center;
   margin-bottom:24px;
 }
 button{
   border:none;
-  padding:12px 20px;
+  padding:14px 24px;
   border-radius:999px;
-  background:#ffb8cc;
-  color:white;
+  font-size:16px;
   font-weight:bold;
   cursor:pointer;
   transition:0.2s;
@@ -76,6 +75,10 @@ button:active{
   background:#a8ddff;
   color:#222;
 }
+.btn-pink{
+  background:#ffb8cc;
+  color:white;
+}
 .card{
   background:#ffffffdd;
   border-radius:32px;
@@ -84,39 +87,40 @@ button:active{
   box-shadow:0 8px 24px rgba(0,0,0,0.06);
 }
 .word{
-  font-size:42px;
+  font-size:56px;
   font-weight:bold;
   color:#222;
   margin-bottom:12px;
 }
 .phonetic{
-  font-size:18px;
+  font-size:20px;
   color:#666;
-  margin-bottom:16px;
+  margin-bottom:20px;
 }
 .meaning{
-  font-size:22px;
+  font-size:26px;
   color:#444;
-  margin-bottom:16px;
+  margin-bottom:24px;
 }
 .sentence-en{
-  font-size:17px;
+  font-size:20px;
   color:#444;
   font-style:italic;
-  margin-bottom:8px;
+  margin-bottom:10px;
 }
 .sentence-cn{
-  font-size:16px;
+  font-size:18px;
   color:#666;
 }
 .setting-area{
   margin-top:24px;
   background:#ffffffaa;
   border-radius:24px;
-  padding:16px;
+  padding:20px;
+  line-height:2.2;
 }
 .file-input-wrap{
-  margin-top:16px;
+  margin-top:24px;
   text-align:center;
 }
 #fileInput{
@@ -124,10 +128,17 @@ button:active{
 }
 .file-label{
   display:inline-block;
-  padding:10px 18px;
+  padding:14px 24px;
   background:#a8ddff;
   border-radius:999px;
   cursor:pointer;
+  font-weight:bold;
+}
+input[type="number"]{
+  padding:6px;
+  width:60px;
+  border-radius:8px;
+  border:1px solid #ccc;
 }
 </style>
 </head>
@@ -139,8 +150,8 @@ button:active{
   <h1>单词背诵卡片</h1>
   <div class="ctrl">
     <button class="btn-blue" id="loadOnline">加载词库(联网)</button>
-    <button id="startBtn">开始自动刷词</button>
-    <button id="stopBtn">暂停</button>
+    <button class="btn-pink" id="startBtn">开始自动刷词</button>
+    <button class="btn-pink" id="stopBtn">暂停</button>
   </div>
 
   <div class="card">
@@ -154,8 +165,20 @@ button:active{
   <div class="setting-area">
     <div>
       <label>刷新间隔(秒)：<input type="number" id="interval" value="4" min="1"></label>
-      <label><input type="checkbox" id="random">随机顺序</label>
-      <label><input type="checkbox" id="readWord" checked>朗读单词</label>
+    </div>
+    <div>
+      <label>英文朗读次数：<input type="number" id="enReadCount" value="2" min="1"></label>
+    </div>
+    <div>
+      <label>朗读速率(0.5~2)：<input type="number" id="speechRate" value="1" min="0.5" max="2" step="0.1"></label>
+    </div>
+    <div>
+      <label><input type="checkbox" id="random" checked>随机顺序</label>
+      <label><input type="checkbox" id="readMean" checked>朗读中文释义</label>
+    </div>
+    <div>
+      <label><input type="checkbox" id="readSenEn">朗读英文例句</label>
+      <label><input type="checkbox" id="readSenCn">朗读例句中文</label>
     </div>
   </div>
 
@@ -177,9 +200,13 @@ const domSenEn = document.getElementById('senEn');
 const domSenCn = document.getElementById('senCn');
 const intervalInput = document.getElementById('interval');
 const randomCheck = document.getElementById('random');
-const readCheck = document.getElementById('readWord');
+const enReadCountInput = document.getElementById('enReadCount');
+const speechRateInput = document.getElementById('speechRate');
+const readMeanCheck = document.getElementById('readMean');
+const readSenEnCheck = document.getElementById('readSenEn');
+const readSenCnCheck = document.getElementById('readSenCn');
 
-// 联网加载词库，读取仓库里 wordlist.json
+// 联网加载词库
 document.getElementById('loadOnline').onclick = async ()=>{
   try{
     const res = await fetch("./wordlist.json");
@@ -207,12 +234,37 @@ function sleep(ms){
   return new Promise(res=>setTimeout(res,ms));
 }
 
-async function speak(text){
-  if(!readCheck.checked || !text) return;
-  window.speechSynthesis.cancel();
+// 朗读函数：强制等待读完才返回，不会中途跳过
+async function speakText(text, lang="en-US"){
+  if(!text) return;
+  // 不清除语音，保证完整读完当前句子
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "en-US";
-  await new Promise(r=>{utter.onend=r; window.speechSynthesis.speak(utter)});
+  utter.lang = lang;
+  utter.rate = Number(speechRateInput.value) || 1;
+  await new Promise(resolve => {
+    utter.onend = resolve;
+    speechSynthesis.speak(utter);
+  });
+}
+
+async function speakWordAudio(item){
+  // 重复读英文单词N遍
+  const readTimes = Number(enReadCountInput.value) || 2;
+  for(let i=0; i<readTimes; i++){
+    await speakText(item.word, "en-US");
+  }
+  // 读中文释义，必须读完才往下走
+  if(readMeanCheck.checked && item.mean){
+    await speakText(item.mean, "zh-CN");
+  }
+  // 读英文例句
+  if(readSenEnCheck.checked && item.sentenceEn){
+    await speakText(item.sentenceEn, "en-US");
+  }
+  // 读例句中文
+  if(readSenCnCheck.checked && item.sentenceCn){
+    await speakText(item.sentenceCn, "zh-CN");
+  }
 }
 
 async function showWord(item){
@@ -221,7 +273,7 @@ async function showWord(item){
   domMean.innerText = item.mean || "";
   domSenEn.innerText = item.sentenceEn || "";
   domSenCn.innerText = item.sentenceCn || "";
-  await speak(item.word);
+  await speakWordAudio(item);
   if(running){
     await sleep(Number(intervalInput.value)*1000);
     next();
