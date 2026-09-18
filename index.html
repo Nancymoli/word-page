@@ -1,4 +1,4 @@
-<!-- v=1.0 -->
+<!-- v=1.4 增加小学/初中/高中词库，全部7套词库，每个词库独立记忆背诵断点 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<title>小张刷英语·CET4</title>
+<title>小张刷英语</title>
 <style>
 *{
   margin: 0;
@@ -57,6 +57,11 @@ body{
   font-weight:600;
   color:#333;
 }
+.progress-text{
+  margin-top:6px;
+  font-size:16px;
+  color:#555;
+}
 /* 顶部按钮组 */
 .ctrl{
   position:relative;
@@ -66,6 +71,26 @@ body{
   gap:10px;
   justify-content:center;
   margin:14px 12px 18px;
+  align-items:center;
+}
+#dictSelect{
+  padding:10px 14px;
+  border-radius:999px;
+  border:none;
+  font-size:16px;
+}
+.jump-area{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+#jumpIndex{
+  width:80px;
+  padding:10px;
+  border-radius:999px;
+  border:none;
+  font-size:16px;
+  text-align:center;
 }
 button{
   border:none;
@@ -89,6 +114,10 @@ button:active{
 }
 .btn-green{
   background:#9de0c4;
+  color:#222;
+}
+.btn-orange{
+  background:#ffd29d;
   color:#222;
 }
 /* 单词主卡片 */
@@ -221,11 +250,17 @@ button:active{
 <div class="bubble bubble2"></div>
 
 <div class="top-title">
-  <h2>📖 小张刷英语 · CET4</h2>
+  <h2>📖 小张刷英语</h2>
+  <div class="progress-text" id="progressText">进度：0 / 0</div>
 </div>
 
 <div class="ctrl">
-  <button class="btn-blue" id="loadOnline">加载四级词库（联网）</button>
+  <select id="dictSelect"></select>
+  <button class="btn-blue" id="loadOnline">加载选中词库</button>
+  <div class="jump-area">
+    <input type="number" id="jumpIndex" placeholder="跳到第几个">
+    <button class="btn-orange" id="jumpBtn">跳转</button>
+  </div>
   <button class="btn-pink" id="startBtn">开始刷词</button>
   <button class="btn-green" id="stopBtn">暂停</button>
 </div>
@@ -233,9 +268,9 @@ button:active{
 <div class="container">
   <div class="card">
     <div class="word" id="word">等待加载单词</div>
-    <div class="meaning-tag" id="meaning">adj.大量的，丰富的</div>
-    <div class="sentence-en" id="senEn">There is abundant water resource in this area.</div>
-    <div class="sentence-cn" id="senCn">这个地区水资源丰富。</div>
+    <div class="meaning-tag" id="meaning">--</div>
+    <div class="sentence-en" id="senEn">--</div>
+    <div class="sentence-cn" id="senCn">--</div>
   </div>
 
   <div class="setting-area">
@@ -283,6 +318,38 @@ let currentIndex = 0;
 let running = false;
 let isSpeaking = false;
 
+// 词库配置：小学、初中、高中、四级、六级、考研、雅思
+const dictConfig = [
+  {
+    name: "小学词汇",
+    files: ["primarylist.json"]
+  },
+  {
+    name: "初中词汇",
+    files: ["juniorlist.json"]
+  },
+  {
+    name: "高中词汇",
+    files: ["seniorlist.json"]
+  },
+  {
+    name: "四级词汇 4000词（单文件）",
+    files: ["cet4list.json"]
+  },
+  {
+    name: "六级词汇",
+    files: ["cet6list.json"]
+  },
+  {
+    name: "考研词汇",
+    files: ["kaoyanlist.json"]
+  },
+  {
+    name: "雅思词汇",
+    files: ["ieltslist.json"]
+  }
+];
+
 const domWord = document.getElementById('word');
 const domMean = document.getElementById('meaning');
 const domSenEn = document.getElementById('senEn');
@@ -290,6 +357,9 @@ const domSenCn = document.getElementById('senCn');
 const intervalInput = document.getElementById('interval');
 const enReadCountInput = document.getElementById('enReadCount');
 const speechRateInput = document.getElementById('speechRate');
+const dictSelect = document.getElementById('dictSelect');
+const progressText = document.getElementById('progressText');
+const jumpIndex = document.getElementById('jumpIndex');
 
 // 开关DOM
 const randomSwitch = document.getElementById('randomSwitch');
@@ -297,22 +367,64 @@ const readEnSwitch = document.getElementById('readEnSwitch');
 const readMeanSwitch = document.getElementById('readMeanSwitch');
 const readSenSwitch = document.getElementById('readSenSwitch');
 
+// 填充下拉选项
+dictConfig.forEach((item, idx)=>{
+  const opt = document.createElement('option');
+  opt.value = idx;
+  opt.innerText = item.name;
+  dictSelect.appendChild(opt);
+})
+
 // 开关点击事件
 randomSwitch.onclick = ()=> randomSwitch.classList.toggle("active");
 readEnSwitch.onclick = ()=> readEnSwitch.classList.toggle("active");
 readMeanSwitch.onclick = ()=> readMeanSwitch.classList.toggle("active");
 readSenSwitch.onclick = ()=> readSenSwitch.classList.toggle("active");
 
-// 联网加载 cet4list.json
+// 更新进度文字 & 保存当前索引（每个词库独立保存断点）
+function updateProgress(){
+  progressText.innerText = `进度：${currentIndex+1} / ${wordList.length}`;
+  const selectIdx = Number(dictSelect.value);
+  localStorage.setItem(`memIndex_${selectIdx}`, currentIndex);
+}
+
+// 加载选中词库
 document.getElementById('loadOnline').onclick = async ()=>{
+  const selectIdx = Number(dictSelect.value);
+  const dictItem = dictConfig[selectIdx];
+  const fileList = dictItem.files;
+  let mergedWords = [];
   try{
-    const res = await fetch("./cet4list.json");
-    wordList = await res.json();
-    currentIndex = 0;
-    alert(`词库加载完成，一共${wordList.length}个四级单词`);
+    for(const filename of fileList){
+      const res = await fetch(`./${filename}`);
+      const arr = await res.json();
+      mergedWords = mergedWords.concat(arr);
+    }
+    wordList = mergedWords;
+    // 读取该词库上次背诵位置
+    const saved = localStorage.getItem(`memIndex_${selectIdx}`);
+    if(saved !== null){
+      currentIndex = Math.min(Number(saved), wordList.length -1);
+    }else{
+      currentIndex = 0;
+    }
+    updateProgress();
+    showWord(wordList[currentIndex]);
+    alert(`词库【${dictItem.name}】加载完成，一共${wordList.length}个单词\n上次背到第${currentIndex+1}个`);
   }catch(e){
-    alert("加载失败，请确认仓库根目录存在 cet4list.json");
+    console.error(e);
+    alert("加载失败，请确认文件存在！\n文件列表："+fileList.join(","));
   }
+}
+
+// 跳转按钮
+document.getElementById('jumpBtn').onclick = function(){
+  const num = Number(jumpIndex.value);
+  if(wordList.length ===0){alert("请先加载词库");return;}
+  if(num <1 || num > wordList.length){alert("超出范围");return;}
+  currentIndex = num -1;
+  updateProgress();
+  showWord(wordList[currentIndex]);
 }
 
 // 本地导入json
@@ -322,6 +434,8 @@ document.getElementById('fileInput').onchange = function(e){
     const data = JSON.parse(evt.target.result);
     wordList = data;
     currentIndex = 0;
+    updateProgress();
+    showWord(wordList[currentIndex]);
     alert(`本地词库加载成功，共${wordList.length}个单词`);
   }
   reader.readAsText(e.target.files[0]);
@@ -386,11 +500,12 @@ function next(){
   }else{
     currentIndex = (currentIndex+1) % wordList.length;
   }
+  updateProgress();
   showWord(wordList[currentIndex]);
 }
 
 document.getElementById('startBtn').onclick = function(){
-  if(wordList.length ===0){alert("请先加载四级词库！");return;}
+  if(wordList.length ===0){alert("请先加载词库！");return;}
   running=true;
   next();
 }
