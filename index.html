@@ -9,9 +9,7 @@
 <title>小张刷英语 · ADHD友好版</title>
 <style>
 *{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  margin: 0; padding: 0; box-sizing: border-box;
   font-family: system-ui, -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
@@ -30,14 +28,12 @@ body{
 }
 body::before{
   content: "";
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0;
   background:
     radial-gradient(circle at 12% 8%, rgba(255, 224, 200, 0.55) 0%, transparent 38%),
     radial-gradient(circle at 88% 18%, rgba(230, 220, 255, 0.45) 0%, transparent 38%),
     radial-gradient(circle at 50% 100%, rgba(255, 240, 220, 0.6) 0%, transparent 45%);
-  pointer-events: none;
-  z-index: 0;
+  pointer-events: none; z-index: 0;
 }
 .deco{
   position: fixed; z-index: 1;
@@ -65,7 +61,6 @@ body::before{
   color: #b0a396; letter-spacing: 0.5px;
 }
 
-/* 控制区 */
 .ctrl{
   position: relative; z-index: 2;
   display: flex; flex-direction: column; gap: 10px;
@@ -141,7 +136,6 @@ button:active{ transform: scale(0.95); filter: brightness(0.98); }
 button:disabled{ opacity:0.5; pointer-events:none; }
 button.speaking{ opacity:0.55; pointer-events:none; }
 
-/* 内容容器 */
 .container{
   position: relative; z-index: 2;
   padding: 0 16px; max-width: 600px; margin: 0 auto;
@@ -210,7 +204,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   flex: 0 1 auto;
 }
 
-/* 复习快捷栏（2×2 网格） */
 .review-bar{
   margin-top: 18px;
   background: #ffffff;
@@ -241,7 +234,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   letter-spacing: 0.3px;
 }
 
-/* 设置区 */
 .setting-area{
   margin-top: 18px;
   background: #ffffff;
@@ -282,7 +274,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
 .switch.active{ background: #c9d8e8; }
 .switch.active::after{ left: 21px; }
 
-/* 导入区 */
 .import-wrap{ margin-top: 22px; text-align: center; position: relative; z-index: 2; }
 .import-btn{
   display: inline-block;
@@ -302,7 +293,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   white-space: pre-line;
 }
 
-/* 目录面板 */
 .catalog-panel{
   margin-top: 18px;
   background: #ffffff;
@@ -397,7 +387,155 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   grid-column: 1 / -1; letter-spacing: 0.3px;
 }
 
-/* 深色模式 */
+/* ===== 翻转卡片浮层 ===== */
+.flip-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(90, 80, 70, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  padding-top: calc(24px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+.flip-overlay.active{
+  display: flex;
+  animation: overlayIn 0.2s ease;
+}
+@keyframes overlayIn{
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.flip-wrap{
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 1 / 1;
+  perspective: 1200px;
+}
+.flip-card{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+  cursor: pointer;
+}
+.flip-card.flipped{
+  transform: rotateY(180deg);
+}
+.flip-face{
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 22px;
+  text-align: center;
+  box-shadow:
+    0 16px 40px rgba(120, 100, 80, 0.22),
+    0 2px 8px rgba(120, 100, 80, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+}
+.flip-front{
+  background: #ffffff;
+}
+.flip-front .flip-word{
+  font-size: 40px;
+  font-weight: 800;
+  color: #6a5a4a;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  word-break: break-word;
+  max-width: 100%;
+}
+.flip-front .flip-hint{
+  margin-top: 20px;
+  font-size: 12px;
+  color: #c8bbac;
+  letter-spacing: 1px;
+}
+.flip-back{
+  background: #fdf8f1;
+  transform: rotateY(180deg);
+}
+.flip-back .flip-word-back{
+  font-size: 24px;
+  font-weight: 800;
+  color: #6a5a4a;
+  margin-bottom: 12px;
+  word-break: break-word;
+  max-width: 100%;
+}
+.flip-back .flip-mean{
+  font-size: 17px;
+  font-weight: 600;
+  color: #a8885a;
+  background: #fff2e6;
+  padding: 8px 20px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+  max-width: 100%;
+  word-break: break-word;
+}
+.flip-back .flip-sen-en{
+  font-size: 13px;
+  color: #6a5a4a;
+  line-height: 1.6;
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+.flip-back .flip-sen-cn{
+  font-size: 12px;
+  color: #a8988a;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.flip-close{
+  position: absolute;
+  top: -56px;
+  right: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  font-size: 18px;
+  color: #a8988a;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(120, 100, 80, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s;
+  padding: 0;
+  font-weight: 600;
+}
+.flip-close:active{ transform: scale(0.92); }
+
+.flip-badge{
+  position: absolute;
+  top: -46px;
+  left: 0;
+  background: #fff2e6;
+  color: #a8885a;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: 1px solid #fde8d4;
+}
+.flip-badge .num{ color: #c89468; font-weight: 800; }
+
 @media (prefers-color-scheme: dark) {
   body{ background: #2a2620; color: #d8cfc2; }
   body::before{
@@ -449,6 +587,17 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   .view-badge .num{ color:#e8c898; }
   .view-badge.high{ background:#4a3a42; color:#d8b8c4; border-color:#5a4a52; }
   .view-badge.high .num{ color:#e8a8c0; }
+
+  .flip-front{ background: #3a342c; }
+  .flip-front .flip-word{ color: #f0e6d8; }
+  .flip-back{ background: #443c32; }
+  .flip-back .flip-word-back{ color: #e0d5c4; }
+  .flip-back .flip-mean{ background: #4a4238; color: #d8c8a8; }
+  .flip-back .flip-sen-en{ color: #d8cfc2; }
+  .flip-back .flip-sen-cn{ color: #a89c8c; }
+  .flip-close{ background: #4a4238; color: #c8bfb0; }
+  .flip-badge{ background:#4a4238; color:#d8c8a8; border-color:#5a5044; }
+  .flip-badge .num{ color:#e8c898; }
 }
 </style>
 </head>
@@ -555,6 +704,26 @@ button.speaking{ opacity:0.55; pointer-events:none; }
   </div>
 </div>
 
+<!-- 翻转卡片浮层 -->
+<div class="flip-overlay" id="flipOverlay">
+  <div class="flip-wrap">
+    <div class="flip-badge">已看 <span class="num" id="flipCount">0</span> 次</div>
+    <button class="flip-close" id="flipClose">✕</button>
+    <div class="flip-card" id="flipCard">
+      <div class="flip-face flip-front">
+        <div class="flip-word" id="flipWordFront">—</div>
+        <div class="flip-hint">点击翻转 · 查看释义</div>
+      </div>
+      <div class="flip-face flip-back">
+        <div class="flip-word-back" id="flipWordBack">—</div>
+        <div class="flip-mean" id="flipMean">—</div>
+        <div class="flip-sen-en" id="flipSenEn">—</div>
+        <div class="flip-sen-cn" id="flipSenCn">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ================= 全局状态 =================
 let wordList = [];
@@ -615,6 +784,17 @@ const viewBadge = document.getElementById('viewBadge');
 const reviewHint = document.getElementById('reviewHint');
 
 const cardContent = document.getElementById('cardContent');
+
+// 翻转浮层 DOM
+const flipOverlay = document.getElementById('flipOverlay');
+const flipCard = document.getElementById('flipCard');
+const flipClose = document.getElementById('flipClose');
+const flipWordFront = document.getElementById('flipWordFront');
+const flipWordBack = document.getElementById('flipWordBack');
+const flipMean = document.getElementById('flipMean');
+const flipSenEn = document.getElementById('flipSenEn');
+const flipSenCn = document.getElementById('flipSenCn');
+const flipCount = document.getElementById('flipCount');
 
 // ================= 初始化下拉框 =================
 dictConfig.forEach((item, idx) => {
@@ -758,19 +938,9 @@ function buildCatalog() {
       <div class="word-cn">${mean || ''}</div>
       ${count > 0 ? `<span class="badge">${count}</span>` : ''}
     `;
-    div.addEventListener('click', async () => {
-      if (originalIndex === currentIndex) return;
-      if (switching) return;
-      running = false;
-      resetSpeech();
-      switching = true;
-      try {
-        currentIndex = originalIndex;
-        updateProgress();
-        await showWord(wordList[currentIndex]);
-      } finally {
-        switching = false;
-      }
+    div.addEventListener('click', () => {
+      // ★ 打开独立翻转浮层
+      openFlipCard(wordList[originalIndex]);
     });
     fragment.appendChild(div);
   });
@@ -778,7 +948,7 @@ function buildCatalog() {
   highlightCatalogItem();
 }
 
-// ================= 语音 =================
+// ================= 主页面语音 =================
 function resetSpeech() {
   try { window.speechSynthesis.cancel(); } catch (e) {}
   isSpeaking = false;
@@ -828,7 +998,7 @@ async function speakWordAudio(item, session) {
   }
 }
 
-// ================= 显示单词 =================
+// ================= 主页面显示单词 =================
 async function showWord(item) {
   if (!item) return;
   const session = displaySession;
@@ -894,6 +1064,127 @@ async function prev() {
   }
 }
 
+// ================= 翻转浮层 =================
+let flipSession = 0;
+let flipSpeaking = false;
+let flipToken = 0;
+let flipCurrentItem = null;
+
+async function openFlipCard(item) {
+  if (!item) return;
+
+  // ★ 先掐断主页面语音和自动播放
+  running = false;
+  displaySession++;
+  try { window.speechSynthesis.cancel(); } catch (e) {}
+  isSpeaking = false;
+
+  // ★ 浮层自己的会话开始
+  flipSession++;
+  flipToken++;
+  flipSpeaking = false;
+  flipCurrentItem = item;
+
+  // 填充内容
+  flipWordFront.innerText = item.word || '—';
+  flipWordBack.innerText = item.word || '—';
+  flipMean.innerText = item.mean || '—';
+  flipSenEn.innerText = item.sentenceEn || '';
+  flipSenCn.innerText = item.sentenceCn || '';
+  flipCount.innerText = getViewCount(item.word);
+
+  // 重置翻转状态（正面朝前）
+  flipCard.classList.remove('flipped');
+
+  // 显示浮层
+  flipOverlay.classList.add('active');
+
+  // 读正面（只念英文）
+  await flipSpeak(item.word, 'en-US');
+}
+
+function closeFlipCard() {
+  flipSession++;
+  flipToken++;
+  try { window.speechSynthesis.cancel(); } catch (e) {}
+  flipSpeaking = false;
+  flipOverlay.classList.remove('active');
+  flipCard.classList.remove('flipped');
+  flipCurrentItem = null;
+}
+
+async function flipSpeak(text, lang = 'en-US') {
+  if (!text || !('speechSynthesis' in window)) return;
+  const mySession = flipSession;
+  const myToken = ++flipToken;
+
+  let waitCount = 0;
+  while (flipSpeaking && waitCount < 20) {
+    await sleep(100);
+    waitCount++;
+  }
+  if (myToken !== flipToken || mySession !== flipSession) return;
+
+  flipSpeaking = true;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  utter.rate = Number(speechRateInput.value) || 1;
+
+  return new Promise((resolve) => {
+    utter.onend = () => {
+      if (myToken === flipToken) flipSpeaking = false;
+      resolve();
+    };
+    utter.onerror = () => {
+      if (myToken === flipToken) flipSpeaking = false;
+      resolve();
+    };
+    try {
+      window.speechSynthesis.speak(utter);
+    } catch (e) {
+      flipSpeaking = false;
+      resolve();
+    }
+  });
+}
+
+// 翻转卡片点击
+flipCard.addEventListener('click', async (e) => {
+  if (e.target === flipClose) return;
+  const item = flipCurrentItem;
+  if (!item) return;
+
+  const isFlipped = flipCard.classList.toggle('flipped');
+
+  // ★ 掐断当前语音，播放新一面的内容
+  flipToken++;
+  try { window.speechSynthesis.cancel(); } catch (e) {}
+  flipSpeaking = false;
+
+  if (!isFlipped) {
+    // 翻回正面 → 只念英文
+    await flipSpeak(item.word, 'en-US');
+  } else {
+    // 翻到背面 → 英文 + 中文释义 + 例句
+    await flipSpeak(item.word, 'en-US');
+    if (flipSession !== flipSession) return;
+    await flipSpeak(item.mean, 'zh-CN');
+    if (item.sentenceEn) await flipSpeak(item.sentenceEn, 'en-US');
+    if (item.sentenceCn) await flipSpeak(item.sentenceCn, 'zh-CN');
+  }
+});
+
+// 关闭按钮
+flipClose.addEventListener('click', (e) => {
+  e.stopPropagation();
+  closeFlipCard();
+});
+
+// 点击遮罩关闭
+flipOverlay.addEventListener('click', (e) => {
+  if (e.target === flipOverlay) closeFlipCard();
+});
+
 // ================= 加载词库 =================
 document.getElementById('loadOnline').onclick = async () => {
   const now = Date.now();
@@ -905,7 +1196,6 @@ document.getElementById('loadOnline').onclick = async () => {
   const selectIdx = Number(dictSelect.value);
   const dictItem = dictConfig[selectIdx];
   const fileList = dictItem.files;
-
   const failedFiles = [];
 
   const fetchPromises = fileList.map(filename =>
