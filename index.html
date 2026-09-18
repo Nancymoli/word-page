@@ -406,7 +406,7 @@ button:active{ transform: scale(0.95); filter: brightness(0.98); }
 button:disabled{ opacity:0.5; pointer-events:none; }
 button.speaking{ opacity:0.55; pointer-events:none; }
 
-/* ★ 进度条：在加载按钮正下方 */
+/* 进度条：在加载按钮正下方 */
 .progress-bar{
   margin: 0 auto;
   width: 100%;
@@ -1127,7 +1127,6 @@ button.speaking{ opacity:0.55; pointer-events:none; }
     <button class="btn-blue" id="loadOnline">加载词库</button>
   </div>
 
-  <!-- ★ 进度条：在加载按钮正下方 -->
   <div class="progress-bar" id="progressBar">
     <div class="progress-bar-track">
       <div class="progress-bar-fill" id="progressFill"></div>
@@ -1642,7 +1641,7 @@ function renderCatalog() {
   if (catalogGridWrap) catalogGridWrap.scrollTop = savedScroll;
 }
 
-// ================= 语音：系统默认 =================
+// ================= 语音：系统默认，标准语言标记 =================
 function resetSpeech() {
   try { window.speechSynthesis.cancel(); } catch (e) {}
   isSpeaking = false;
@@ -1660,10 +1659,11 @@ async function speakText(text, lang = "en-US") {
 
   isSpeaking = true;
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = lang;
-  // 系统默认声音（不指定 voice）
+  // ★ 强制标准语言标记
+  utter.lang = lang.toLowerCase().startsWith('zh') ? 'zh-CN' : 'en-US';
   utter.pitch = 1.0;
-  utter.rate = (Number(speechRateInput.value) || 1) * 0.88;
+  // ★ 直接用用户设置的语速，不做 0.88 打折
+  utter.rate = Number(speechRateInput.value) || 1;
   utter.volume = 1;
 
   return new Promise((resolve) => {
@@ -1832,10 +1832,10 @@ async function flipSpeak(text, lang = 'en-US') {
 
   flipSpeaking = true;
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = lang;
-  // 系统默认声音
+  // ★ 强制标准语言标记
+  utter.lang = lang.toLowerCase().startsWith('zh') ? 'zh-CN' : 'en-US';
   utter.pitch = 1.0;
-  utter.rate = (Number(speechRateInput.value) || 1) * 0.88;
+  utter.rate = Number(speechRateInput.value) || 1;
   utter.volume = 1;
 
   return new Promise((resolve) => {
@@ -1878,7 +1878,6 @@ flipOverlay.addEventListener('click', (e) => {
   if (e.target === flipOverlay) closeFlipCard();
 });
 
-// ================= 加载词库（快速） =================
 document.getElementById('loadOnline').onclick = async () => {
   const now = Date.now();
   if (isLoading || now - lastClickTime < CLICK_DELAY) return;
